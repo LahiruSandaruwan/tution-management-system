@@ -1,0 +1,11 @@
+{
+    "name": "Tuition Admin Dashboard",
+    "short_name": "Tuition Admin",
+    "start_url": ".",
+    "display": "standalone",
+    "background_color": "#0175C2",
+    "theme_color": "#0175C2",
+    "description": "Admin Dashboard for Tuition Management System",
+    "orientation": "portrait-primary",
+    "prefer_related_applications": false
+}
