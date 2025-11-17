@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Route;
 // Public routes
 Route::post('/auth/register', [App\Http\Controllers\Api\AuthController::class, 'register']);
 Route::post('/auth/login', [App\Http\Controllers\Api\AuthController::class, 'login']);
+Route::post('/auth/forgot-password', [App\Http\Controllers\Api\AuthController::class, 'forgotPassword']);
+Route::post('/auth/reset-password', [App\Http\Controllers\Api\AuthController::class, 'resetPassword']);
 
 // RFID Gate API routes (protected by API key)
 Route::prefix('gate')->middleware('gate.api.key')->group(function () {
@@ -20,6 +22,7 @@ Route::middleware(['auth:sanctum', 'institute'])->group(function () {
     // Auth routes
     Route::post('/auth/logout', [App\Http\Controllers\Api\AuthController::class, 'logout']);
     Route::get('/auth/me', [App\Http\Controllers\Api\AuthController::class, 'me']);
+    Route::post('/auth/change-password', [App\Http\Controllers\Api\AuthController::class, 'changePassword']);
 
     // Dashboard routes
     Route::get('/dashboard/stats', [App\Http\Controllers\Api\DashboardController::class, 'stats']);

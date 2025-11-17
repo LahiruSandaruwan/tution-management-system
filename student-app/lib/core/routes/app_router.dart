@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../features/auth/providers/auth_provider.dart';
 import '../../features/auth/screens/login_screen.dart';
+import '../../features/auth/screens/forgot_password_screen.dart';
+import '../../features/auth/screens/reset_password_screen.dart';
 import '../../features/notifications/screens/notifications_screen.dart';
 import '../../features/grades/screens/grades_screen.dart';
 import '../widgets/main_layout.dart';
@@ -15,14 +17,17 @@ final routerProvider = Provider<GoRouter>((ref) {
     redirect: (context, state) {
       final isAuthenticated = authState.isAuthenticated;
       final isLoginRoute = state.matchedLocation == '/login';
+      final isForgotPasswordRoute = state.matchedLocation == '/forgot-password';
+      final isResetPasswordRoute = state.matchedLocation == '/reset-password';
+      final isPublicRoute = isLoginRoute || isForgotPasswordRoute || isResetPasswordRoute;
 
-      // Redirect to login if not authenticated and not already on login page
-      if (!isAuthenticated && !isLoginRoute) {
+      // Redirect to login if not authenticated and not on a public route
+      if (!isAuthenticated && !isPublicRoute) {
         return '/login';
       }
 
-      // Redirect to home if authenticated and on login page
-      if (isAuthenticated && isLoginRoute) {
+      // Redirect to home if authenticated and on a public route
+      if (isAuthenticated && isPublicRoute) {
         return '/';
       }
 
@@ -32,6 +37,17 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/login',
         builder: (context, state) => const LoginScreen(),
+      ),
+      GoRoute(
+        path: '/forgot-password',
+        builder: (context, state) => const ForgotPasswordScreen(),
+      ),
+      GoRoute(
+        path: '/reset-password',
+        builder: (context, state) {
+          final email = state.uri.queryParameters['email'];
+          return ResetPasswordScreen(email: email);
+        },
       ),
       GoRoute(
         path: '/',

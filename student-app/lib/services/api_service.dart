@@ -86,6 +86,62 @@ class ApiService {
     return User.fromJson(response.data['data']);
   }
 
+  Future<Map<String, dynamic>> forgotPassword(String email) async {
+    try {
+      final response = await _dio.post('/auth/forgot-password', data: {
+        'email': email,
+      });
+      return response.data;
+    } catch (e) {
+      if (e is DioException && e.response != null) {
+        return e.response!.data;
+      }
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>> resetPassword({
+    required String email,
+    required String token,
+    required String password,
+    required String passwordConfirmation,
+  }) async {
+    try {
+      final response = await _dio.post('/auth/reset-password', data: {
+        'email': email,
+        'token': token,
+        'password': password,
+        'password_confirmation': passwordConfirmation,
+      });
+      return response.data;
+    } catch (e) {
+      if (e is DioException && e.response != null) {
+        return e.response!.data;
+      }
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>> changePassword({
+    required String currentPassword,
+    required String password,
+    required String passwordConfirmation,
+  }) async {
+    try {
+      final response = await _dio.post('/auth/change-password', data: {
+        'current_password': currentPassword,
+        'password': password,
+        'password_confirmation': passwordConfirmation,
+      });
+      return response.data;
+    } catch (e) {
+      if (e is DioException && e.response != null) {
+        return e.response!.data;
+      }
+      rethrow;
+    }
+  }
+
   // ====================== ATTENDANCE ENDPOINTS ======================
 
   Future<AttendanceSummary> getAttendanceSummary({
