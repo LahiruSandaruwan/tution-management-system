@@ -434,8 +434,8 @@ tution-management-system/
 | **Class Management** | ✅ | ✅ | Complete |
 | **Attendance** | ✅ | ✅ | **Complete** - Real API integration |
 | **Payments** | ✅ | ✅ | **Complete** - Real API integration |
-| **Grades** | ✅ | ⚠️ UI only | Needs API connection |
-| **Schedules** | ✅ | ⚠️ UI only | Needs API connection |
+| **Grades** | ✅ | ⚠️ UI only | **Backend Complete** - Needs UI connection |
+| **Schedules** | ✅ | ⚠️ UI only | **Backend Complete** - Needs UI connection |
 | **Notifications** | ✅ | ⚠️ UI only | Needs API connection |
 | **RFID Gate** | ✅ | ✅ | Complete |
 | **Dashboard Stats** | ✅ | ✅ | **Complete** - Real API integration |
