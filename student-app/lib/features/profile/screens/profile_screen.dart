@@ -1,13 +1,260 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../auth/providers/auth_provider.dart';
+import '../../../providers/api_provider.dart';
 
-class ProfileScreen extends ConsumerWidget {
+class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends ConsumerState<ProfileScreen> {
+  final ImagePicker _picker = ImagePicker();
+  bool _isUploading = false;
+
+  Future<void> _pickAndUploadImage() async {
+    try {
+      final XFile? image = await _picker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 1024,
+        maxHeight: 1024,
+        imageQuality: 85,
+      );
+
+      if (image == null) return;
+
+      setState(() {
+        _isUploading = true;
+      });
+
+      final apiService = ref.read(apiProvider);
+      final response = await apiService.uploadProfilePhoto(image.path);
+
+      if (response['success'] == true) {
+        // Refresh user data to get updated photo URL
+        await ref.read(authProvider.notifier).refreshUser();
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Profile photo updated successfully'),
+              backgroundColor: AppTheme.successColor,
+            ),
+          );
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(response['message'] ?? 'Failed to upload photo'),
+              backgroundColor: AppTheme.errorColor,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: ${e.toString()}'),
+            backgroundColor: AppTheme.errorColor,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isUploading = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _takePhoto() async {
+    try {
+      final XFile? image = await _picker.pickImage(
+        source: ImageSource.camera,
+        maxWidth: 1024,
+        maxHeight: 1024,
+        imageQuality: 85,
+      );
+
+      if (image == null) return;
+
+      setState(() {
+        _isUploading = true;
+      });
+
+      final apiService = ref.read(apiProvider);
+      final response = await apiService.uploadProfilePhoto(image.path);
+
+      if (response['success'] == true) {
+        // Refresh user data to get updated photo URL
+        await ref.read(authProvider.notifier).refreshUser();
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Profile photo updated successfully'),
+              backgroundColor: AppTheme.successColor,
+            ),
+          );
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(response['message'] ?? 'Failed to upload photo'),
+              backgroundColor: AppTheme.errorColor,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: ${e.toString()}'),
+            backgroundColor: AppTheme.errorColor,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isUploading = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _deletePhoto() async {
+    try {
+      setState(() {
+        _isUploading = true;
+      });
+
+      final apiService = ref.read(apiProvider);
+      final response = await apiService.deleteProfilePhoto();
+
+      if (response['success'] == true) {
+        // Refresh user data to remove photo URL
+        await ref.read(authProvider.notifier).refreshUser();
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Profile photo removed successfully'),
+              backgroundColor: AppTheme.successColor,
+            ),
+          );
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(response['message'] ?? 'Failed to delete photo'),
+              backgroundColor: AppTheme.errorColor,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: ${e.toString()}'),
+            backgroundColor: AppTheme.errorColor,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isUploading = false;
+        });
+      }
+    }
+  }
+
+  void _showPhotoOptions() {
+    final authState = ref.read(authProvider);
+    final hasPhoto = authState.user?.profilePhoto != null;
+
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.photo_library),
+              title: const Text('Choose from gallery'),
+              onTap: () {
+                Navigator.pop(context);
+                _pickAndUploadImage();
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.camera_alt),
+              title: const Text('Take a photo'),
+              onTap: () {
+                Navigator.pop(context);
+                _takePhoto();
+              },
+            ),
+            if (hasPhoto)
+              ListTile(
+                leading: const Icon(Icons.delete, color: AppTheme.errorColor),
+                title: const Text('Remove photo', style: TextStyle(color: AppTheme.errorColor)),
+                onTap: () {
+                  Navigator.pop(context);
+                  _showDeleteConfirmation();
+                },
+              ),
+            ListTile(
+              leading: const Icon(Icons.close),
+              title: const Text('Cancel'),
+              onTap: () => Navigator.pop(context),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showDeleteConfirmation() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Remove Photo'),
+        content: const Text('Are you sure you want to remove your profile photo?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _deletePhoto();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.errorColor,
+            ),
+            child: const Text('Remove'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
     final user = authState.user;
     final student = authState.student;
@@ -27,17 +274,65 @@ class ProfileScreen extends ConsumerWidget {
                 padding: const EdgeInsets.all(20),
                 child: Column(
                   children: [
-                    CircleAvatar(
-                      radius: 50,
-                      backgroundColor: AppTheme.primaryColor,
-                      child: Text(
-                        user?.name.substring(0, 1).toUpperCase() ?? 'S',
-                        style: const TextStyle(
-                          fontSize: 36,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                    Stack(
+                      children: [
+                        _isUploading
+                            ? const CircleAvatar(
+                                radius: 50,
+                                backgroundColor: AppTheme.primaryColor,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                ),
+                              )
+                            : user?.profilePhoto != null
+                                ? CircleAvatar(
+                                    radius: 50,
+                                    backgroundImage: NetworkImage(user!.profilePhoto!),
+                                    onBackgroundImageError: (_, __) {},
+                                    child: user.profilePhoto == null
+                                        ? Text(
+                                            user.name.substring(0, 1).toUpperCase(),
+                                            style: const TextStyle(
+                                              fontSize: 36,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.white,
+                                            ),
+                                          )
+                                        : null,
+                                  )
+                                : CircleAvatar(
+                                    radius: 50,
+                                    backgroundColor: AppTheme.primaryColor,
+                                    child: Text(
+                                      user?.name.substring(0, 1).toUpperCase() ?? 'S',
+                                      style: const TextStyle(
+                                        fontSize: 36,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: GestureDetector(
+                            onTap: _isUploading ? null : _showPhotoOptions,
+                            child: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: AppTheme.primaryColor,
+                                shape: BoxShape.circle,
+                                border: Border.all(color: Colors.white, width: 2),
+                              ),
+                              child: const Icon(
+                                Icons.camera_alt,
+                                size: 20,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
+                      ],
                     ),
                     const SizedBox(height: 16),
                     Text(

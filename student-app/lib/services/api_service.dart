@@ -256,4 +256,38 @@ class ApiService {
   Future<void> markNotificationAsRead(int notificationId) async {
     await _dio.post('/notifications/$notificationId/read');
   }
+
+  // ====================== PROFILE PHOTO ENDPOINTS ======================
+
+  Future<Map<String, dynamic>> uploadProfilePhoto(String filePath) async {
+    try {
+      final fileName = filePath.split('/').last;
+      final formData = FormData.fromMap({
+        'profile_photo': await MultipartFile.fromFile(
+          filePath,
+          filename: fileName,
+        ),
+      });
+
+      final response = await _dio.post('/auth/upload-profile-photo', data: formData);
+      return response.data;
+    } catch (e) {
+      if (e is DioException && e.response != null) {
+        return e.response!.data;
+      }
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>> deleteProfilePhoto() async {
+    try {
+      final response = await _dio.delete('/auth/delete-profile-photo');
+      return response.data;
+    } catch (e) {
+      if (e is DioException && e.response != null) {
+        return e.response!.data;
+      }
+      rethrow;
+    }
+  }
 }
