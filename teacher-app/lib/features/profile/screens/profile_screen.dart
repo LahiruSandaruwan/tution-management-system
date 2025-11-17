@@ -1,13 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/providers/theme_provider.dart';
+import '../../../core/providers/locale_provider.dart';
 import '../../auth/providers/auth_provider.dart';
 
-class ProfileScreen extends ConsumerWidget {
+class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends ConsumerState<ProfileScreen> {
+  @override
+  Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
     final user = authState.user;
     final teacher = authState.teacher;
@@ -128,6 +135,46 @@ class ProfileScreen extends ConsumerWidget {
             Card(
               child: Column(
                 children: [
+                  // Dark Mode Toggle
+                  ListTile(
+                    leading: Icon(
+                      ref.watch(themeModeProvider) == ThemeMode.dark
+                          ? Icons.dark_mode
+                          : Icons.light_mode,
+                      color: AppTheme.primaryColor,
+                    ),
+                    title: Text('Dark Mode', style: AppTheme.titleMedium),
+                    trailing: Switch(
+                      value: ref.watch(themeModeProvider) == ThemeMode.dark,
+                      onChanged: (value) {
+                        ref.read(themeModeProvider.notifier).toggleTheme();
+                      },
+                      activeColor: AppTheme.primaryColor,
+                    ),
+                  ),
+                  const Divider(height: 1),
+                  // Language Selector
+                  ListTile(
+                    leading: const Icon(Icons.language, color: AppTheme.primaryColor),
+                    title: Text('Language', style: AppTheme.titleMedium),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          ref.read(localeProvider.notifier).getLanguageName(
+                            ref.watch(localeProvider),
+                          ),
+                          style: AppTheme.bodyMedium.copyWith(
+                            color: AppTheme.textSecondaryColor,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        const Icon(Icons.chevron_right, color: AppTheme.textSecondaryColor),
+                      ],
+                    ),
+                    onTap: () => _showLanguageDialog(),
+                  ),
+                  const Divider(height: 1),
                   _buildActionItem(
                     icon: Icons.notifications,
                     label: 'Notifications',
@@ -212,6 +259,41 @@ class ProfileScreen extends ConsumerWidget {
       title: Text(label, style: AppTheme.titleMedium),
       trailing: const Icon(Icons.chevron_right, color: AppTheme.textSecondaryColor),
       onTap: onTap,
+    );
+  }
+
+  void _showLanguageDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Select Language'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: supportedLocales.map((locale) {
+            final currentLocale = ref.read(localeProvider);
+            final languageName = ref.read(localeProvider.notifier).getLanguageName(locale);
+
+            return RadioListTile<Locale>(
+              title: Text(languageName),
+              value: locale,
+              groupValue: currentLocale,
+              activeColor: AppTheme.primaryColor,
+              onChanged: (Locale? value) {
+                if (value != null) {
+                  ref.read(localeProvider.notifier).setLocale(value);
+                  Navigator.pop(context);
+                }
+              },
+            );
+          }).toList(),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+        ],
+      ),
     );
   }
 

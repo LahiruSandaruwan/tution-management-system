@@ -1,0 +1,100 @@
+{
+  "@@locale": "ta",
+
+  "appTitle": "ஆசிரியர் செயலி",
+
+  "welcomeBack": "மீண்டும் வரவேற்கிறோம்!",
+  "dashboard": "கணக்குப்பலகை",
+  "classes": "வகுப்புகள்",
+  "attendance": "வருகைப் பதிவு",
+  "students": "மாணவர்கள்",
+  "grades": "தரங்கள்",
+  "profile": "சுயவிவரம்",
+  "settings": "அமைப்புகள்",
+
+  "markAttendance": "வருகையைக் குறிக்கவும்",
+  "addGrades": "தரங்களைச் சேர்க்கவும்",
+  "viewStudents": "மாணவர்களைப் பார்க்கவும்",
+  "manageClasses": "வகுப்புகளை நிர்வகிக்கவும்",
+
+  "totalClasses": "மொத்த வகுப்புகள்",
+  "totalStudents": "மொத்த மாணவர்கள்",
+  "sessionsToday": "இன்றைய அமர்வுகள்",
+  "attendanceRate": "வருகை விகிதம்",
+
+  "present": "வருகை",
+  "absent": "வருகை இல்லை",
+  "late": "தாமதம்",
+
+  "className": "வகுப்பு பெயர்",
+  "subject": "பாடம்",
+  "room": "அறை",
+  "time": "நேரம்",
+  "schedule": "அட்டவணை",
+  "todaySchedule": "இன்றைய அட்டவணை",
+  "upcomingClasses": "வரவிருக்கும் வகுப்புகள்",
+  "noClassesToday": "இன்று வகுப்புகள் இல்லை",
+
+  "studentName": "மாணவர் பெயர்",
+  "studentId": "மாணவர் எண்",
+  "grade": "தரம்",
+  "exam": "தேர்வு",
+  "marks": "மதிப்பெண்கள்",
+
+  "personalInformation": "தனிப்பட்ட தகவல்",
+  "email": "மின்னஞ்சல்",
+  "phone": "தொலைபேசி",
+  "employeeId": "பணியாளர் எண்",
+  "specialization": "சிறப்பு",
+  "qualification": "தகுதி",
+  "dateOfJoining": "சேர்ந்த தேதி",
+
+  "darkMode": "இருள் பயன்முறை",
+  "language": "மொழி",
+  "notifications": "அறிவிப்புகள்",
+  "changePassword": "கடவுச்சொல்லை மாற்று",
+  "helpSupport": "உதவி & ஆதரவு",
+  "about": "பற்றி",
+  "logout": "வெளியேறு",
+
+  "online": "இணையத்துடன்",
+  "offline": "இணையம் இல்லாமல்",
+  "youAreOffline": "நீங்கள் இணையத்தில் இல்லை. சில அம்சங்கள் வரையறுக்கப்படலாம்.",
+
+  "loginTitle": "ஆசிரியர் உள்நுழைவு",
+  "loginButton": "உள்நுழை",
+  "emailLabel": "மின்னஞ்சல்",
+  "passwordLabel": "கடவுச்சொல்",
+  "forgotPassword": "கடவுச்சொல்லை மறந்துவிட்டீர்களா?",
+  "invalidCredentials": "தவறான மின்னஞ்சல் அல்லது கடவுச்சொல்",
+
+  "cancel": "ரத்து செய்",
+  "save": "சேமி",
+  "delete": "அழி",
+  "confirm": "உறுதிப்படுத்து",
+  "yes": "ஆம்",
+  "no": "இல்லை",
+  "ok": "சரி",
+
+  "error": "பிழை",
+  "success": "வெற்றி",
+  "loading": "ஏற்றுகிறது...",
+  "retry": "மீண்டும் முயற்சிக்கவும்",
+  "refresh": "புதுப்பி",
+
+  "selectLanguage": "மொழியைத் தேர்ந்தெடுக்கவும்",
+  "english": "ஆங்கிலம்",
+  "sinhala": "சிங்களம்",
+  "tamil": "தமிழ்",
+
+  "active": "செயல்பாட்டில்",
+  "inactive": "செயலற்ற",
+
+  "quickActions": "விரைவு செயல்கள்",
+  "statistics": "புள்ளிவிவரங்கள்",
+
+  "markAttendanceDesc": "உங்கள் வகுப்புகளுக்கு வருகையை எடுக்கவும்",
+  "addGradesDesc": "தேர்வு முடிவுகளைப் பதிவு செய்யவும்",
+  "viewStudentsDesc": "உங்கள் வகுப்பு மாணவர்களை நிர்வகிக்கவும்",
+  "manageClassesDesc": "வகுப்பு தகவலைப் பார்க்கவும் திருத்தவும்"
+}

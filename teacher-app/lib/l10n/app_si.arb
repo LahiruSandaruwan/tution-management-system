@@ -1,0 +1,100 @@
+{
+  "@@locale": "si",
+
+  "appTitle": "ගුරු යෙදුම",
+
+  "welcomeBack": "නැවත පිළිගනිමු!",
+  "dashboard": "උපකරණ පුවරුව",
+  "classes": "පන්ති",
+  "attendance": "පැමිණීම",
+  "students": "ශිෂ්‍යයන්",
+  "grades": "ලකුණු",
+  "profile": "පැතිකඩ",
+  "settings": "සැකසුම්",
+
+  "markAttendance": "පැමිණීම සටහන් කරන්න",
+  "addGrades": "ලකුණු එක් කරන්න",
+  "viewStudents": "ශිෂ්‍යයන් බලන්න",
+  "manageClasses": "පන්ති කළමනාකරණය",
+
+  "totalClasses": "මුළු පන්ති",
+  "totalStudents": "මුළු ශිෂ්‍යයන්",
+  "sessionsToday": "අද සැසි",
+  "attendanceRate": "පැමිණීමේ අනුපාතය",
+
+  "present": "පැමිණ සිටි",
+  "absent": "නොපැමිණි",
+  "late": "ප්‍රමාද වූ",
+
+  "className": "පන්ති නම",
+  "subject": "විෂයය",
+  "room": "කාමරය",
+  "time": "වේලාව",
+  "schedule": "කාලසටහන",
+  "todaySchedule": "අද දිනයේ කාලසටහන",
+  "upcomingClasses": "ඉදිරියේ පන්ති",
+  "noClassesToday": "අද දිනය සඳහා පන්ති නොමැත",
+
+  "studentName": "ශිෂ්‍ය නම",
+  "studentId": "ශිෂ්‍ය අංකය",
+  "grade": "ශ්‍රේණිය",
+  "exam": "විභාගය",
+  "marks": "ලකුණු",
+
+  "personalInformation": "පුද්ගලික තොරතුරු",
+  "email": "විද්‍යුත් තැපෑල",
+  "phone": "දුරකථන අංකය",
+  "employeeId": "සේවක අංකය",
+  "specialization": "විශේෂඥතාව",
+  "qualification": "සුදුසුකම්",
+  "dateOfJoining": "සම්බන්ධ වූ දිනය",
+
+  "darkMode": "අඳුරු ප්‍රකාරය",
+  "language": "භාෂාව",
+  "notifications": "දැනුම්දීම්",
+  "changePassword": "මුරපදය වෙනස් කරන්න",
+  "helpSupport": "උදව් සහ සහාය",
+  "about": "පිළිබඳව",
+  "logout": "පිටවන්න",
+
+  "online": "සබැඳි",
+  "offline": "නොබැඳි",
+  "youAreOffline": "ඔබ නොබැඳිව සිටී. සමහර විශේෂාංග සීමිත විය හැක.",
+
+  "loginTitle": "ගුරු පිවිසුම",
+  "loginButton": "පිවිසෙන්න",
+  "emailLabel": "විද්‍යුත් තැපෑල",
+  "passwordLabel": "මුරපදය",
+  "forgotPassword": "මුරපදය අමතක වුණාද?",
+  "invalidCredentials": "වලංගු නොවන විද්‍යුත් තැපෑල හෝ මුරපදය",
+
+  "cancel": "අවලංගු කරන්න",
+  "save": "සුරකින්න",
+  "delete": "මකන්න",
+  "confirm": "තහවුරු කරන්න",
+  "yes": "ඔව්",
+  "no": "නැත",
+  "ok": "හරි",
+
+  "error": "දෝෂයකි",
+  "success": "සාර්ථකයි",
+  "loading": "පූරණය වෙමින්...",
+  "retry": "නැවත උත්සාහ කරන්න",
+  "refresh": "නැවුම් කරන්න",
+
+  "selectLanguage": "භාෂාව තෝරන්න",
+  "english": "ඉංග්‍රීසි",
+  "sinhala": "සිංහල",
+  "tamil": "දෙමළ",
+
+  "active": "ක්‍රියාශීලී",
+  "inactive": "අක්‍රීය",
+
+  "quickActions": "ඉක්මන් ක්‍රියා",
+  "statistics": "සංඛ්‍යාන",
+
+  "markAttendanceDesc": "ඔබේ පන්ති සඳහා පැමිණීම ලබාගන්න",
+  "addGradesDesc": "විභාග ප්‍රතිඵල සටහන් කරන්න",
+  "viewStudentsDesc": "ඔබේ පන්ති ශිෂ්‍යයන් කළමනාකරණය කරන්න",
+  "manageClassesDesc": "පන්ති තොරතුරු බලන්න සහ සංස්කරණය කරන්න"
+}

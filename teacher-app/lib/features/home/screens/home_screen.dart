@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/widgets/offline_indicator.dart';
 import '../../auth/providers/auth_provider.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -37,14 +38,18 @@ class HomeScreen extends ConsumerWidget {
           ),
         ],
       ),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          // TODO: Refresh dashboard data
-        },
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.all(16),
-          child: Column(
+      body: Column(
+        children: [
+          const OfflineIndicator(),
+          Expanded(
+            child: RefreshIndicator(
+              onRefresh: () async {
+                // TODO: Refresh dashboard data
+              },
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.all(16),
+                child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Teacher Info Card
@@ -236,6 +241,10 @@ class HomeScreen extends ConsumerWidget {
             ],
           ),
         ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
