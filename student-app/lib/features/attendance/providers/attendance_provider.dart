@@ -14,10 +14,10 @@ final attendanceSummaryProvider = FutureProvider.family<AttendanceSummary, Atten
   } catch (e) {
     // Return empty summary on error
     return AttendanceSummary(
-      totalClasses: 0,
-      presentCount: 0,
-      absentCount: 0,
-      lateCount: 0,
+      totalDays: 0,
+      present: 0,
+      absent: 0,
+      late: 0,
       attendancePercentage: 0.0,
     );
   }

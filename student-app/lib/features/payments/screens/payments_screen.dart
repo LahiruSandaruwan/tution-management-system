@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../../core/theme/app_theme.dart';
+import '../providers/payment_provider.dart';
 
 class PaymentsScreen extends ConsumerWidget {
   const PaymentsScreen({super.key});
@@ -9,76 +10,114 @@ class PaymentsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currencyFormatter = NumberFormat.currency(symbol: 'Rs. ', decimalDigits: 0);
+    final summaryAsync = ref.watch(paymentSummaryProvider);
+    final historyAsync = ref.watch(paymentHistoryProvider);
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Payments'),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+      body: RefreshIndicator(
+        onRefresh: () async {
+          ref.invalidate(paymentSummaryProvider);
+          ref.invalidate(paymentHistoryProvider);
+        },
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
             // Payment Summary Card
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Payment Summary',
-                      style: AppTheme.headingSmall,
-                    ),
-                    const SizedBox(height: 20),
-                    Row(
+            summaryAsync.when(
+              data: (summary) {
+                final total = summary.totalPaid + summary.totalPending + summary.totalOverdue;
+                return Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(
-                          child: _buildSummaryItem(
-                            label: 'Total Paid',
-                            value: currencyFormatter.format(18000),
-                            color: AppTheme.successColor,
-                          ),
+                        Text(
+                          'Payment Summary',
+                          style: AppTheme.headingSmall,
                         ),
-                        Container(
-                          width: 1,
-                          height: 50,
-                          color: AppTheme.dividerColor,
+                        const SizedBox(height: 20),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _buildSummaryItem(
+                                label: 'Total Paid',
+                                value: currencyFormatter.format(summary.totalPaid),
+                                color: AppTheme.successColor,
+                              ),
+                            ),
+                            Container(
+                              width: 1,
+                              height: 50,
+                              color: AppTheme.dividerColor,
+                            ),
+                            Expanded(
+                              child: _buildSummaryItem(
+                                label: 'Pending',
+                                value: currencyFormatter.format(summary.totalPending),
+                                color: AppTheme.warningColor,
+                              ),
+                            ),
+                          ],
                         ),
-                        Expanded(
-                          child: _buildSummaryItem(
-                            label: 'Pending',
-                            value: currencyFormatter.format(6000),
-                            color: AppTheme.warningColor,
-                          ),
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _buildSummaryItem(
+                                label: 'Overdue',
+                                value: currencyFormatter.format(summary.totalOverdue),
+                                color: AppTheme.errorColor,
+                              ),
+                            ),
+                            Container(
+                              width: 1,
+                              height: 50,
+                              color: AppTheme.dividerColor,
+                            ),
+                            Expanded(
+                              child: _buildSummaryItem(
+                                label: 'Total',
+                                value: currencyFormatter.format(total),
+                                color: AppTheme.primaryColor,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
-                    const SizedBox(height: 12),
-                    Row(
+                  ),
+                );
+              },
+              loading: () => Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: const Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                ),
+              ),
+              error: (error, stack) => Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Center(
+                    child: Column(
                       children: [
-                        Expanded(
-                          child: _buildSummaryItem(
-                            label: 'Overdue',
-                            value: currencyFormatter.format(0),
-                            color: AppTheme.errorColor,
-                          ),
-                        ),
-                        Container(
-                          width: 1,
-                          height: 50,
-                          color: AppTheme.dividerColor,
-                        ),
-                        Expanded(
-                          child: _buildSummaryItem(
-                            label: 'Total',
-                            value: currencyFormatter.format(24000),
-                            color: AppTheme.primaryColor,
-                          ),
+                        Icon(Icons.error_outline, color: AppTheme.errorColor, size: 48),
+                        const SizedBox(height: 12),
+                        Text(
+                          'Failed to load payment summary',
+                          style: TextStyle(color: AppTheme.errorColor),
                         ),
                       ],
                     ),
-                  ],
+                  ),
                 ),
               ),
             ),
@@ -98,52 +137,115 @@ class PaymentsScreen extends ConsumerWidget {
                     // TODO: Filter by year
                   },
                   icon: const Icon(Icons.filter_list),
-                  label: const Text('2024'),
+                  label: Text(DateTime.now().year.toString()),
                 ),
               ],
             ),
             const SizedBox(height: 12),
 
             // Payment List
-            Card(
-              child: Column(
-                children: [
-                  _buildPaymentItem(
-                    month: 'November 2024',
-                    amount: currencyFormatter.format(6000),
-                    status: 'Pending',
-                    statusColor: AppTheme.warningColor,
-                    dueDate: 'Due: Nov 10, 2024',
-                    receiptNumber: null,
+            historyAsync.when(
+              data: (payments) {
+                if (payments.isEmpty) {
+                  return Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(48),
+                      child: Center(
+                        child: Column(
+                          children: [
+                            Icon(
+                              Icons.receipt_long_outlined,
+                              size: 64,
+                              color: AppTheme.textSecondaryColor.withOpacity(0.5),
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'No payment history',
+                              style: AppTheme.bodyMedium.copyWith(
+                                color: AppTheme.textSecondaryColor,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                }
+
+                return Card(
+                  child: Column(
+                    children: payments.asMap().entries.map((entry) {
+                      final index = entry.key;
+                      final payment = entry.value;
+
+                      Color statusColor;
+                      String statusText;
+
+                      if (payment.isPaid) {
+                        statusColor = AppTheme.successColor;
+                        statusText = 'Paid';
+                      } else if (payment.isOverdue) {
+                        statusColor = AppTheme.errorColor;
+                        statusText = 'Overdue';
+                      } else {
+                        statusColor = AppTheme.warningColor;
+                        statusText = 'Pending';
+                      }
+
+                      final monthName = DateFormat('MMMM yyyy').format(
+                        DateTime(payment.year, int.parse(payment.month.split('-')[1]), 1),
+                      );
+
+                      String dateText;
+                      if (payment.isPaid && payment.paymentDate != null) {
+                        final date = DateTime.parse(payment.paymentDate!);
+                        dateText = 'Paid: ${DateFormat('MMM d, yyyy').format(date)}';
+                      } else if (payment.dueDate != null) {
+                        final date = DateTime.parse(payment.dueDate!);
+                        dateText = 'Due: ${DateFormat('MMM d, yyyy').format(date)}';
+                      } else {
+                        dateText = '-';
+                      }
+
+                      return Column(
+                        children: [
+                          if (index > 0) const Divider(height: 1),
+                          _buildPaymentItem(
+                            month: monthName,
+                            amount: currencyFormatter.format(payment.amount),
+                            status: statusText,
+                            statusColor: statusColor,
+                            dueDate: dateText,
+                            receiptNumber: payment.receiptNumber,
+                          ),
+                        ],
+                      );
+                    }).toList(),
                   ),
-                  const Divider(height: 1),
-                  _buildPaymentItem(
-                    month: 'October 2024',
-                    amount: currencyFormatter.format(6000),
-                    status: 'Paid',
-                    statusColor: AppTheme.successColor,
-                    dueDate: 'Paid: Oct 8, 2024',
-                    receiptNumber: 'RCP-ABC-20241008-1234',
+                );
+              },
+              loading: () => Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(48),
+                  child: const Center(child: CircularProgressIndicator()),
+                ),
+              ),
+              error: (error, stack) => Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Center(
+                    child: Column(
+                      children: [
+                        Icon(Icons.error_outline, color: AppTheme.errorColor, size: 48),
+                        const SizedBox(height: 12),
+                        Text(
+                          'Failed to load payment history',
+                          style: TextStyle(color: AppTheme.errorColor),
+                        ),
+                      ],
+                    ),
                   ),
-                  const Divider(height: 1),
-                  _buildPaymentItem(
-                    month: 'September 2024',
-                    amount: currencyFormatter.format(6000),
-                    status: 'Paid',
-                    statusColor: AppTheme.successColor,
-                    dueDate: 'Paid: Sep 5, 2024',
-                    receiptNumber: 'RCP-XYZ-20240905-5678',
-                  ),
-                  const Divider(height: 1),
-                  _buildPaymentItem(
-                    month: 'August 2024',
-                    amount: currencyFormatter.format(6000),
-                    status: 'Paid',
-                    statusColor: AppTheme.successColor,
-                    dueDate: 'Paid: Aug 7, 2024',
-                    receiptNumber: 'RCP-DEF-20240807-9012',
-                  ),
-                ],
+                ),
               ),
             ),
 

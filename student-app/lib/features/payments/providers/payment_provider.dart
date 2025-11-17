@@ -13,8 +13,8 @@ final paymentSummaryProvider = FutureProvider<PaymentSummary>((ref) async {
       totalPaid: 0.0,
       totalPending: 0.0,
       totalOverdue: 0.0,
-      lastPaymentDate: null,
-      nextDueDate: null,
+      overdueCount: 0,
+      lastPayment: null,
     );
   }
 });
