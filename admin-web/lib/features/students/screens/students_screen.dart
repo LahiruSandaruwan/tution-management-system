@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/utils/export_utils.dart';
 import '../providers/students_provider.dart';
 import '../widgets/student_form_dialog.dart';
 import '../widgets/student_table.dart';
@@ -45,6 +46,44 @@ class _StudentsScreenState extends ConsumerState<StudentsScreen> {
             },
             icon: const Icon(Icons.refresh),
             tooltip: 'Refresh',
+          ),
+          const SizedBox(width: 8),
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.download),
+            tooltip: 'Export Data',
+            onSelected: (value) => _handleExport(value, studentsState.students),
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 'csv',
+                child: Row(
+                  children: [
+                    Icon(Icons.table_chart, size: 18),
+                    SizedBox(width: 8),
+                    Text('Export as CSV'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'excel',
+                child: Row(
+                  children: [
+                    Icon(Icons.grid_on, size: 18),
+                    SizedBox(width: 8),
+                    Text('Export as Excel'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'json',
+                child: Row(
+                  children: [
+                    Icon(Icons.code, size: 18),
+                    SizedBox(width: 8),
+                    Text('Export as JSON'),
+                  ],
+                ),
+              ),
+            ],
           ),
           const SizedBox(width: 8),
           ElevatedButton.icon(
@@ -398,5 +437,108 @@ class _StudentsScreenState extends ConsumerState<StudentsScreen> {
         ),
       );
     }
+  }
+
+  void _handleExport(String format, List<dynamic> students) {
+    if (students.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No data to export')),
+      );
+      return;
+    }
+
+    final filename = 'students_${DateTime.now().millisecondsSinceEpoch}';
+
+    // Convert students to Map if they are model objects
+    final studentsData = students.map((s) {
+      if (s is Map<String, dynamic>) {
+        return s;
+      } else {
+        // If it's a model object, convert to Map
+        return {
+          'id': s.id,
+          'user': {
+            'name': s.user?.name,
+            'email': s.user?.email,
+            'phone': s.user?.phone,
+          },
+          'student_id': s.studentId,
+          'grade': s.grade,
+          'date_of_birth': s.dateOfBirth,
+          'guardian_name': s.guardianName,
+          'guardian_phone': s.guardianPhone,
+          'is_active': s.isActive,
+        };
+      }
+    }).toList();
+
+    switch (format) {
+      case 'csv':
+        ExportUtils.exportToCSV(
+          data: studentsData.cast<Map<String, dynamic>>(),
+          headers: [
+            'ID',
+            'Name',
+            'Student ID',
+            'Email',
+            'Phone',
+            'Grade',
+            'Guardian Name',
+            'Guardian Phone',
+            'Status'
+          ],
+          keys: [
+            'id',
+            'user.name',
+            'student_id',
+            'user.email',
+            'user.phone',
+            'grade',
+            'guardian_name',
+            'guardian_phone',
+            'is_active'
+          ],
+          filename: filename,
+        );
+        break;
+      case 'excel':
+        ExportUtils.exportToExcel(
+          data: studentsData.cast<Map<String, dynamic>>(),
+          headers: [
+            'ID',
+            'Name',
+            'Student ID',
+            'Email',
+            'Phone',
+            'Grade',
+            'Guardian Name',
+            'Guardian Phone',
+            'Status'
+          ],
+          keys: [
+            'id',
+            'user.name',
+            'student_id',
+            'user.email',
+            'user.phone',
+            'grade',
+            'guardian_name',
+            'guardian_phone',
+            'is_active'
+          ],
+          filename: filename,
+        );
+        break;
+      case 'json':
+        ExportUtils.exportToJSON(
+          data: studentsData.cast<Map<String, dynamic>>(),
+          filename: filename,
+        );
+        break;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Exported as ${format.toUpperCase()}')),
+    );
   }
 }

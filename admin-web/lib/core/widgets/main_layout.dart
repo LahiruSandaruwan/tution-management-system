@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../features/auth/providers/auth_provider.dart';
 import '../theme/app_theme.dart';
+import '../providers/theme_provider.dart';
 
 class MainLayout extends ConsumerWidget {
   final Widget child;
@@ -14,6 +15,8 @@ class MainLayout extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authProvider);
     final user = authState.user;
+    final themeMode = ref.watch(themeModeProvider);
+    final isDarkMode = themeMode == ThemeMode.dark;
 
     return Scaffold(
       body: Row(
@@ -96,6 +99,17 @@ class MainLayout extends ConsumerWidget {
                         label: 'Notifications',
                         route: '/notifications',
                       ),
+                      const Divider(
+                        color: Colors.white24,
+                        height: 16,
+                        indent: 8,
+                        endIndent: 8,
+                      ),
+                      _NavItem(
+                        icon: FontAwesomeIcons.gear,
+                        label: 'Settings',
+                        route: '/settings',
+                      ),
                     ],
                   ),
                 ),
@@ -132,6 +146,61 @@ class MainLayout extends ConsumerWidget {
                           style: AppTheme.bodySmall.copyWith(
                             color: Colors.white70,
                           ),
+                        ),
+                        trailing: const Icon(
+                          Icons.arrow_forward_ios,
+                          size: 16,
+                          color: Colors.white70,
+                        ),
+                        onTap: () {
+                          context.go('/profile');
+                        },
+                      ),
+                      const SizedBox(height: 8),
+                      // Theme Toggle
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(
+                                  isDarkMode
+                                      ? Icons.dark_mode
+                                      : Icons.light_mode,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  isDarkMode ? 'Dark Mode' : 'Light Mode',
+                                  style: AppTheme.bodySmall.copyWith(
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Switch(
+                              value: isDarkMode,
+                              onChanged: (_) {
+                                ref
+                                    .read(themeModeProvider.notifier)
+                                    .toggleTheme();
+                              },
+                              activeColor: Colors.white,
+                              activeTrackColor: Colors.white.withOpacity(0.5),
+                              inactiveThumbColor: Colors.white70,
+                              inactiveTrackColor: Colors.white.withOpacity(0.3),
+                            ),
+                          ],
                         ),
                       ),
                       const SizedBox(height: 8),

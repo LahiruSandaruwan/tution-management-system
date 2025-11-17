@@ -12,6 +12,8 @@ import '../../features/attendance/screens/attendance_screen.dart';
 import '../../features/reports/screens/reports_screen.dart';
 import '../../features/gate/screens/gate_monitoring_screen.dart';
 import '../../features/notifications/screens/notifications_screen.dart';
+import '../../features/profile/screens/profile_screen.dart';
+import '../../features/settings/screens/settings_screen.dart';
 import '../widgets/main_layout.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -76,6 +78,14 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/notifications',
             builder: (context, state) => const NotificationsScreen(),
+          ),
+          GoRoute(
+            path: '/profile',
+            builder: (context, state) => const ProfileScreen(),
+          ),
+          GoRoute(
+            path: '/settings',
+            builder: (context, state) => const SettingsScreen(),
           ),
         ],
       ),

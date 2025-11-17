@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/utils/export_utils.dart';
 import '../providers/teachers_provider.dart';
 import '../widgets/teacher_form_dialog.dart';
 
@@ -43,6 +44,44 @@ class _TeachersScreenState extends ConsumerState<TeachersScreen> {
             },
             icon: const Icon(Icons.refresh),
             tooltip: 'Refresh',
+          ),
+          const SizedBox(width: 8),
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.download),
+            tooltip: 'Export Data',
+            onSelected: (value) => _handleExport(value, teachersState.teachers),
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 'csv',
+                child: Row(
+                  children: [
+                    Icon(Icons.table_chart, size: 18),
+                    SizedBox(width: 8),
+                    Text('Export as CSV'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'excel',
+                child: Row(
+                  children: [
+                    Icon(Icons.grid_on, size: 18),
+                    SizedBox(width: 8),
+                    Text('Export as Excel'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'json',
+                child: Row(
+                  children: [
+                    Icon(Icons.code, size: 18),
+                    SizedBox(width: 8),
+                    Text('Export as JSON'),
+                  ],
+                ),
+              ),
+            ],
           ),
           const SizedBox(width: 8),
           ElevatedButton.icon(
@@ -405,5 +444,81 @@ class _TeachersScreenState extends ConsumerState<TeachersScreen> {
         ),
       );
     }
+  }
+
+  void _handleExport(String format, List<dynamic> teachers) {
+    if (teachers.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No data to export')),
+      );
+      return;
+    }
+
+    final filename = 'teachers_${DateTime.now().millisecondsSinceEpoch}';
+
+    switch (format) {
+      case 'csv':
+        ExportUtils.exportToCSV(
+          data: teachers.cast<Map<String, dynamic>>(),
+          headers: [
+            'ID',
+            'Name',
+            'Employee ID',
+            'Email',
+            'Phone',
+            'Specialization',
+            'Qualification',
+            'Status'
+          ],
+          keys: [
+            'id',
+            'user.name',
+            'employee_id',
+            'user.email',
+            'user.phone',
+            'specialization',
+            'qualification',
+            'is_active'
+          ],
+          filename: filename,
+        );
+        break;
+      case 'excel':
+        ExportUtils.exportToExcel(
+          data: teachers.cast<Map<String, dynamic>>(),
+          headers: [
+            'ID',
+            'Name',
+            'Employee ID',
+            'Email',
+            'Phone',
+            'Specialization',
+            'Qualification',
+            'Status'
+          ],
+          keys: [
+            'id',
+            'user.name',
+            'employee_id',
+            'user.email',
+            'user.phone',
+            'specialization',
+            'qualification',
+            'is_active'
+          ],
+          filename: filename,
+        );
+        break;
+      case 'json':
+        ExportUtils.exportToJSON(
+          data: teachers.cast<Map<String, dynamic>>(),
+          filename: filename,
+        );
+        break;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Exported as ${format.toUpperCase()}')),
+    );
   }
 }
