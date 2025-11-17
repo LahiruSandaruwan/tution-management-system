@@ -1,0 +1,111 @@
+{
+  "@@locale": "en",
+
+  "appTitle": "Student App",
+  "@appTitle": {
+    "description": "The title of the application"
+  },
+
+  "welcomeBack": "Welcome Back!",
+  "@welcomeBack": {
+    "description": "Welcome message on home screen"
+  },
+
+  "dashboard": "Dashboard",
+  "attendance": "Attendance",
+  "payments": "Payments",
+  "schedule": "Schedule",
+  "grades": "Grades",
+  "notifications": "Notifications",
+  "profile": "Profile",
+  "settings": "Settings",
+
+  "totalClasses": "Total Classes",
+  "present": "Present",
+  "absent": "Absent",
+  "late": "Late",
+  "attendanceRate": "Attendance Rate",
+
+  "totalAmount": "Total Amount",
+  "paidAmount": "Paid",
+  "pendingAmount": "Pending",
+  "paymentHistory": "Payment History",
+
+  "upcomingClasses": "Upcoming Classes",
+  "todaySchedule": "Today's Schedule",
+  "noClassesToday": "No classes scheduled for today",
+
+  "myGrades": "My Grades",
+  "subject": "Subject",
+  "grade": "Grade",
+  "exam": "Exam",
+
+  "unreadNotifications": "Unread Notifications",
+  "markAllRead": "Mark all read",
+  "noNotifications": "No notifications",
+  "allCaughtUp": "You're all caught up!",
+
+  "personalInformation": "Personal Information",
+  "email": "Email",
+  "phone": "Phone",
+  "dateOfBirth": "Date of Birth",
+  "address": "Address",
+  "parentGuardianInfo": "Parent/Guardian Information",
+  "parentName": "Parent Name",
+  "parentPhone": "Parent Phone",
+
+  "darkMode": "Dark Mode",
+  "language": "Language",
+  "changePassword": "Change Password",
+  "helpSupport": "Help & Support",
+  "about": "About",
+  "logout": "Logout",
+
+  "online": "Online",
+  "offline": "Offline",
+  "youAreOffline": "You are offline. Some features may be limited.",
+  "syncingItems": "Syncing {count} items...",
+  "@syncingItems": {
+    "description": "Message shown when syncing queued requests",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "itemsQueued": "{count} items queued",
+  "@itemsQueued": {
+    "description": "Message shown for queued requests when offline",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+
+  "loginTitle": "Login",
+  "loginButton": "Login",
+  "emailLabel": "Email",
+  "passwordLabel": "Password",
+  "forgotPassword": "Forgot Password?",
+  "invalidCredentials": "Invalid email or password",
+
+  "cancel": "Cancel",
+  "save": "Save",
+  "delete": "Delete",
+  "confirm": "Confirm",
+  "yes": "Yes",
+  "no": "No",
+  "ok": "OK",
+
+  "error": "Error",
+  "success": "Success",
+  "loading": "Loading...",
+  "retry": "Retry",
+  "refresh": "Refresh",
+
+  "selectLanguage": "Select Language",
+  "english": "English",
+  "sinhala": "Sinhala",
+  "tamil": "Tamil"
+}

@@ -1,0 +1,89 @@
+{
+  "@@locale": "si",
+
+  "appTitle": "ශිෂ්‍ය යෙදුම",
+
+  "welcomeBack": "නැවත පිළිගනිමු!",
+
+  "dashboard": "උපකරණ පුවරුව",
+  "attendance": "පැමිණීම",
+  "payments": "ගෙවීම්",
+  "schedule": "කාලසටහන",
+  "grades": "ලකුණු",
+  "notifications": "දැනුම්දීම්",
+  "profile": "පැතිකඩ",
+  "settings": "සැකසුම්",
+
+  "totalClasses": "මුළු පන්ති",
+  "present": "පැමිණ සිටි",
+  "absent": "නොපැමිණි",
+  "late": "ප්‍රමාද වූ",
+  "attendanceRate": "පැමිණීමේ අනුපාතය",
+
+  "totalAmount": "මුළු මුදල",
+  "paidAmount": "ගෙවූ මුදල",
+  "pendingAmount": "ඉතිරි මුදල",
+  "paymentHistory": "ගෙවීම් ඉතිහාසය",
+
+  "upcomingClasses": "ඉදිරියේ පන්ති",
+  "todaySchedule": "අද දිනයේ කාලසටහන",
+  "noClassesToday": "අද දිනය සඳහා පන්ති නොමැත",
+
+  "myGrades": "මගේ ලකුණු",
+  "subject": "විෂයය",
+  "grade": "ශ්‍රේණිය",
+  "exam": "විභාගය",
+
+  "unreadNotifications": "නොකියවූ දැනුම්දීම්",
+  "markAllRead": "සියල්ල කියවූ ලෙස සලකුණු කරන්න",
+  "noNotifications": "දැනුම්දීම් නොමැත",
+  "allCaughtUp": "ඔබ සියල්ල දැන ගෙන ඇත!",
+
+  "personalInformation": "පුද්ගලික තොරතුරු",
+  "email": "විද්‍යුත් තැපෑල",
+  "phone": "දුරකථන අංකය",
+  "dateOfBirth": "උපන් දිනය",
+  "address": "ලිපිනය",
+  "parentGuardianInfo": "දෙමාපිය/භාරකරු තොරතුරු",
+  "parentName": "දෙමාපිය නම",
+  "parentPhone": "දෙමාපිය දුරකථන",
+
+  "darkMode": "අඳුරු ප්‍රකාරය",
+  "language": "භාෂාව",
+  "changePassword": "මුරපදය වෙනස් කරන්න",
+  "helpSupport": "උදව් සහ සහාය",
+  "about": "පිළිබඳව",
+  "logout": "පිටවන්න",
+
+  "online": "සබැඳි",
+  "offline": "නොබැඳි",
+  "youAreOffline": "ඔබ නොබැඳිව සිටී. සමහර විශේෂාංග සීමිත විය හැක.",
+  "syncingItems": "අයිතම {count} ක් සමමුහුර්ත කරමින්...",
+  "itemsQueued": "අයිතම {count} ක් පෝලිමේ",
+
+  "loginTitle": "පිවිසෙන්න",
+  "loginButton": "පිවිසෙන්න",
+  "emailLabel": "විද්‍යුත් තැපෑල",
+  "passwordLabel": "මුරපදය",
+  "forgotPassword": "මුරපදය අමතක වුණාද?",
+  "invalidCredentials": "වලංගු නොවන විද්‍යුත් තැපෑල හෝ මුරපදය",
+
+  "cancel": "අවලංගු කරන්න",
+  "save": "සුරකින්න",
+  "delete": "මකන්න",
+  "confirm": "තහවුරු කරන්න",
+  "yes": "ඔව්",
+  "no": "නැත",
+  "ok": "හරි",
+
+  "error": "දෝෂයකි",
+  "success": "සාර්ථකයි",
+  "loading": "පූරණය වෙමින්...",
+  "retry": "නැවත උත්සාහ කරන්න",
+  "refresh": "නැවුම් කරන්න",
+
+  "selectLanguage": "භාෂාව තෝරන්න",
+  "english": "ඉංග්‍රීසි",
+  "sinhala": "සිංහල",
+  "tamil": "දෙමළ"
+}
