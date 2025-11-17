@@ -212,11 +212,86 @@ class ApiService {
     return response.data['data']['data'];
   }
 
+  Future<dynamic> getTeacher(int id) async {
+    final response = await _dio.get('/teachers/$id');
+    return response.data['data'];
+  }
+
+  Future<dynamic> createTeacher(Map<String, dynamic> data) async {
+    final response = await _dio.post('/teachers', data: data);
+    return response.data;
+  }
+
+  Future<dynamic> updateTeacher(int id, Map<String, dynamic> data) async {
+    final response = await _dio.put('/teachers/$id', data: data);
+    return response.data;
+  }
+
+  Future<void> deleteTeacher(int id) async {
+    await _dio.delete('/teachers/$id');
+  }
+
+  Future<void> toggleTeacherStatus(int id) async {
+    await _dio.post('/teachers/$id/toggle-status');
+  }
+
   // ====================== CLASS ENDPOINTS ======================
 
   Future<List<dynamic>> getClasses() async {
     final response = await _dio.get('/classes');
     return response.data['data'];
+  }
+
+  Future<dynamic> getClass(int id) async {
+    final response = await _dio.get('/classes/$id');
+    return response.data['data'];
+  }
+
+  Future<dynamic> createClass(Map<String, dynamic> data) async {
+    final response = await _dio.post('/classes', data: data);
+    return response.data;
+  }
+
+  Future<dynamic> updateClass(int id, Map<String, dynamic> data) async {
+    final response = await _dio.put('/classes/$id', data: data);
+    return response.data;
+  }
+
+  Future<void> deleteClass(int id) async {
+    await _dio.delete('/classes/$id');
+  }
+
+  Future<List<dynamic>> getClassStudents(int classId) async {
+    final response = await _dio.get('/classes/$classId/students');
+    return response.data['data'];
+  }
+
+  Future<void> enrollStudent(int classId, int studentId) async {
+    await _dio.post('/classes/$classId/enroll', data: {
+      'student_id': studentId,
+    });
+  }
+
+  Future<void> unenrollStudent(int classId, int studentId) async {
+    await _dio.post('/classes/$classId/unenroll', data: {
+      'student_id': studentId,
+    });
+  }
+
+  // ====================== NOTIFICATION ENDPOINTS ======================
+
+  Future<List<dynamic>> getNotifications() async {
+    final response = await _dio.get('/notifications');
+    return response.data['data'];
+  }
+
+  Future<dynamic> createNotification(Map<String, dynamic> data) async {
+    final response = await _dio.post('/notifications', data: data);
+    return response.data;
+  }
+
+  Future<void> deleteNotification(int id) async {
+    await _dio.delete('/notifications/$id');
   }
 
   // ====================== REPORTS ENDPOINTS ======================

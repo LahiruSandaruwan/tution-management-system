@@ -62,6 +62,16 @@ class MainLayout extends ConsumerWidget {
                         route: '/students',
                       ),
                       _NavItem(
+                        icon: FontAwesomeIcons.chalkboardTeacher,
+                        label: 'Teachers',
+                        route: '/teachers',
+                      ),
+                      _NavItem(
+                        icon: FontAwesomeIcons.bookOpen,
+                        label: 'Classes',
+                        route: '/classes',
+                      ),
+                      _NavItem(
                         icon: FontAwesomeIcons.moneyBillWave,
                         label: 'Payments',
                         route: '/payments',
@@ -80,6 +90,11 @@ class MainLayout extends ConsumerWidget {
                         icon: FontAwesomeIcons.doorOpen,
                         label: 'Gate Monitoring',
                         route: '/gate',
+                      ),
+                      _NavItem(
+                        icon: FontAwesomeIcons.bell,
+                        label: 'Notifications',
+                        route: '/notifications',
                       ),
                     ],
                   ),

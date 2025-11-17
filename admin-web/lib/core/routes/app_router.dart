@@ -5,10 +5,13 @@ import '../../features/auth/providers/auth_provider.dart';
 import '../../features/auth/screens/login_screen.dart';
 import '../../features/dashboard/screens/dashboard_screen.dart';
 import '../../features/students/screens/students_screen.dart';
+import '../../features/teachers/screens/teachers_screen.dart';
+import '../../features/classes/screens/classes_screen.dart';
 import '../../features/payments/screens/payments_screen.dart';
 import '../../features/attendance/screens/attendance_screen.dart';
 import '../../features/reports/screens/reports_screen.dart';
 import '../../features/gate/screens/gate_monitoring_screen.dart';
+import '../../features/notifications/screens/notifications_screen.dart';
 import '../widgets/main_layout.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -47,6 +50,14 @@ final routerProvider = Provider<GoRouter>((ref) {
             builder: (context, state) => const StudentsScreen(),
           ),
           GoRoute(
+            path: '/teachers',
+            builder: (context, state) => const TeachersScreen(),
+          ),
+          GoRoute(
+            path: '/classes',
+            builder: (context, state) => const ClassesScreen(),
+          ),
+          GoRoute(
             path: '/payments',
             builder: (context, state) => const PaymentsScreen(),
           ),
@@ -61,6 +72,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/gate',
             builder: (context, state) => const GateMonitoringScreen(),
+          ),
+          GoRoute(
+            path: '/notifications',
+            builder: (context, state) => const NotificationsScreen(),
           ),
         ],
       ),
