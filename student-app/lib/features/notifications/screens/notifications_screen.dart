@@ -1,107 +1,82 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:timeago/timeago.dart' as timeago;
 import '../../../core/theme/app_theme.dart';
+import '../providers/notification_provider.dart';
+import '../../../providers/api_provider.dart';
 
-class NotificationsScreen extends ConsumerStatefulWidget {
+class NotificationsScreen extends ConsumerWidget {
   const NotificationsScreen({super.key});
 
-  @override
-  ConsumerState<NotificationsScreen> createState() => _NotificationsScreenState();
-}
+  IconData _getIconForType(String type) {
+    switch (type) {
+      case 'payment_reminder':
+      case 'payment_overdue':
+        return FontAwesomeIcons.moneyBill;
+      case 'exam_notification':
+      case 'grade_published':
+        return FontAwesomeIcons.chartLine;
+      case 'class_cancellation':
+        return FontAwesomeIcons.circleXmark;
+      case 'announcement':
+        return FontAwesomeIcons.bullhorn;
+      default:
+        return FontAwesomeIcons.bell;
+    }
+  }
 
-class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
-  String _selectedFilter = 'all';
+  Color _getColorForType(String type) {
+    switch (type) {
+      case 'payment_reminder':
+      case 'payment_overdue':
+        return Colors.orange;
+      case 'exam_notification':
+        return Colors.blue;
+      case 'grade_published':
+        return Colors.green;
+      case 'class_cancellation':
+        return Colors.red;
+      case 'announcement':
+        return Colors.indigo;
+      default:
+        return AppTheme.primaryColor;
+    }
+  }
 
-  // Sample notifications data
-  final List<Map<String, dynamic>> _notifications = [
-    {
-      'id': 1,
-      'title': 'Payment Reminder',
-      'message': 'Your monthly fee for November is due. Please make the payment before Nov 20, 2024.',
-      'type': 'payment_reminder',
-      'timestamp': '2 hours ago',
-      'isRead': false,
-      'icon': FontAwesomeIcons.moneyBill,
-      'color': Colors.orange,
-    },
-    {
-      'id': 2,
-      'title': 'Exam Schedule Released',
-      'message': 'Mid-term examination schedule has been published. Check your grades section for details.',
-      'type': 'exam_notification',
-      'timestamp': '5 hours ago',
-      'isRead': false,
-      'icon': FontAwesomeIcons.fileCircleCheck,
-      'color': Colors.blue,
-    },
-    {
-      'id': 3,
-      'title': 'Class Cancellation',
-      'message': 'Tomorrow\'s Physics class has been cancelled due to teacher unavailability. Make-up class will be scheduled.',
-      'type': 'class_cancellation',
-      'timestamp': '1 day ago',
-      'isRead': true,
-      'icon': FontAwesomeIcons.circleXmark,
-      'color': Colors.red,
-    },
-    {
-      'id': 4,
-      'title': 'New Assignment Posted',
-      'message': 'A new Mathematics assignment has been posted. Deadline: Nov 25, 2024.',
-      'type': 'announcement',
-      'timestamp': '2 days ago',
-      'isRead': true,
-      'icon': FontAwesomeIcons.bookOpen,
-      'color': Colors.purple,
-    },
-    {
-      'id': 5,
-      'title': 'Grades Published',
-      'message': 'Your grades for the recent Chemistry exam have been published.',
-      'type': 'grade_published',
-      'timestamp': '3 days ago',
-      'isRead': true,
-      'icon': FontAwesomeIcons.chartLine,
-      'color': Colors.green,
-    },
-    {
-      'id': 6,
-      'title': 'Important Announcement',
-      'message': 'Institute will be closed on Nov 22, 2024 for a public holiday. All classes are suspended.',
-      'type': 'announcement',
-      'timestamp': '4 days ago',
-      'isRead': true,
-      'icon': FontAwesomeIcons.bullhorn,
-      'color': Colors.indigo,
-    },
-  ];
+  Future<void> _markAsRead(WidgetRef ref, int notificationId) async {
+    final apiService = ref.read(apiProvider);
+    try {
+      await apiService.markNotificationAsRead(notificationId);
+      // Refresh the notifications list
+      ref.invalidate(notificationsProvider);
+      ref.invalidate(unreadCountProvider);
+    } catch (e) {
+      // Handle error silently
+    }
+  }
 
   @override
-  Widget build(BuildContext context) {
-    final filteredNotifications = _selectedFilter == 'all'
-        ? _notifications
-        : _notifications.where((n) => !n['isRead'] as bool).toList();
-
-    final unreadCount = _notifications.where((n) => !n['isRead'] as bool).length;
+  Widget build(BuildContext context, WidgetRef ref) {
+    final notificationsAsync = ref.watch(filteredNotificationsProvider);
+    final unreadCountAsync = ref.watch(unreadCountProvider);
+    final allNotificationsAsync = ref.watch(notificationsProvider);
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Notifications'),
         actions: [
-          if (unreadCount > 0)
-            TextButton(
-              onPressed: () {
-                // TODO: Mark all as read
-              },
-              child: const Text('Mark all read'),
-            ),
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () {
-              // TODO: Notification settings
-            },
-            tooltip: 'Settings',
+          unreadCountAsync.when(
+            data: (count) => count > 0
+                ? TextButton(
+                    onPressed: () {
+                      // TODO: Mark all as read (requires backend endpoint)
+                    },
+                    child: const Text('Mark all read'),
+                  )
+                : const SizedBox.shrink(),
+            loading: () => const SizedBox.shrink(),
+            error: (_, __) => const SizedBox.shrink(),
           ),
         ],
       ),
@@ -113,10 +88,28 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
             child: Row(
               children: [
                 Expanded(
-                  child: _buildFilterTab('All', 'all', _notifications.length),
+                  child: _buildFilterTab(
+                    ref,
+                    'All',
+                    'all',
+                    allNotificationsAsync.when(
+                      data: (notifications) => notifications.length,
+                      loading: () => 0,
+                      error: (_, __) => 0,
+                    ),
+                  ),
                 ),
                 Expanded(
-                  child: _buildFilterTab('Unread', 'unread', unreadCount),
+                  child: _buildFilterTab(
+                    ref,
+                    'Unread',
+                    'unread',
+                    unreadCountAsync.when(
+                      data: (count) => count,
+                      loading: () => 0,
+                      error: (_, __) => 0,
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -124,38 +117,96 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
 
           // Notifications List
           Expanded(
-            child: filteredNotifications.isEmpty
-                ? _buildEmptyState()
-                : ListView.separated(
+            child: RefreshIndicator(
+              onRefresh: () async {
+                ref.invalidate(notificationsProvider);
+                ref.invalidate(unreadCountProvider);
+              },
+              child: notificationsAsync.when(
+                data: (notifications) {
+                  if (notifications.isEmpty) {
+                    return _buildEmptyState();
+                  }
+
+                  return ListView.separated(
                     padding: const EdgeInsets.all(16),
-                    itemCount: filteredNotifications.length,
+                    itemCount: notifications.length,
                     separatorBuilder: (context, index) => const SizedBox(height: 12),
                     itemBuilder: (context, index) {
-                      final notification = filteredNotifications[index];
+                      final notification = notifications[index] as Map<String, dynamic>;
+                      final id = notification['id'] as int;
+                      final title = notification['title'] as String? ?? 'Notification';
+                      final message = notification['message'] as String? ?? '';
+                      final type = notification['type'] as String? ?? '';
+                      final readAt = notification['read_at'];
+                      final isRead = readAt != null;
+                      final createdAt = notification['created_at'] as String?;
+
+                      // Format timestamp
+                      String timestamp = '';
+                      if (createdAt != null) {
+                        try {
+                          final dateTime = DateTime.parse(createdAt);
+                          timestamp = timeago.format(dateTime);
+                        } catch (e) {
+                          timestamp = createdAt;
+                        }
+                      }
+
                       return _buildNotificationCard(
-                        title: notification['title'] as String,
-                        message: notification['message'] as String,
-                        timestamp: notification['timestamp'] as String,
-                        isRead: notification['isRead'] as bool,
-                        icon: notification['icon'] as IconData,
-                        color: notification['color'] as Color,
+                        ref: ref,
+                        id: id,
+                        title: title,
+                        message: message,
+                        timestamp: timestamp,
+                        isRead: isRead,
+                        icon: _getIconForType(type),
+                        color: _getColorForType(type),
                       );
                     },
+                  );
+                },
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error: (error, stack) => Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.error_outline, size: 48, color: AppTheme.errorColor),
+                      const SizedBox(height: 16),
+                      Text('Failed to load notifications', style: AppTheme.titleMedium),
+                      const SizedBox(height: 8),
+                      Text(
+                        error.toString(),
+                        style: AppTheme.bodySmall.copyWith(color: AppTheme.textSecondaryColor),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 16),
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          ref.invalidate(notificationsProvider);
+                          ref.invalidate(unreadCountProvider);
+                        },
+                        icon: const Icon(Icons.refresh),
+                        label: const Text('Retry'),
+                      ),
+                    ],
                   ),
+                ),
+              ),
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildFilterTab(String label, String value, int count) {
-    final isSelected = _selectedFilter == value;
+  Widget _buildFilterTab(WidgetRef ref, String label, String value, int count) {
+    final selectedFilter = ref.watch(notificationFilterProvider);
+    final isSelected = selectedFilter == value;
 
     return InkWell(
       onTap: () {
-        setState(() {
-          _selectedFilter = value;
-        });
+        ref.read(notificationFilterProvider.notifier).state = value;
       },
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 16),
@@ -202,35 +253,44 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
   }
 
   Widget _buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.notifications_off,
-            size: 64,
-            color: Colors.grey[400],
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'No notifications',
-            style: AppTheme.headingMedium.copyWith(
-              color: Colors.grey[600],
+    return ListView(
+      children: [
+        SizedBox(
+          height: 400,
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.notifications_off,
+                  size: 64,
+                  color: Colors.grey[400],
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'No notifications',
+                  style: AppTheme.headingMedium.copyWith(
+                    color: Colors.grey[600],
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'You\'re all caught up!',
+                  style: AppTheme.bodyMedium.copyWith(
+                    color: Colors.grey[500],
+                  ),
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 8),
-          Text(
-            'You\'re all caught up!',
-            style: AppTheme.bodyMedium.copyWith(
-              color: Colors.grey[500],
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
   Widget _buildNotificationCard({
+    required WidgetRef ref,
+    required int id,
     required String title,
     required String message,
     required String timestamp,
@@ -242,8 +302,10 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
       elevation: isRead ? 0 : 2,
       color: isRead ? AppTheme.cardColor : Colors.blue.shade50,
       child: InkWell(
-        onTap: () {
-          // TODO: Mark as read and show details
+        onTap: () async {
+          if (!isRead) {
+            await _markAsRead(ref, id);
+          }
         },
         borderRadius: BorderRadius.circular(12),
         child: Padding(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_theme.dart';
+import '../providers/schedule_provider.dart';
 
 class ScheduleScreen extends ConsumerStatefulWidget {
   const ScheduleScreen({super.key});
@@ -22,69 +23,21 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
     'Sunday',
   ];
 
-  // Sample schedule data
-  final Map<int, List<Map<String, dynamic>>> _scheduleData = {
-    0: [ // Monday
-      {
-        'subject': 'Mathematics',
-        'teacher': 'Mr. Silva',
-        'time': '10:00 AM - 12:00 PM',
-        'room': 'Room 101',
-        'color': Colors.blue,
-      },
-      {
-        'subject': 'Physics',
-        'teacher': 'Mrs. Fernando',
-        'time': '2:00 PM - 4:00 PM',
-        'room': 'Room 203',
-        'color': Colors.purple,
-      },
-    ],
-    2: [ // Wednesday
-      {
-        'subject': 'Mathematics',
-        'teacher': 'Mr. Silva',
-        'time': '10:00 AM - 12:00 PM',
-        'room': 'Room 101',
-        'color': Colors.blue,
-      },
-      {
-        'subject': 'Chemistry',
-        'teacher': 'Dr. Perera',
-        'time': '3:00 PM - 5:00 PM',
-        'room': 'Lab 1',
-        'color': Colors.green,
-      },
-    ],
-    4: [ // Friday
-      {
-        'subject': 'Physics',
-        'teacher': 'Mrs. Fernando',
-        'time': '2:00 PM - 4:00 PM',
-        'room': 'Room 203',
-        'color': Colors.purple,
-      },
-    ],
-    5: [ // Saturday
-      {
-        'subject': 'Mathematics',
-        'teacher': 'Mr. Silva',
-        'time': '9:00 AM - 11:00 AM',
-        'room': 'Room 101',
-        'color': Colors.blue,
-      },
-      {
-        'subject': 'English',
-        'teacher': 'Ms. Jayawardena',
-        'time': '1:00 PM - 3:00 PM',
-        'room': 'Room 105',
-        'color': Colors.orange,
-      },
-    ],
-  };
+  final List<Color> _subjectColors = [
+    Colors.blue,
+    Colors.purple,
+    Colors.green,
+    Colors.orange,
+    Colors.red,
+    Colors.teal,
+    Colors.pink,
+    Colors.indigo,
+  ];
 
   @override
   Widget build(BuildContext context) {
+    final scheduleAsync = ref.watch(scheduleProvider);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Class Schedule'),
@@ -98,70 +51,128 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          // Day Selector
-          Container(
-            height: 60,
-            color: AppTheme.cardColor,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: _days.length,
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-              itemBuilder: (context, index) {
-                final isSelected = _selectedDayIndex == index;
-                final isToday = index == DateTime.now().weekday - 1;
+      body: scheduleAsync.when(
+        data: (scheduleData) => Column(
+          children: [
+            // Day Selector
+            Container(
+              height: 60,
+              color: AppTheme.cardColor,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: _days.length,
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                itemBuilder: (context, index) {
+                  final isSelected = _selectedDayIndex == index;
+                  final isToday = index == DateTime.now().weekday - 1;
 
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                  child: FilterChip(
-                    selected: isSelected,
-                    label: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          _days[index].substring(0, 3),
-                          style: TextStyle(
-                            color: isSelected ? Colors.white : AppTheme.textPrimaryColor,
-                            fontWeight: isToday ? FontWeight.bold : FontWeight.normal,
-                          ),
-                        ),
-                        if (isToday)
-                          Container(
-                            width: 4,
-                            height: 4,
-                            margin: const EdgeInsets.only(top: 4),
-                            decoration: BoxDecoration(
-                              color: isSelected ? Colors.white : AppTheme.primaryColor,
-                              shape: BoxShape.circle,
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    child: FilterChip(
+                      selected: isSelected,
+                      label: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            _days[index].substring(0, 3),
+                            style: TextStyle(
+                              color: isSelected ? Colors.white : AppTheme.textPrimaryColor,
+                              fontWeight: isToday ? FontWeight.bold : FontWeight.normal,
                             ),
                           ),
-                      ],
+                          if (isToday)
+                            Container(
+                              width: 4,
+                              height: 4,
+                              margin: const EdgeInsets.only(top: 4),
+                              decoration: BoxDecoration(
+                                color: isSelected ? Colors.white : AppTheme.primaryColor,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                        ],
+                      ),
+                      selectedColor: AppTheme.primaryColor,
+                      backgroundColor: Colors.transparent,
+                      onSelected: (selected) {
+                        setState(() {
+                          _selectedDayIndex = index;
+                        });
+                      },
                     ),
-                    selectedColor: AppTheme.primaryColor,
-                    backgroundColor: Colors.transparent,
-                    onSelected: (selected) {
-                      setState(() {
-                        _selectedDayIndex = index;
-                      });
-                    },
-                  ),
-                );
-              },
+                  );
+                },
+              ),
             ),
-          ),
 
-          // Schedule Content
-          Expanded(
-            child: _buildScheduleContent(),
+            // Schedule Content
+            Expanded(
+              child: RefreshIndicator(
+                onRefresh: () async {
+                  ref.invalidate(scheduleProvider);
+                },
+                child: _buildScheduleContent(scheduleData),
+              ),
+            ),
+          ],
+        ),
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, stack) => Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline, size: 48, color: AppTheme.errorColor),
+              const SizedBox(height: 16),
+              Text('Failed to load schedule', style: AppTheme.titleMedium),
+              const SizedBox(height: 8),
+              Text(
+                error.toString(),
+                style: AppTheme.bodySmall.copyWith(color: AppTheme.textSecondaryColor),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton.icon(
+                onPressed: () => ref.invalidate(scheduleProvider),
+                icon: const Icon(Icons.refresh),
+                label: const Text('Retry'),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
 
-  Widget _buildScheduleContent() {
-    final classes = _scheduleData[_selectedDayIndex] ?? [];
+  Widget _buildScheduleContent(Map<String, dynamic> scheduleData) {
+    // Get the day name from the index
+    final selectedDayName = _days[_selectedDayIndex];
+
+    // Get classes for the selected day from API data
+    final daySchedule = scheduleData[selectedDayName] as List<dynamic>? ?? [];
+
+    // Convert API data to UI format
+    final classes = daySchedule.map((schedule) {
+      final scheduleMap = schedule as Map<String, dynamic>;
+      final classModel = scheduleMap['class_model'] as Map<String, dynamic>? ?? {};
+      final teacher = classModel['teacher'] as Map<String, dynamic>? ?? {};
+      final teacherUser = teacher['user'] as Map<String, dynamic>? ?? {};
+      final subject = classModel['subject'] as Map<String, dynamic>? ?? {};
+
+      final startTime = scheduleMap['start_time'] as String? ?? '';
+      final endTime = scheduleMap['end_time'] as String? ?? '';
+      final subjectName = subject['name'] as String? ?? 'Unknown Subject';
+
+      // Assign color based on subject name hash
+      final colorIndex = subjectName.hashCode.abs() % _subjectColors.length;
+
+      return {
+        'subject': subjectName,
+        'teacher': teacherUser['name'] as String? ?? 'Unknown Teacher',
+        'time': '$startTime - $endTime',
+        'room': scheduleMap['room_number'] as String? ?? 'N/A',
+        'color': _subjectColors[colorIndex],
+      };
+    }).toList();
 
     if (classes.isEmpty) {
       return Center(

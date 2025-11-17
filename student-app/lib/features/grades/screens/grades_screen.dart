@@ -2,191 +2,221 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../../../core/theme/app_theme.dart';
+import '../providers/grade_provider.dart';
 
 class GradesScreen extends ConsumerWidget {
   const GradesScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final gradesAsync = ref.watch(gradeProvider);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('My Grades'),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Overall Performance Card
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Overall Performance',
-                      style: AppTheme.headingSmall,
-                    ),
-                    const SizedBox(height: 20),
-
-                    // Performance Chart
-                    SizedBox(
-                      height: 200,
-                      child: BarChart(
-                        BarChartData(
-                          alignment: BarChartAlignment.spaceAround,
-                          maxY: 100,
-                          barTouchData: BarTouchData(enabled: true),
-                          titlesData: FlTitlesData(
-                            show: true,
-                            bottomTitles: AxisTitles(
-                              sideTitles: SideTitles(
-                                showTitles: true,
-                                getTitlesWidget: (value, meta) {
-                                  const subjects = ['Math', 'Physics', 'Chemistry', 'English'];
-                                  if (value.toInt() >= 0 && value.toInt() < subjects.length) {
-                                    return Padding(
-                                      padding: const EdgeInsets.only(top: 8),
-                                      child: Text(
-                                        subjects[value.toInt()],
-                                        style: AppTheme.bodySmall,
-                                      ),
-                                    );
-                                  }
-                                  return const Text('');
-                                },
-                              ),
-                            ),
-                            leftTitles: AxisTitles(
-                              sideTitles: SideTitles(
-                                showTitles: true,
-                                reservedSize: 40,
-                                getTitlesWidget: (value, meta) {
-                                  return Text('${value.toInt()}%', style: AppTheme.bodySmall);
-                                },
-                              ),
-                            ),
-                            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                          ),
-                          gridData: FlGridData(
-                            show: true,
-                            drawVerticalLine: false,
-                            horizontalInterval: 25,
-                          ),
-                          borderData: FlBorderData(show: false),
-                          barGroups: [
-                            BarChartGroupData(x: 0, barRods: [BarChartRodData(toY: 85, color: AppTheme.primaryColor, width: 20)]),
-                            BarChartGroupData(x: 1, barRods: [BarChartRodData(toY: 78, color: AppTheme.primaryColor, width: 20)]),
-                            BarChartGroupData(x: 2, barRods: [BarChartRodData(toY: 92, color: AppTheme.primaryColor, width: 20)]),
-                            BarChartGroupData(x: 3, barRods: [BarChartRodData(toY: 88, color: AppTheme.primaryColor, width: 20)]),
-                          ],
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 20),
-                    const Divider(),
-                    const SizedBox(height: 12),
-
-                    // Stats
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        _buildStatItem('Overall Average', '85.75%', AppTheme.primaryColor),
-                        _buildStatItem('Highest', '92%', AppTheme.successColor),
-                        _buildStatItem('Lowest', '78%', AppTheme.warningColor),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 24),
-
-            // Subject Filter
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      body: RefreshIndicator(
+        onRefresh: () async {
+          ref.invalidate(gradeProvider);
+        },
+        child: gradesAsync.when(
+          data: (data) => _buildGradesContent(data),
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (error, stack) => Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                const Icon(Icons.error_outline, size: 48, color: AppTheme.errorColor),
+                const SizedBox(height: 16),
                 Text(
-                  'Recent Exams',
-                  style: AppTheme.headingSmall,
+                  'Failed to load grades',
+                  style: AppTheme.titleMedium,
                 ),
-                TextButton.icon(
-                  onPressed: () {
-                    // TODO: Show subject filter
-                  },
-                  icon: const Icon(Icons.filter_list),
-                  label: const Text('Filter'),
+                const SizedBox(height: 8),
+                Text(
+                  error.toString(),
+                  style: AppTheme.bodySmall.copyWith(color: AppTheme.textSecondaryColor),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton.icon(
+                  onPressed: () => ref.invalidate(gradeProvider),
+                  icon: const Icon(Icons.refresh),
+                  label: const Text('Retry'),
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+          ),
+        ),
+      ),
+    );
+  }
 
-            // Grades List by Subject
-            _buildSubjectGrades(
-              subject: 'Mathematics',
-              className: 'Grade 10 - Mathematics',
-              exams: [
-                {
-                  'name': 'Mid-term Exam',
-                  'date': 'Nov 10, 2024',
-                  'marks': 85,
-                  'maxMarks': 100,
-                  'grade': 'A',
-                },
-                {
-                  'name': 'Monthly Test',
-                  'date': 'Oct 25, 2024',
-                  'marks': 78,
-                  'maxMarks': 100,
-                  'grade': 'B',
-                },
-              ],
-            ),
+  Widget _buildGradesContent(Map<String, dynamic> data) {
+    final overallStats = data['overall_stats'] as Map<String, dynamic>? ?? {};
+    final subjectSummaries = data['subject_summaries'] as List? ?? [];
 
+    if (subjectSummaries.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.assignment_outlined, size: 64, color: Colors.grey[400]),
             const SizedBox(height: 16),
-
-            _buildSubjectGrades(
-              subject: 'Physics',
-              className: 'Grade 10 - Physics',
-              exams: [
-                {
-                  'name': 'Mid-term Exam',
-                  'date': 'Nov 12, 2024',
-                  'marks': 92,
-                  'maxMarks': 100,
-                  'grade': 'A',
-                },
-                {
-                  'name': 'Practical Exam',
-                  'date': 'Nov 5, 2024',
-                  'marks': 88,
-                  'maxMarks': 100,
-                  'grade': 'A',
-                },
-              ],
-            ),
-
-            const SizedBox(height: 16),
-
-            _buildSubjectGrades(
-              subject: 'Chemistry',
-              className: 'Grade 10 - Chemistry',
-              exams: [
-                {
-                  'name': 'Mid-term Exam',
-                  'date': 'Nov 8, 2024',
-                  'marks': 80,
-                  'maxMarks': 100,
-                  'grade': 'A',
-                },
-              ],
+            Text(
+              'No grades available yet',
+              style: AppTheme.titleMedium.copyWith(color: AppTheme.textSecondaryColor),
             ),
           ],
         ),
+      );
+    }
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Overall Performance Card
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Overall Performance',
+                    style: AppTheme.headingSmall,
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Performance Chart
+                  SizedBox(
+                    height: 200,
+                    child: BarChart(
+                      BarChartData(
+                        alignment: BarChartAlignment.spaceAround,
+                        maxY: 100,
+                        barTouchData: BarTouchData(enabled: true),
+                        titlesData: FlTitlesData(
+                          show: true,
+                          bottomTitles: AxisTitles(
+                            sideTitles: SideTitles(
+                              showTitles: true,
+                              getTitlesWidget: (value, meta) {
+                                if (value.toInt() >= 0 && value.toInt() < subjectSummaries.length) {
+                                  final subject = subjectSummaries[value.toInt()];
+                                  final subjectName = subject['subject_name'] as String;
+                                  return Padding(
+                                    padding: const EdgeInsets.only(top: 8),
+                                    child: Text(
+                                      subjectName.length > 8 ? '${subjectName.substring(0, 8)}...' : subjectName,
+                                      style: AppTheme.bodySmall,
+                                    ),
+                                  );
+                                }
+                                return const Text('');
+                              },
+                            ),
+                          ),
+                          leftTitles: AxisTitles(
+                            sideTitles: SideTitles(
+                              showTitles: true,
+                              reservedSize: 40,
+                              getTitlesWidget: (value, meta) {
+                                return Text('${value.toInt()}%', style: AppTheme.bodySmall);
+                              },
+                            ),
+                          ),
+                          rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                        ),
+                        gridData: FlGridData(
+                          show: true,
+                          drawVerticalLine: false,
+                          horizontalInterval: 25,
+                        ),
+                        borderData: FlBorderData(show: false),
+                        barGroups: subjectSummaries.asMap().entries.map((entry) {
+                          final index = entry.key;
+                          final subject = entry.value as Map<String, dynamic>;
+                          final average = (subject['average'] as num?)?.toDouble() ?? 0.0;
+                          return BarChartGroupData(
+                            x: index,
+                            barRods: [
+                              BarChartRodData(
+                                toY: average,
+                                color: AppTheme.primaryColor,
+                                width: 20,
+                              )
+                            ],
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+                  const Divider(),
+                  const SizedBox(height: 12),
+
+                  // Stats
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      _buildStatItem(
+                        'Overall Average',
+                        '${(overallStats['overall_average'] as num?)?.toStringAsFixed(1) ?? '0.0'}%',
+                        AppTheme.primaryColor,
+                      ),
+                      _buildStatItem(
+                        'Highest',
+                        '${(overallStats['highest'] as num?)?.toStringAsFixed(0) ?? '0'}%',
+                        AppTheme.successColor,
+                      ),
+                      _buildStatItem(
+                        'Lowest',
+                        '${(overallStats['lowest'] as num?)?.toStringAsFixed(0) ?? '0'}%',
+                        AppTheme.warningColor,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 24),
+
+          // Subject Filter
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Recent Exams',
+                style: AppTheme.headingSmall,
+              ),
+              Text(
+                '${overallStats['total_exams'] ?? 0} Total Exams',
+                style: AppTheme.bodySmall.copyWith(color: AppTheme.textSecondaryColor),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+
+          // Grades List by Subject
+          ...subjectSummaries.map((subject) {
+            final subjectData = subject as Map<String, dynamic>;
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: _buildSubjectGrades(
+                subject: subjectData['subject_name'] as String? ?? 'Unknown',
+                className: subjectData['class_name'] as String? ?? 'N/A',
+                exams: (subjectData['grades'] as List?)?.cast<Map<String, dynamic>>() ?? [],
+              ),
+            );
+          }),
+        ],
       ),
     );
   }
@@ -239,13 +269,7 @@ class GradesScreen extends ConsumerWidget {
             return Column(
               children: [
                 if (index > 0) const Divider(height: 1),
-                _buildGradeItem(
-                  examName: exam['name'] as String,
-                  date: exam['date'] as String,
-                  marks: exam['marks'] as int,
-                  maxMarks: exam['maxMarks'] as int,
-                  grade: exam['grade'] as String,
-                ),
+                _buildGradeItem(exam: exam),
               ],
             );
           }),
@@ -255,13 +279,15 @@ class GradesScreen extends ConsumerWidget {
   }
 
   Widget _buildGradeItem({
-    required String examName,
-    required String date,
-    required int marks,
-    required int maxMarks,
-    required String grade,
+    required Map<String, dynamic> exam,
   }) {
-    final percentage = (marks / maxMarks) * 100;
+    final examName = exam['exam_name'] as String? ?? 'Exam';
+    final date = exam['exam_date'] as String? ?? '';
+    final marks = (exam['marks'] as num?)?.toInt() ?? 0;
+    final maxMarks = (exam['max_marks'] as num?)?.toInt() ?? 100;
+    final grade = exam['grade'] as String? ?? 'N/A';
+    final percentage = (exam['percentage'] as num?)?.toDouble() ?? 0.0;
+
     final Color gradeColor = percentage >= 75
         ? AppTheme.successColor
         : percentage >= 60
