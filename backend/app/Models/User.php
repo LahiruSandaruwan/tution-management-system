@@ -27,6 +27,8 @@ class User extends Authenticatable
         'phone',
         'role',
         'is_active',
+        'profile_photo',
+        'address',
     ];
 
     /**
@@ -37,6 +39,15 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+    ];
+
+    /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array
+     */
+    protected $appends = [
+        'profile_photo_url',
     ];
 
     /**
@@ -131,5 +142,17 @@ class User extends Authenticatable
     public function isStudent(): bool
     {
         return $this->role === 'student';
+    }
+
+    /**
+     * Get the profile photo URL attribute.
+     */
+    public function getProfilePhotoUrlAttribute(): ?string
+    {
+        if (!$this->profile_photo) {
+            return null;
+        }
+
+        return \Storage::disk('public')->url($this->profile_photo);
     }
 }

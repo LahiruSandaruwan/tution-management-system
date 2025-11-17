@@ -23,6 +23,9 @@ Route::middleware(['auth:sanctum', 'institute'])->group(function () {
     Route::post('/auth/logout', [App\Http\Controllers\Api\AuthController::class, 'logout']);
     Route::get('/auth/me', [App\Http\Controllers\Api\AuthController::class, 'me']);
     Route::post('/auth/change-password', [App\Http\Controllers\Api\AuthController::class, 'changePassword']);
+    Route::post('/auth/upload-profile-photo', [App\Http\Controllers\Api\AuthController::class, 'uploadProfilePhoto']);
+    Route::post('/auth/update-profile', [App\Http\Controllers\Api\AuthController::class, 'updateProfile']);
+    Route::delete('/auth/delete-profile-photo', [App\Http\Controllers\Api\AuthController::class, 'deleteProfilePhoto']);
 
     // Dashboard routes
     Route::get('/dashboard/stats', [App\Http\Controllers\Api\DashboardController::class, 'stats']);

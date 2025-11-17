@@ -142,6 +142,29 @@ class ApiService {
     }
   }
 
+  // ====================== DASHBOARD ENDPOINTS ======================
+
+  Future<Map<String, dynamic>> getDashboardStats() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final studentId = prefs.getInt(AppConstants.keyStudentId);
+
+      final response = await _dio.get('/students/$studentId/dashboard');
+      return response.data;
+    } catch (e) {
+      return {'data': {}};
+    }
+  }
+
+  Future<Map<String, dynamic>> getRecentActivities() async {
+    try {
+      final response = await _dio.get('/dashboard/recent-activities');
+      return response.data;
+    } catch (e) {
+      return {'data': []};
+    }
+  }
+
   // ====================== ATTENDANCE ENDPOINTS ======================
 
   Future<AttendanceSummary> getAttendanceSummary({
@@ -159,6 +182,24 @@ class ApiService {
       },
     );
     return AttendanceSummary.fromJson(response.data['data']);
+  }
+
+  Future<List<Attendance>> getAttendanceHistory({
+    String? month,
+    int? year,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    final studentId = prefs.getInt(AppConstants.keyStudentId);
+
+    final response = await _dio.get(
+      '/attendance/student/$studentId',
+      queryParameters: {
+        if (month != null) 'month': month,
+        if (year != null) 'year': year,
+      },
+    );
+    final List attendance = response.data['data'] ?? [];
+    return attendance.map((json) => Attendance.fromJson(json)).toList();
   }
 
   // ====================== PAYMENT ENDPOINTS ======================
