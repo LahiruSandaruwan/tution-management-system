@@ -110,5 +110,10 @@ Route::middleware(['auth:sanctum', 'institute'])->group(function () {
         Route::get('/payments', [App\Http\Controllers\Api\ReportController::class, 'payments']);
         Route::get('/gate-logs', [App\Http\Controllers\Api\ReportController::class, 'gateLogs']);
         Route::get('/academic', [App\Http\Controllers\Api\ReportController::class, 'academic']);
+
+        // PDF Export routes
+        Route::get('/export/attendance-pdf', [App\Http\Controllers\Api\ReportController::class, 'exportAttendancePdf']);
+        Route::get('/export/payments-pdf', [App\Http\Controllers\Api\ReportController::class, 'exportPaymentsPdf']);
+        Route::get('/export/monthly-summary-pdf', [App\Http\Controllers\Api\ReportController::class, 'exportMonthlySummaryPdf']);
     });
 });

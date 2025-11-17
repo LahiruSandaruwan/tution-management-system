@@ -4,6 +4,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../auth/providers/auth_provider.dart';
+import '../providers/dashboard_provider.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -13,6 +14,8 @@ class HomeScreen extends ConsumerWidget {
     final authState = ref.watch(authProvider);
     final student = authState.student;
     final user = authState.user;
+    final dashboardAsync = ref.watch(dashboardStatsProvider);
+    final activitiesAsync = ref.watch(recentActivitiesProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -40,7 +43,8 @@ class HomeScreen extends ConsumerWidget {
       ),
       body: RefreshIndicator(
         onRefresh: () async {
-          // TODO: Refresh data
+          ref.invalidate(dashboardStatsProvider);
+          ref.invalidate(recentActivitiesProvider);
         },
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
@@ -120,45 +124,69 @@ class HomeScreen extends ConsumerWidget {
                 style: AppTheme.headingSmall,
               ),
               const SizedBox(height: 12),
-              GridView.count(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                crossAxisCount: 2,
-                mainAxisSpacing: 12,
-                crossAxisSpacing: 12,
-                childAspectRatio: 1.3,
-                children: [
-                  _buildStatCard(
-                    title: 'Attendance',
-                    value: '--%',
-                    icon: FontAwesomeIcons.clipboardCheck,
-                    color: AppTheme.primaryColor,
-                    onTap: () {},
+              dashboardAsync.when(
+                data: (stats) => GridView.count(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  crossAxisCount: 2,
+                  mainAxisSpacing: 12,
+                  crossAxisSpacing: 12,
+                  childAspectRatio: 1.3,
+                  children: [
+                    _buildStatCard(
+                      title: 'Attendance',
+                      value: '${stats.attendancePercentage.toStringAsFixed(1)}%',
+                      icon: FontAwesomeIcons.clipboardCheck,
+                      color: AppTheme.primaryColor,
+                      onTap: () {},
+                    ),
+                    _buildStatCard(
+                      title: 'Pending',
+                      value: 'Rs. ${stats.pendingAmount.toStringAsFixed(0)}',
+                      icon: FontAwesomeIcons.moneyBill,
+                      color: stats.pendingAmount > 0 ? AppTheme.errorColor : AppTheme.successColor,
+                      onTap: () {},
+                    ),
+                    _buildStatCard(
+                      title: 'Classes',
+                      value: '${stats.totalClasses}',
+                      icon: FontAwesomeIcons.bookOpen,
+                      color: AppTheme.accentColor,
+                      onTap: () {},
+                    ),
+                    _buildStatCard(
+                      title: 'Status',
+                      value: stats.paymentStatus,
+                      icon: FontAwesomeIcons.chartLine,
+                      color: stats.paymentStatus == 'paid' ? AppTheme.successColor : Colors.orange,
+                      onTap: () {
+                        context.push('/grades');
+                      },
+                    ),
+                  ],
+                ),
+                loading: () => GridView.count(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  crossAxisCount: 2,
+                  mainAxisSpacing: 12,
+                  crossAxisSpacing: 12,
+                  childAspectRatio: 1.3,
+                  children: List.generate(4, (index) => Card(
+                    child: const Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  )),
+                ),
+                error: (error, stack) => Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Text(
+                      'Error loading stats: ${error.toString()}',
+                      style: TextStyle(color: AppTheme.errorColor),
+                    ),
                   ),
-                  _buildStatCard(
-                    title: 'Payments',
-                    value: 'Rs. --',
-                    icon: FontAwesomeIcons.moneyBill,
-                    color: AppTheme.successColor,
-                    onTap: () {},
-                  ),
-                  _buildStatCard(
-                    title: 'Classes',
-                    value: '--',
-                    icon: FontAwesomeIcons.bookOpen,
-                    color: AppTheme.accentColor,
-                    onTap: () {},
-                  ),
-                  _buildStatCard(
-                    title: 'Grades',
-                    value: '--',
-                    icon: FontAwesomeIcons.chartLine,
-                    color: Colors.purple,
-                    onTap: () {
-                      context.push('/grades');
-                    },
-                  ),
-                ],
+                ),
               ),
 
               const SizedBox(height: 24),
@@ -180,33 +208,81 @@ class HomeScreen extends ConsumerWidget {
               const SizedBox(height: 12),
 
               // Activity List
-              Card(
-                child: Column(
-                  children: [
-                    _buildActivityItem(
-                      icon: Icons.check_circle,
-                      iconColor: AppTheme.successColor,
-                      title: 'Attendance Marked',
-                      subtitle: 'Mathematics - Present',
-                      time: '2 hours ago',
+              activitiesAsync.when(
+                data: (activities) {
+                  if (activities.isEmpty) {
+                    return Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(24),
+                        child: Center(
+                          child: Text(
+                            'No recent activities',
+                            style: AppTheme.bodyMedium.copyWith(
+                              color: AppTheme.textSecondaryColor,
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  }
+
+                  return Card(
+                    child: Column(
+                      children: activities.asMap().entries.map((entry) {
+                        final index = entry.key;
+                        final activity = entry.value;
+
+                        IconData icon;
+                        Color iconColor;
+
+                        switch (activity.type) {
+                          case 'attendance':
+                            icon = Icons.check_circle;
+                            iconColor = AppTheme.successColor;
+                            break;
+                          case 'payment':
+                            icon = Icons.payment;
+                            iconColor = AppTheme.primaryColor;
+                            break;
+                          case 'grade':
+                            icon = Icons.school;
+                            iconColor = AppTheme.accentColor;
+                            break;
+                          default:
+                            icon = Icons.info;
+                            iconColor = Colors.grey;
+                        }
+
+                        return Column(
+                          children: [
+                            if (index > 0) const Divider(height: 1),
+                            _buildActivityItem(
+                              icon: icon,
+                              iconColor: iconColor,
+                              title: activity.title,
+                              subtitle: activity.description,
+                              time: activity.timeAgo,
+                            ),
+                          ],
+                        );
+                      }).toList(),
                     ),
-                    const Divider(height: 1),
-                    _buildActivityItem(
-                      icon: Icons.payment,
-                      iconColor: AppTheme.primaryColor,
-                      title: 'Payment Recorded',
-                      subtitle: 'Rs. 6000 - November',
-                      time: '1 day ago',
+                  );
+                },
+                loading: () => Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: const Center(child: CircularProgressIndicator()),
+                  ),
+                ),
+                error: (error, stack) => Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Text(
+                      'Error loading activities',
+                      style: TextStyle(color: AppTheme.errorColor),
                     ),
-                    const Divider(height: 1),
-                    _buildActivityItem(
-                      icon: Icons.school,
-                      iconColor: AppTheme.accentColor,
-                      title: 'New Grade Added',
-                      subtitle: 'Physics - 85/100',
-                      time: '3 days ago',
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ],

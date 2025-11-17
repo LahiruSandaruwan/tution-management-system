@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Student;
 use App\Models\Teacher;
 use App\Models\ActivityLog;
+use App\Mail\PasswordResetMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -247,20 +248,8 @@ class AuthController extends Controller
             // Get user
             $user = User::where('email', $request->email)->first();
 
-            // Send password reset email
-            // Note: In production, use proper email template and queued mail
-            Mail::raw(
-                "Hello {$user->name},\n\n" .
-                "You are receiving this email because we received a password reset request for your account.\n\n" .
-                "Reset Token: {$token}\n\n" .
-                "This password reset link will expire in 60 minutes.\n\n" .
-                "If you did not request a password reset, no further action is required.\n\n" .
-                "Regards,\nTuition Management System",
-                function ($message) use ($request) {
-                    $message->to($request->email)
-                            ->subject('Reset Password Notification');
-                }
-            );
+            // Send password reset email using professional template
+            Mail::to($request->email)->send(new PasswordResetMail($user, $token));
 
             return response()->json([
                 'success' => true,
