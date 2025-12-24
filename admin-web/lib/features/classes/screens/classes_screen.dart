@@ -25,11 +25,14 @@ class _ClassesScreenState extends ConsumerState<ClassesScreen> {
     try {
       final apiService = ref.read(apiProvider);
       final classes = await apiService.getClasses();
+      print('Classes loaded: ${classes.length}');
+      print('First class: ${classes.isNotEmpty ? classes[0] : 'empty'}');
       setState(() {
         _classes = classes;
         _isLoading = false;
       });
     } catch (e) {
+      print('Error loading classes: $e');
       setState(() => _isLoading = false);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -120,10 +123,10 @@ class _ClassesScreenState extends ConsumerState<ClassesScreen> {
 
   Widget _buildClassCard(dynamic classItem) {
     final name = classItem['name'] ?? 'Unnamed Class';
-    final subject = classItem['subject'] ?? 'N/A';
+    final subject = classItem['subject']?['name'] ?? 'N/A';
     final grade = classItem['grade'] ?? 'N/A';
     final teacherName = classItem['teacher']?['user']?['name'] ?? 'No Teacher';
-    final studentCount = classItem['students_count'] ?? 0;
+    final capacity = classItem['capacity'] ?? 0;
 
     return Card(
       elevation: 2,
@@ -206,7 +209,7 @@ class _ClassesScreenState extends ConsumerState<ClassesScreen> {
                   const Spacer(),
                   const Icon(Icons.person, size: 16, color: Colors.grey),
                   const SizedBox(width: 4),
-                  Text('$studentCount', style: AppTheme.bodySmall),
+                  Text('Capacity: $capacity', style: AppTheme.bodySmall),
                 ],
               ),
               const SizedBox(height: 4),
@@ -232,12 +235,12 @@ class _ClassesScreenState extends ConsumerState<ClassesScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildDetailRow('Subject:', classItem['subject'] ?? 'N/A'),
+            _buildDetailRow('Subject:', classItem['subject']?['name'] ?? 'N/A'),
             _buildDetailRow('Grade:', classItem['grade'] ?? 'N/A'),
             _buildDetailRow('Teacher:',
                 classItem['teacher']?['user']?['name'] ?? 'No Teacher'),
             _buildDetailRow(
-                'Students:', '${classItem['students_count'] ?? 0}'),
+                'Capacity:', '${classItem['capacity'] ?? 0}'),
             if (classItem['schedule'] != null)
               _buildDetailRow('Schedule:', classItem['schedule']),
           ],
