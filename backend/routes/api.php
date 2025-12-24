@@ -3,14 +3,24 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-// Public routes
-Route::post('/auth/register', [App\Http\Controllers\Api\AuthController::class, 'register']);
-Route::post('/auth/login', [App\Http\Controllers\Api\AuthController::class, 'login']);
-Route::post('/auth/forgot-password', [App\Http\Controllers\Api\AuthController::class, 'forgotPassword']);
-Route::post('/auth/reset-password', [App\Http\Controllers\Api\AuthController::class, 'resetPassword']);
+// Public routes with rate limiting
+Route::middleware('throttle:10,1')->group(function () {
+    Route::post('/auth/register', [App\Http\Controllers\Api\AuthController::class, 'register']);
+});
 
-// RFID Gate API routes (protected by API key)
-Route::prefix('gate')->middleware('gate.api.key')->group(function () {
+// Login routes with stricter rate limiting (5 attempts per minute)
+Route::middleware('throttle:5,1')->group(function () {
+    Route::post('/auth/login', [App\Http\Controllers\Api\AuthController::class, 'login']);
+    Route::post('/auth/forgot-password', [App\Http\Controllers\Api\AuthController::class, 'forgotPassword']);
+});
+
+// Password reset with moderate rate limiting
+Route::middleware('throttle:10,1')->group(function () {
+    Route::post('/auth/reset-password', [App\Http\Controllers\Api\AuthController::class, 'resetPassword']);
+});
+
+// RFID Gate API routes (protected by API key) with high rate limit for gate operations
+Route::prefix('gate')->middleware(['gate.api.key', 'throttle:120,1'])->group(function () {
     Route::post('/verify', [App\Http\Controllers\Api\RFIDVerificationController::class, 'verify']);
     Route::post('/log', [App\Http\Controllers\Api\RFIDVerificationController::class, 'logAccess']);
     Route::get('/live-feed', [App\Http\Controllers\Api\RFIDVerificationController::class, 'liveFeed']);
