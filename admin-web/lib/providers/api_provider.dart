@@ -6,3 +6,6 @@ final apiServiceProvider = Provider<ApiService>((ref) {
   apiService.init();
   return apiService;
 });
+
+// Alias for backward compatibility
+final apiProvider = apiServiceProvider;
