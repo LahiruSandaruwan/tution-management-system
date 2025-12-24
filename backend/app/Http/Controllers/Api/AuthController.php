@@ -172,11 +172,12 @@ class AuthController extends Controller
         ActivityLog::logActivity('user_login', User::class, $user->id);
 
         // Load relationships
-        $user->load([
-            'institute',
-            $user->role === 'student' ? 'student.classes' : null,
-            $user->role === 'teacher' ? 'teacher.classes' : null,
-        ]);
+        $user->load('institute');
+        if ($user->role === 'student') {
+            $user->load('student.classes');
+        } elseif ($user->role === 'teacher') {
+            $user->load('teacher.classes');
+        }
 
         return response()->json([
             'success' => true,
