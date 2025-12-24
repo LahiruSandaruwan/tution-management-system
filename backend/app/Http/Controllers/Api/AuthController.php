@@ -90,11 +90,18 @@ class AuthController extends Controller
             // Log activity
             ActivityLog::logActivity('user_registered', User::class, $user->id);
 
+            // Load relationship based on role
+            if ($request->role === 'student') {
+                $user->load('student');
+            } elseif ($request->role === 'teacher') {
+                $user->load('teacher');
+            }
+
             return response()->json([
                 'success' => true,
                 'message' => 'User registered successfully',
                 'data' => [
-                    'user' => $user->load($request->role === 'student' ? 'student' : ($request->role === 'teacher' ? 'teacher' : null)),
+                    'user' => $user,
                     'token' => $token,
                 ]
             ], 201);
