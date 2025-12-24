@@ -77,6 +77,7 @@ class RFIDVerificationTest extends TestCase
         $response = $this->withHeader('X-Gate-API-Key', 'test-gate-api-key')
             ->postJson('/api/gate/verify', [
                 'card_uid' => 'RFID001',
+                'device_id' => 'GATE001',
             ]);
 
         $response->assertStatus(200)
@@ -115,6 +116,7 @@ class RFIDVerificationTest extends TestCase
         $response = $this->withHeader('X-Gate-API-Key', 'test-gate-api-key')
             ->postJson('/api/gate/verify', [
                 'card_uid' => 'RFID001',
+                'device_id' => 'GATE001',
             ]);
 
         $response->assertStatus(200)
@@ -133,6 +135,7 @@ class RFIDVerificationTest extends TestCase
         $response = $this->withHeader('X-Gate-API-Key', 'test-gate-api-key')
             ->postJson('/api/gate/verify', [
                 'card_uid' => 'RFID001',
+                'device_id' => 'GATE001',
             ]);
 
         $response->assertStatus(200)
@@ -151,6 +154,7 @@ class RFIDVerificationTest extends TestCase
         $response = $this->withHeader('X-Gate-API-Key', 'test-gate-api-key')
             ->postJson('/api/gate/verify', [
                 'card_uid' => 'RFID001',
+                'device_id' => 'GATE001',
             ]);
 
         $response->assertStatus(200)
@@ -167,6 +171,7 @@ class RFIDVerificationTest extends TestCase
         $response = $this->withHeader('X-Gate-API-Key', 'test-gate-api-key')
             ->postJson('/api/gate/verify', [
                 'card_uid' => 'INVALID_CARD',
+                'device_id' => 'GATE001',
             ]);
 
         $response->assertStatus(200)
@@ -194,7 +199,7 @@ class RFIDVerificationTest extends TestCase
         $response = $this->withHeader('X-Gate-API-Key', 'test-gate-api-key')
             ->postJson('/api/gate/log', [
                 'card_uid' => 'RFID001',
-                'access_type' => 'entry',
+                'action' => 'entry',
                 'access_granted' => true,
             ]);
 
