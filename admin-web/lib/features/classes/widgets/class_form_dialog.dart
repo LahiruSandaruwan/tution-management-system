@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../models/class_model.dart';
+import '../../../models/teacher.dart';
+import '../providers/classes_provider.dart';
 import '../../../providers/api_provider.dart';
 
 class ClassFormDialog extends ConsumerStatefulWidget {
-  final dynamic classData;
+  final ClassModel? classData;
 
   const ClassFormDialog({
     super.key,
@@ -35,8 +38,8 @@ class _ClassFormDialogState extends ConsumerState<ClassFormDialog> {
   bool _isActive = true;
 
   // Options
-  List<dynamic> _subjects = [];
-  List<dynamic> _teachers = [];
+  List<Subject> _subjects = [];
+  List<Teacher> _teachers = [];
   final List<String> _grades = [
     'Grade 1',
     'Grade 2',
@@ -101,27 +104,27 @@ class _ClassFormDialogState extends ConsumerState<ClassFormDialog> {
 
   void _populateFormData() {
     final data = widget.classData!;
-    _nameController.text = data['name'] ?? '';
-    _selectedGrade = data['grade'];
-    _monthlyFeeController.text = data['monthly_fee']?.toString() ?? '';
-    _maxStudentsController.text = data['max_students']?.toString() ?? '';
-    _descriptionController.text = data['description'] ?? '';
+    _nameController.text = data.name;
+    _selectedGrade = data.grade;
+    _monthlyFeeController.text = data.monthlyFee?.toString() ?? '';
+    _maxStudentsController.text = data.maxStudents?.toString() ?? '';
+    _descriptionController.text = data.description ?? '';
 
-    _selectedSubjectId = data['subject_id'];
-    _selectedTeacherId = data['teacher_id'];
-    _selectedDayOfWeek = data['day_of_week'];
-    _isActive = data['is_active'] ?? true;
+    _selectedSubjectId = data.subjectId;
+    _selectedTeacherId = data.teacherId;
+    _selectedDayOfWeek = data.day;
+    _isActive = data.isActive;
 
     // Parse time strings
-    if (data['start_time'] != null) {
-      final parts = data['start_time'].split(':');
+    if (data.startTime != null) {
+      final parts = data.startTime!.split(':');
       _startTime = TimeOfDay(
         hour: int.parse(parts[0]),
         minute: int.parse(parts[1]),
       );
     }
-    if (data['end_time'] != null) {
-      final parts = data['end_time'].split(':');
+    if (data.endTime != null) {
+      final parts = data.endTime!.split(':');
       _endTime = TimeOfDay(
         hour: int.parse(parts[0]),
         minute: int.parse(parts[1]),
@@ -184,14 +187,12 @@ class _ClassFormDialogState extends ConsumerState<ClassFormDialog> {
     setState(() => _isLoading = true);
 
     try {
-      final apiService = ref.read(apiProvider);
-
       final data = {
         'name': _nameController.text,
         'subject_id': _selectedSubjectId,
         'grade': _selectedGrade,
         'teacher_id': _selectedTeacherId,
-        'day_of_week': _selectedDayOfWeek,
+        'day': _selectedDayOfWeek,
         'start_time': _formatTimeOfDay(_startTime!),
         'end_time': _formatTimeOfDay(_endTime!),
         'monthly_fee': double.parse(_monthlyFeeController.text),
@@ -201,9 +202,12 @@ class _ClassFormDialogState extends ConsumerState<ClassFormDialog> {
       };
 
       if (isEditing) {
-        await apiService.updateClass(widget.classData!['id'], data);
+        await ref.read(classesProvider.notifier).updateClass(
+          widget.classData!.id,
+          data,
+        );
       } else {
-        await apiService.createClass(data);
+        await ref.read(classesProvider.notifier).createClass(data);
       }
 
       if (mounted) {
@@ -289,8 +293,8 @@ class _ClassFormDialogState extends ConsumerState<ClassFormDialog> {
                                     ),
                                     items: _subjects.map((subject) {
                                       return DropdownMenuItem<int>(
-                                        value: subject['id'],
-                                        child: Text(subject['name']),
+                                        value: subject.id,
+                                        child: Text(subject.name),
                                       );
                                     }).toList(),
                                     onChanged: (value) {
@@ -333,9 +337,8 @@ class _ClassFormDialogState extends ConsumerState<ClassFormDialog> {
                                     ),
                                     items: _teachers.map((teacher) {
                                       return DropdownMenuItem<int>(
-                                        value: teacher['id'],
-                                        child: Text(
-                                            teacher['user']?['name'] ?? 'Unknown'),
+                                        value: teacher.id,
+                                        child: Text(teacher.user.name),
                                       );
                                     }).toList(),
                                     onChanged: (value) {

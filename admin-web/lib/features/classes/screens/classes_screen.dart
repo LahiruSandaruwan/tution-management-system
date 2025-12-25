@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../providers/api_provider.dart';
+import '../../../models/class_model.dart';
+import '../providers/classes_provider.dart';
 import '../widgets/class_form_dialog.dart';
+import '../widgets/enrollment_dialog.dart';
 
 class ClassesScreen extends ConsumerStatefulWidget {
   const ClassesScreen({super.key});
@@ -11,91 +13,97 @@ class ClassesScreen extends ConsumerStatefulWidget {
 }
 
 class _ClassesScreenState extends ConsumerState<ClassesScreen> {
-  List<dynamic> _classes = [];
-  bool _isLoading = false;
-
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadClasses();
+      ref.read(classesProvider.notifier).loadClasses();
     });
-  }
-
-  Future<void> _loadClasses() async {
-    if (!mounted) return;
-
-    setState(() => _isLoading = true);
-    try {
-      final apiService = ref.read(apiProvider);
-      final classes = await apiService.getClasses();
-      print('Classes loaded: ${classes.length}');
-      print('First class: ${classes.isNotEmpty ? classes[0] : 'empty'}');
-
-      if (!mounted) return;
-
-      setState(() {
-        _classes = classes;
-        _isLoading = false;
-      });
-
-      print('State updated. Classes count: ${_classes.length}');
-    } catch (e) {
-      print('Error loading classes: $e');
-      print('Error stack trace: ${StackTrace.current}');
-
-      if (!mounted) return;
-
-      setState(() => _isLoading = false);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error loading classes: $e')),
-        );
-      }
-    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final state = ref.watch(classesProvider);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Class Management'),
         actions: [
           IconButton(
-            onPressed: _loadClasses,
+            onPressed: () => ref.read(classesProvider.notifier).refresh(),
             icon: const Icon(Icons.refresh),
             tooltip: 'Refresh',
           ),
           const SizedBox(width: 8),
           ElevatedButton.icon(
-            onPressed: () => _showAddClassDialog(),
+            onPressed: _showAddClassDialog,
             icon: const Icon(Icons.add),
             label: const Text('Add Class'),
           ),
           const SizedBox(width: 16),
         ],
       ),
-      body: _isLoading
+      body: state.isLoading
           ? const Center(child: CircularProgressIndicator())
-          : _classes.isEmpty
-              ? _buildEmptyState()
-              : Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: GridView.builder(
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3,
-                      crossAxisSpacing: 16,
-                      mainAxisSpacing: 16,
-                      childAspectRatio: 1.3,
+          : state.error != null
+              ? _buildErrorState(state.error!)
+              : state.classes.isEmpty
+                  ? _buildEmptyState()
+                  : Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: GridView.builder(
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 3,
+                          crossAxisSpacing: 16,
+                          mainAxisSpacing: 16,
+                          childAspectRatio: 1.3,
+                        ),
+                        itemCount: state.classes.length,
+                        itemBuilder: (context, index) {
+                          return _buildClassCard(state.classes[index]);
+                        },
+                      ),
                     ),
-                    itemCount: _classes.length,
-                    itemBuilder: (context, index) {
-                      final classItem = _classes[index];
-                      return _buildClassCard(classItem);
-                    },
-                  ),
-                ),
+    );
+  }
+
+  Widget _buildErrorState(String error) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.error_outline,
+            size: 64,
+            color: Colors.red[400],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Error loading classes',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
+              color: Colors.grey[600],
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            error,
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey[500],
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 24),
+          ElevatedButton.icon(
+            onPressed: () => ref.read(classesProvider.notifier).refresh(),
+            icon: const Icon(Icons.refresh),
+            label: const Text('Retry'),
+          ),
+        ],
+      ),
     );
   }
 
@@ -128,7 +136,7 @@ class _ClassesScreenState extends ConsumerState<ClassesScreen> {
           ),
           const SizedBox(height: 24),
           ElevatedButton.icon(
-            onPressed: () => _showAddClassDialog(),
+            onPressed: _showAddClassDialog,
             icon: const Icon(Icons.add),
             label: const Text('Add Class'),
           ),
@@ -137,144 +145,209 @@ class _ClassesScreenState extends ConsumerState<ClassesScreen> {
     );
   }
 
-  Widget _buildClassCard(dynamic classItem) {
-    try {
-      final name = classItem['name']?.toString() ?? 'Unnamed Class';
-      final subject = classItem['subject']?['name']?.toString() ?? 'N/A';
-      final grade = classItem['grade']?.toString() ?? 'N/A';
-      final teacherName = classItem['teacher']?['user']?['name']?.toString() ?? 'No Teacher';
-      final capacity = classItem['capacity']?.toString() ?? '0';
+  Widget _buildClassCard(ClassModel classModel) {
+    final name = classModel.name;
+    final subject = classModel.subject?.name ?? 'N/A';
+    final grade = classModel.grade ?? 'N/A';
+    final teacherName = classModel.teacher?.user.name ?? 'No Teacher';
+    final studentsCount = classModel.studentsCount ?? 0;
+    final maxStudents = classModel.maxStudents ?? 0;
+    final day = classModel.day ?? 'N/A';
+    final startTime = classModel.startTime ?? 'N/A';
+    final endTime = classModel.endTime ?? 'N/A';
 
-      return Card(
-        elevation: 2,
-        child: InkWell(
-          onTap: () => _showClassDetails(classItem),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).primaryColor.withOpacity(0.1),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        Icons.class_,
-                        color: Theme.of(context).primaryColor,
-                      ),
-                    ),
-                    const Spacer(),
-                    PopupMenuButton(
-                      itemBuilder: (context) => [
-                        const PopupMenuItem(
-                          value: 'edit',
-                          child: Row(
-                            children: [
-                              Icon(Icons.edit, size: 18),
-                              SizedBox(width: 8),
-                              Text('Edit'),
-                            ],
-                          ),
-                        ),
-                        const PopupMenuItem(
-                          value: 'delete',
-                          child: Row(
-                            children: [
-                              Icon(Icons.delete, size: 18, color: Colors.red),
-                              SizedBox(width: 8),
-                              Text('Delete', style: TextStyle(color: Colors.red)),
-                            ],
-                          ),
-                        ),
-                      ],
-                      onSelected: (value) {
-                        if (value == 'edit') {
-                          _showEditClassDialog(classItem);
-                        } else if (value == 'delete') {
-                          _showDeleteConfirmation(classItem);
-                        }
-                      },
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  name,
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  subject,
-                  style: TextStyle(
-                    color: Theme.of(context).primaryColor,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const Spacer(),
-                const Divider(),
-                Row(
-                  children: [
-                    const Icon(Icons.school, size: 16, color: Colors.grey),
-                    const SizedBox(width: 4),
-                    Text(grade, style: const TextStyle(fontSize: 12)),
-                    const Spacer(),
-                    const Icon(Icons.person, size: 16, color: Colors.grey),
-                    const SizedBox(width: 4),
-                    Text('Cap: $capacity', style: const TextStyle(fontSize: 12)),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Teacher: $teacherName',
-                  style: const TextStyle(fontSize: 12, color: Colors.grey),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-    } catch (e) {
-      print('Error building class card: $e');
-      return Card(
+    return Card(
+      elevation: 2,
+      child: InkWell(
+        onTap: () => _showClassDetails(classModel),
         child: Padding(
           padding: const EdgeInsets.all(16),
-          child: Text('Error rendering class: $e'),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).primaryColor.withOpacity(0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.class_,
+                      color: Theme.of(context).primaryColor,
+                    ),
+                  ),
+                  const Spacer(),
+                  if (!classModel.isActive)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.grey,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Text(
+                        'Inactive',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                        ),
+                      ),
+                    ),
+                  const SizedBox(width: 8),
+                  PopupMenuButton(
+                    itemBuilder: (context) => [
+                      const PopupMenuItem(
+                        value: 'enroll',
+                        child: Row(
+                          children: [
+                            Icon(Icons.person_add, size: 18),
+                            SizedBox(width: 8),
+                            Text('Manage Students'),
+                          ],
+                        ),
+                      ),
+                      const PopupMenuItem(
+                        value: 'edit',
+                        child: Row(
+                          children: [
+                            Icon(Icons.edit, size: 18),
+                            SizedBox(width: 8),
+                            Text('Edit'),
+                          ],
+                        ),
+                      ),
+                      const PopupMenuItem(
+                        value: 'delete',
+                        child: Row(
+                          children: [
+                            Icon(Icons.delete, size: 18, color: Colors.red),
+                            SizedBox(width: 8),
+                            Text('Delete', style: TextStyle(color: Colors.red)),
+                          ],
+                        ),
+                      ),
+                    ],
+                    onSelected: (value) {
+                      if (value == 'enroll') {
+                        _showEnrollmentDialog(classModel);
+                      } else if (value == 'edit') {
+                        _showEditClassDialog(classModel);
+                      } else if (value == 'delete') {
+                        _showDeleteConfirmation(classModel);
+                      }
+                    },
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Text(
+                name,
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                subject,
+                style: TextStyle(
+                  color: Theme.of(context).primaryColor,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const Spacer(),
+              const Divider(),
+              Row(
+                children: [
+                  const Icon(Icons.school, size: 16, color: Colors.grey),
+                  const SizedBox(width: 4),
+                  Text(grade, style: const TextStyle(fontSize: 12)),
+                  const Spacer(),
+                  const Icon(Icons.people, size: 16, color: Colors.grey),
+                  const SizedBox(width: 4),
+                  Text('$studentsCount/$maxStudents',
+                      style: const TextStyle(fontSize: 12)),
+                ],
+              ),
+              const SizedBox(height: 4),
+              Row(
+                children: [
+                  const Icon(Icons.calendar_today, size: 14, color: Colors.grey),
+                  const SizedBox(width: 4),
+                  Text(
+                    '$day',
+                    style: const TextStyle(fontSize: 11, color: Colors.grey),
+                  ),
+                  const SizedBox(width: 8),
+                  const Icon(Icons.access_time, size: 14, color: Colors.grey),
+                  const SizedBox(width: 4),
+                  Expanded(
+                    child: Text(
+                      '$startTime - $endTime',
+                      style: const TextStyle(fontSize: 11, color: Colors.grey),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Teacher: $teacherName',
+                style: const TextStyle(fontSize: 12, color: Colors.grey),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
         ),
-      );
-    }
+      ),
+    );
   }
 
-  void _showClassDetails(dynamic classItem) {
+  void _showClassDetails(ClassModel classModel) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(classItem['name'] ?? 'Class Details'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildDetailRow('Subject:', classItem['subject']?['name'] ?? 'N/A'),
-            _buildDetailRow('Grade:', classItem['grade'] ?? 'N/A'),
-            _buildDetailRow('Teacher:',
-                classItem['teacher']?['user']?['name'] ?? 'No Teacher'),
-            _buildDetailRow(
-                'Capacity:', '${classItem['capacity'] ?? 0}'),
-            if (classItem['schedule'] != null)
-              _buildDetailRow('Schedule:', classItem['schedule']),
-          ],
+        title: Text(classModel.name),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildDetailRow('Subject:', classModel.subject?.name ?? 'N/A'),
+              _buildDetailRow('Grade:', classModel.grade ?? 'N/A'),
+              _buildDetailRow(
+                  'Teacher:', classModel.teacher?.user.name ?? 'No Teacher'),
+              _buildDetailRow(
+                  'Students:',
+                  '${classModel.studentsCount ?? 0}/${classModel.maxStudents ?? 0}'),
+              _buildDetailRow('Day:', classModel.day ?? 'N/A'),
+              _buildDetailRow('Time:',
+                  '${classModel.startTime ?? 'N/A'} - ${classModel.endTime ?? 'N/A'}'),
+              _buildDetailRow('Monthly Fee:',
+                  'Rs. ${classModel.monthlyFee?.toStringAsFixed(2) ?? 'N/A'}'),
+              if (classModel.description != null && classModel.description!.isNotEmpty)
+                _buildDetailRow('Description:', classModel.description!),
+              _buildDetailRow(
+                  'Status:', classModel.isActive ? 'Active' : 'Inactive'),
+            ],
+          ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text('Close'),
+          ),
+          ElevatedButton.icon(
+            onPressed: () {
+              Navigator.pop(context);
+              _showEnrollmentDialog(classModel);
+            },
+            icon: const Icon(Icons.person_add),
+            label: const Text('Manage Students'),
           ),
         ],
       ),
@@ -288,7 +361,7 @@ class _ClassesScreenState extends ConsumerState<ClassesScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 80,
+            width: 120,
             child: Text(
               label,
               style: const TextStyle(fontWeight: FontWeight.w600),
@@ -306,29 +379,36 @@ class _ClassesScreenState extends ConsumerState<ClassesScreen> {
       builder: (context) => const ClassFormDialog(),
     );
 
-    if (result == true) {
-      _loadClasses();
+    if (result == true && mounted) {
+      ref.read(classesProvider.notifier).refresh();
     }
   }
 
-  Future<void> _showEditClassDialog(dynamic classItem) async {
+  Future<void> _showEditClassDialog(ClassModel classModel) async {
     final result = await showDialog<bool>(
       context: context,
-      builder: (context) => ClassFormDialog(classData: classItem),
+      builder: (context) => ClassFormDialog(classData: classModel),
     );
 
-    if (result == true) {
-      _loadClasses();
+    if (result == true && mounted) {
+      ref.read(classesProvider.notifier).refresh();
     }
   }
 
-  void _showDeleteConfirmation(dynamic classItem) {
+  void _showEnrollmentDialog(ClassModel classModel) {
+    showDialog(
+      context: context,
+      builder: (context) => EnrollmentDialog(classModel: classModel),
+    );
+  }
+
+  void _showDeleteConfirmation(ClassModel classModel) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Delete Class'),
         content: Text(
-          'Are you sure you want to delete ${classItem['name']}? This action cannot be undone.',
+          'Are you sure you want to delete ${classModel.name}? This action cannot be undone.',
         ),
         actions: [
           TextButton(
@@ -338,14 +418,11 @@ class _ClassesScreenState extends ConsumerState<ClassesScreen> {
           ElevatedButton(
             onPressed: () async {
               Navigator.pop(context);
-              final apiService = ref.read(apiProvider);
               try {
-                await apiService.deleteClass(classItem['id']);
-                _loadClasses();
+                await ref.read(classesProvider.notifier).deleteClass(classModel.id);
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                        content: Text('Class deleted successfully')),
+                    const SnackBar(content: Text('Class deleted successfully')),
                   );
                 }
               } catch (e) {

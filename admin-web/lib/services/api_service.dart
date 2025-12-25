@@ -5,6 +5,8 @@ import '../models/user.dart';
 import '../models/student.dart';
 import '../models/payment.dart';
 import '../models/dashboard.dart';
+import '../models/class_model.dart';
+import '../models/teacher.dart';
 
 class ApiService {
   late final Dio _dio;
@@ -237,52 +239,56 @@ class ApiService {
 
   // ====================== SUBJECT ENDPOINTS ======================
 
-  Future<List<dynamic>> getSubjects() async {
+  Future<List<Subject>> getSubjects() async {
     final response = await _dio.get('/subjects');
-    return response.data['data'];
+    return (response.data['data'] as List)
+        .map((json) => Subject.fromJson(json))
+        .toList();
   }
 
   // ====================== CLASS ENDPOINTS ======================
 
-  Future<List<dynamic>> getClasses() async {
+  Future<List<ClassModel>> getClasses() async {
     final response = await _dio.get('/classes');
-    return response.data['data'];
+    return (response.data['data'] as List)
+        .map((json) => ClassModel.fromJson(json))
+        .toList();
   }
 
-  Future<dynamic> getClass(int id) async {
+  Future<ClassModel> getClass(int id) async {
     final response = await _dio.get('/classes/$id');
-    return response.data['data'];
+    return ClassModel.fromJson(response.data['data']);
   }
 
-  Future<dynamic> createClass(Map<String, dynamic> data) async {
+  Future<ClassModel> createClass(Map<String, dynamic> data) async {
     final response = await _dio.post('/classes', data: data);
-    return response.data;
+    return ClassModel.fromJson(response.data['data']);
   }
 
-  Future<dynamic> updateClass(int id, Map<String, dynamic> data) async {
+  Future<ClassModel> updateClass(int id, Map<String, dynamic> data) async {
     final response = await _dio.put('/classes/$id', data: data);
-    return response.data;
+    return ClassModel.fromJson(response.data['data']);
   }
 
   Future<void> deleteClass(int id) async {
     await _dio.delete('/classes/$id');
   }
 
-  Future<List<dynamic>> getClassStudents(int classId) async {
+  Future<List<Student>> getClassStudents(int classId) async {
     final response = await _dio.get('/classes/$classId/students');
-    return response.data['data'];
+    return (response.data['data'] as List)
+        .map((json) => Student.fromJson(json))
+        .toList();
   }
 
-  Future<void> enrollStudent(int classId, int studentId) async {
+  Future<void> enrollStudentInClass(int classId, int studentId) async {
     await _dio.post('/classes/$classId/enroll', data: {
       'student_id': studentId,
     });
   }
 
-  Future<void> unenrollStudent(int classId, int studentId) async {
-    await _dio.post('/classes/$classId/unenroll', data: {
-      'student_id': studentId,
-    });
+  Future<void> removeStudentFromClass(int classId, int studentId) async {
+    await _dio.delete('/classes/$classId/students/$studentId');
   }
 
   // ====================== NOTIFICATION ENDPOINTS ======================
