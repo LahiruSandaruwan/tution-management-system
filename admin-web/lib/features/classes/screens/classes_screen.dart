@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/theme/app_theme.dart';
 import '../../../providers/api_provider.dart';
 
 class ClassesScreen extends ConsumerStatefulWidget {
@@ -17,22 +16,35 @@ class _ClassesScreenState extends ConsumerState<ClassesScreen> {
   @override
   void initState() {
     super.initState();
-    _loadClasses();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadClasses();
+    });
   }
 
   Future<void> _loadClasses() async {
+    if (!mounted) return;
+
     setState(() => _isLoading = true);
     try {
       final apiService = ref.read(apiProvider);
       final classes = await apiService.getClasses();
       print('Classes loaded: ${classes.length}');
       print('First class: ${classes.isNotEmpty ? classes[0] : 'empty'}');
+
+      if (!mounted) return;
+
       setState(() {
         _classes = classes;
         _isLoading = false;
       });
+
+      print('State updated. Classes count: ${_classes.length}');
     } catch (e) {
       print('Error loading classes: $e');
+      print('Error stack trace: ${StackTrace.current}');
+
+      if (!mounted) return;
+
       setState(() => _isLoading = false);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -99,14 +111,17 @@ class _ClassesScreenState extends ConsumerState<ClassesScreen> {
           const SizedBox(height: 16),
           Text(
             'No classes found',
-            style: AppTheme.headingMedium.copyWith(
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
               color: Colors.grey[600],
             ),
           ),
           const SizedBox(height: 8),
           Text(
             'Create your first class to get started',
-            style: AppTheme.bodyMedium.copyWith(
+            style: TextStyle(
+              fontSize: 14,
               color: Colors.grey[500],
             ),
           ),
@@ -122,108 +137,118 @@ class _ClassesScreenState extends ConsumerState<ClassesScreen> {
   }
 
   Widget _buildClassCard(dynamic classItem) {
-    final name = classItem['name'] ?? 'Unnamed Class';
-    final subject = classItem['subject']?['name'] ?? 'N/A';
-    final grade = classItem['grade'] ?? 'N/A';
-    final teacherName = classItem['teacher']?['user']?['name'] ?? 'No Teacher';
-    final capacity = classItem['capacity'] ?? 0;
+    try {
+      final name = classItem['name']?.toString() ?? 'Unnamed Class';
+      final subject = classItem['subject']?['name']?.toString() ?? 'N/A';
+      final grade = classItem['grade']?.toString() ?? 'N/A';
+      final teacherName = classItem['teacher']?['user']?['name']?.toString() ?? 'No Teacher';
+      final capacity = classItem['capacity']?.toString() ?? '0';
 
-    return Card(
-      elevation: 2,
-      child: InkWell(
-        onTap: () => _showClassDetails(classItem),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: AppTheme.primaryColor.withOpacity(0.1),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.class_,
-                      color: AppTheme.primaryColor,
-                    ),
-                  ),
-                  const Spacer(),
-                  PopupMenuButton(
-                    itemBuilder: (context) => [
-                      const PopupMenuItem(
-                        value: 'edit',
-                        child: Row(
-                          children: [
-                            Icon(Icons.edit, size: 18),
-                            SizedBox(width: 8),
-                            Text('Edit'),
-                          ],
-                        ),
+      return Card(
+        elevation: 2,
+        child: InkWell(
+          onTap: () => _showClassDetails(classItem),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).primaryColor.withOpacity(0.1),
+                        shape: BoxShape.circle,
                       ),
-                      const PopupMenuItem(
-                        value: 'delete',
-                        child: Row(
-                          children: [
-                            Icon(Icons.delete, size: 18, color: Colors.red),
-                            SizedBox(width: 8),
-                            Text('Delete', style: TextStyle(color: Colors.red)),
-                          ],
-                        ),
+                      child: Icon(
+                        Icons.class_,
+                        color: Theme.of(context).primaryColor,
                       ),
-                    ],
-                    onSelected: (value) {
-                      if (value == 'edit') {
-                        _showEditClassDialog(classItem);
-                      } else if (value == 'delete') {
-                        _showDeleteConfirmation(classItem);
-                      }
-                    },
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Text(
-                name,
-                style: AppTheme.titleLarge,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: 4),
-              Text(
-                subject,
-                style: AppTheme.bodyMedium.copyWith(
-                  color: AppTheme.primaryColor,
-                  fontWeight: FontWeight.w600,
+                    ),
+                    const Spacer(),
+                    PopupMenuButton(
+                      itemBuilder: (context) => [
+                        const PopupMenuItem(
+                          value: 'edit',
+                          child: Row(
+                            children: [
+                              Icon(Icons.edit, size: 18),
+                              SizedBox(width: 8),
+                              Text('Edit'),
+                            ],
+                          ),
+                        ),
+                        const PopupMenuItem(
+                          value: 'delete',
+                          child: Row(
+                            children: [
+                              Icon(Icons.delete, size: 18, color: Colors.red),
+                              SizedBox(width: 8),
+                              Text('Delete', style: TextStyle(color: Colors.red)),
+                            ],
+                          ),
+                        ),
+                      ],
+                      onSelected: (value) {
+                        if (value == 'edit') {
+                          _showEditClassDialog(classItem);
+                        } else if (value == 'delete') {
+                          _showDeleteConfirmation(classItem);
+                        }
+                      },
+                    ),
+                  ],
                 ),
-              ),
-              const Spacer(),
-              const Divider(),
-              Row(
-                children: [
-                  const Icon(Icons.school, size: 16, color: Colors.grey),
-                  const SizedBox(width: 4),
-                  Text(grade, style: AppTheme.bodySmall),
-                  const Spacer(),
-                  const Icon(Icons.person, size: 16, color: Colors.grey),
-                  const SizedBox(width: 4),
-                  Text('Capacity: $capacity', style: AppTheme.bodySmall),
-                ],
-              ),
-              const SizedBox(height: 4),
-              Text(
-                'Teacher: $teacherName',
-                style: AppTheme.bodySmall.copyWith(color: Colors.grey[600]),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
+                const SizedBox(height: 12),
+                Text(
+                  name,
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  subject,
+                  style: TextStyle(
+                    color: Theme.of(context).primaryColor,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const Spacer(),
+                const Divider(),
+                Row(
+                  children: [
+                    const Icon(Icons.school, size: 16, color: Colors.grey),
+                    const SizedBox(width: 4),
+                    Text(grade, style: const TextStyle(fontSize: 12)),
+                    const Spacer(),
+                    const Icon(Icons.person, size: 16, color: Colors.grey),
+                    const SizedBox(width: 4),
+                    Text('Cap: $capacity', style: const TextStyle(fontSize: 12)),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Teacher: $teacherName',
+                  style: const TextStyle(fontSize: 12, color: Colors.grey),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
           ),
         ),
-      ),
-    );
+      );
+    } catch (e) {
+      print('Error building class card: $e');
+      return Card(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Text('Error rendering class: $e'),
+        ),
+      );
+    }
   }
 
   void _showClassDetails(dynamic classItem) {
@@ -325,7 +350,7 @@ class _ClassesScreenState extends ConsumerState<ClassesScreen> {
               }
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.errorColor,
+              backgroundColor: Colors.red,
             ),
             child: const Text('Delete'),
           ),
