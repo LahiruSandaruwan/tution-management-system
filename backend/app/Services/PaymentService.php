@@ -64,9 +64,9 @@ class PaymentService
         $payments = Payment::where('student_id', $studentId)->get();
 
         return [
-            'total_paid' => $payments->where('status', 'paid')->sum('amount'),
-            'total_pending' => $payments->where('status', 'pending')->sum('amount'),
-            'total_overdue' => $payments->where('status', 'overdue')->sum('amount'),
+            'total_paid' => (float) $payments->where('status', 'paid')->sum('amount'),
+            'total_pending' => (float) $payments->where('status', 'pending')->sum('amount'),
+            'total_overdue' => (float) $payments->where('status', 'overdue')->sum('amount'),
             'overdue_count' => $payments->where('status', 'overdue')->count(),
             'last_payment' => $payments->where('status', 'paid')->sortByDesc('payment_date')->first(),
         ];
@@ -169,9 +169,9 @@ class PaymentService
         $payments = $query->get();
 
         return [
-            'total_collected' => $payments->where('status', 'paid')->sum('amount'),
-            'total_pending' => $payments->where('status', 'pending')->sum('amount'),
-            'total_overdue' => $payments->where('status', 'overdue')->sum('amount'),
+            'total_collected' => (float) $payments->where('status', 'paid')->sum('amount'),
+            'total_pending' => (float) $payments->where('status', 'pending')->sum('amount'),
+            'total_overdue' => (float) $payments->where('status', 'overdue')->sum('amount'),
             'paid_count' => $payments->where('status', 'paid')->count(),
             'pending_count' => $payments->where('status', 'pending')->count(),
             'overdue_count' => $payments->where('status', 'overdue')->count(),

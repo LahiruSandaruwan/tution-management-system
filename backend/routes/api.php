@@ -55,6 +55,10 @@ Route::middleware(['auth:sanctum', 'institute'])->group(function () {
         Route::post('/teachers/{teacher}/toggle-status', [App\Http\Controllers\Api\TeacherController::class, 'toggleStatus']);
     });
 
+    // Subject routes
+    Route::get('/subjects', [App\Http\Controllers\Api\SubjectController::class, 'index']);
+    Route::get('/subjects/{subject}', [App\Http\Controllers\Api\SubjectController::class, 'show']);
+
     // Class routes
     Route::apiResource('classes', App\Http\Controllers\Api\ClassController::class);
     Route::post('/classes/{class}/enroll', [App\Http\Controllers\Api\ClassController::class, 'enrollStudent']);
@@ -73,11 +77,11 @@ Route::middleware(['auth:sanctum', 'institute'])->group(function () {
     Route::prefix('payments')->group(function () {
         Route::get('/', [App\Http\Controllers\Api\PaymentController::class, 'index']);
         Route::post('/', [App\Http\Controllers\Api\PaymentController::class, 'store']);
-        Route::get('/{payment}', [App\Http\Controllers\Api\PaymentController::class, 'show']);
-        Route::get('/student/{student}', [App\Http\Controllers\Api\PaymentController::class, 'studentPayments']);
-        Route::post('/generate-monthly', [App\Http\Controllers\Api\PaymentController::class, 'generateMonthly']);
         Route::get('/defaulters', [App\Http\Controllers\Api\PaymentController::class, 'defaulters']);
         Route::get('/statistics', [App\Http\Controllers\Api\PaymentController::class, 'statistics']);
+        Route::get('/student/{student}', [App\Http\Controllers\Api\PaymentController::class, 'studentPayments']);
+        Route::post('/generate-monthly', [App\Http\Controllers\Api\PaymentController::class, 'generateMonthly']);
+        Route::get('/{payment}', [App\Http\Controllers\Api\PaymentController::class, 'show']);
     });
 
     // Grade routes

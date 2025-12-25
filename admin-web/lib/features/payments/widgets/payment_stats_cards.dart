@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../models/payment.dart';
-import '../../../core/theme/app_theme.dart';
 import '../../dashboard/widgets/stat_card.dart';
 import 'package:intl/intl.dart';
 
@@ -30,21 +29,21 @@ class PaymentStatsCards extends StatelessWidget {
           value: currencyFormat.format(statistics.totalCollected),
           subtitle: '${statistics.paidCount} payments',
           icon: FontAwesomeIcons.checkCircle,
-          color: AppTheme.successColor,
+          color: Colors.green,
         ),
         StatCard(
           title: 'Total Pending',
           value: currencyFormat.format(statistics.totalPending),
           subtitle: '${statistics.pendingCount} payments',
           icon: FontAwesomeIcons.clock,
-          color: AppTheme.warningColor,
+          color: Colors.orange,
         ),
         StatCard(
           title: 'Total Overdue',
           value: currencyFormat.format(statistics.totalOverdue),
           subtitle: '${statistics.overdueCount} payments',
           icon: FontAwesomeIcons.exclamationTriangle,
-          color: AppTheme.errorColor,
+          color: Colors.red,
         ),
       ],
     );

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../../models/student.dart';
-import '../../../core/theme/app_theme.dart';
 
 class DefaultersDialog extends StatelessWidget {
   final List<Student> defaulters;
@@ -22,7 +21,7 @@ class DefaultersDialog extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(24),
               decoration: const BoxDecoration(
-                color: AppTheme.errorColor,
+                color: Colors.red,
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(4),
                   topRight: Radius.circular(4),
@@ -34,7 +33,7 @@ class DefaultersDialog extends StatelessWidget {
                   const SizedBox(width: 12),
                   Text(
                     'Payment Defaulters (${defaulters.length})',
-                    style: AppTheme.headingMedium.copyWith(color: Colors.white),
+                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: Colors.white),
                   ),
                   const Spacer(),
                   IconButton(
@@ -55,19 +54,22 @@ class DefaultersDialog extends StatelessWidget {
                           Icon(
                             Icons.check_circle_outline,
                             size: 64,
-                            color: AppTheme.successColor,
+                            color: Colors.green,
                           ),
                           const SizedBox(height: 16),
                           Text(
                             'No Defaulters!',
-                            style: AppTheme.headingMedium.copyWith(
-                              color: AppTheme.successColor,
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.green,
                             ),
                           ),
                           const SizedBox(height: 8),
                           Text(
                             'All students have paid their fees',
-                            style: AppTheme.bodyMedium.copyWith(
+                            style: TextStyle(
+                              fontSize: 14,
                               color: Colors.grey[600],
                             ),
                           ),
@@ -83,7 +85,7 @@ class DefaultersDialog extends StatelessWidget {
                           margin: const EdgeInsets.only(bottom: 12),
                           child: ListTile(
                             leading: CircleAvatar(
-                              backgroundColor: AppTheme.errorColor,
+                              backgroundColor: Colors.red,
                               child: Text(
                                 student.displayName.substring(0, 1).toUpperCase(),
                                 style: const TextStyle(
@@ -94,7 +96,6 @@ class DefaultersDialog extends StatelessWidget {
                             ),
                             title: Text(
                               student.displayName,
-                              style: AppTheme.titleMedium,
                             ),
                             subtitle: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -111,13 +112,13 @@ class DefaultersDialog extends StatelessWidget {
                                 vertical: 6,
                               ),
                               decoration: BoxDecoration(
-                                color: AppTheme.errorColor.withOpacity(0.2),
+                                color: Colors.red.withOpacity(0.2),
                                 borderRadius: BorderRadius.circular(12),
                               ),
-                              child: Text(
+                              child: const Text(
                                 'OVERDUE',
                                 style: TextStyle(
-                                  color: AppTheme.errorColor,
+                                  color: Colors.red,
                                   fontWeight: FontWeight.w600,
                                   fontSize: 12,
                                 ),

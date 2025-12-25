@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/theme/app_theme.dart';
 import '../../../models/student.dart';
 import '../../../providers/api_provider.dart';
 import 'package:intl/intl.dart';
@@ -70,7 +69,7 @@ class _PaymentFormDialogState extends ConsumerState<PaymentFormDialog> {
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: AppTheme.primaryColor,
+                color: Colors.blue,
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(4),
                   topRight: Radius.circular(4),
@@ -82,7 +81,7 @@ class _PaymentFormDialogState extends ConsumerState<PaymentFormDialog> {
                   const SizedBox(width: 12),
                   Text(
                     'Record Payment',
-                    style: AppTheme.headingMedium.copyWith(color: Colors.white),
+                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: Colors.white),
                   ),
                   const Spacer(),
                   IconButton(

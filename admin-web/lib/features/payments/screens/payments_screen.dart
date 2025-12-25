@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import '../../../core/theme/app_theme.dart';
 import '../providers/payments_provider.dart';
 import '../widgets/payment_stats_cards.dart';
 import '../widgets/payment_table.dart';
@@ -52,8 +51,8 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
               'Defaulters (${paymentsState.defaulters.length})',
             ),
             style: OutlinedButton.styleFrom(
-              foregroundColor: AppTheme.errorColor,
-              side: const BorderSide(color: AppTheme.errorColor),
+              foregroundColor: Colors.red,
+              side: const BorderSide(color: Colors.red),
             ),
           ),
           const SizedBox(width: 8),
@@ -223,14 +222,17 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
             const SizedBox(height: 16),
             Text(
               'No payments found',
-              style: AppTheme.headingMedium.copyWith(
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
                 color: Colors.grey[600],
               ),
             ),
             const SizedBox(height: 8),
             Text(
               'Record your first payment or generate monthly payments',
-              style: AppTheme.bodyMedium.copyWith(
+              style: TextStyle(
+                fontSize: 14,
                 color: Colors.grey[500],
               ),
             ),

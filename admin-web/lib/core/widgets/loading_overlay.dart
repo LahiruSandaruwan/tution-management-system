@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../theme/app_theme.dart';
 
 class LoadingOverlay extends StatelessWidget {
   final bool isLoading;
@@ -33,7 +32,7 @@ class LoadingOverlay extends StatelessWidget {
                         const SizedBox(height: 16),
                         Text(
                           message!,
-                          style: AppTheme.bodyMedium,
+                          style: const TextStyle(fontSize: 14),
                         ),
                       ],
                     ],
@@ -64,8 +63,9 @@ class LoadingIndicator extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               message!,
-              style: AppTheme.bodyMedium.copyWith(
-                color: AppTheme.textSecondaryColor,
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey[600],
               ),
             ),
           ],
@@ -98,19 +98,23 @@ class RetryWidget extends StatelessWidget {
             Icon(
               Icons.error_outline,
               size: 64,
-              color: AppTheme.errorColor,
+              color: Colors.red,
             ),
             const SizedBox(height: 24),
-            Text(
+            const Text(
               'Error Loading Data',
-              style: AppTheme.headingMedium,
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
+              ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
             Text(
               message,
-              style: AppTheme.bodyMedium.copyWith(
-                color: AppTheme.textSecondaryColor,
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey[600],
               ),
               textAlign: TextAlign.center,
             ),

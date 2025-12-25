@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../../models/payment.dart';
-import '../../../core/theme/app_theme.dart';
 import 'package:intl/intl.dart';
 
 class PaymentTable extends StatelessWidget {
@@ -20,7 +19,7 @@ class PaymentTable extends StatelessWidget {
           child: DataTable(
             columnSpacing: 24,
             headingRowColor: MaterialStateProperty.all(
-              AppTheme.primaryColor.withOpacity(0.1),
+              Colors.blue.withOpacity(0.1),
             ),
             columns: const [
               DataColumn(label: Text('Receipt #', style: TextStyle(fontWeight: FontWeight.bold))),
@@ -97,11 +96,11 @@ class PaymentTable extends StatelessWidget {
   Color _getStatusColor(String status) {
     switch (status.toLowerCase()) {
       case 'paid':
-        return AppTheme.successColor;
+        return Colors.green;
       case 'pending':
-        return AppTheme.warningColor;
+        return Colors.orange;
       case 'overdue':
-        return AppTheme.errorColor;
+        return Colors.red;
       default:
         return Colors.grey;
     }

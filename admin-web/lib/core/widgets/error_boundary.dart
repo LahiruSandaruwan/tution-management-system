@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../theme/app_theme.dart';
 
 class ErrorBoundary extends StatefulWidget {
   final Widget child;
@@ -95,19 +94,23 @@ class ErrorDisplay extends StatelessWidget {
                 Icon(
                   Icons.error_outline,
                   size: 64,
-                  color: AppTheme.errorColor,
+                  color: Colors.red,
                 ),
                 const SizedBox(height: 24),
                 Text(
                   title ?? 'Oops! Something went wrong',
-                  style: AppTheme.headingMedium,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                  ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 16),
                 Text(
                   _getErrorMessage(error),
-                  style: AppTheme.bodyMedium.copyWith(
-                    color: AppTheme.textSecondaryColor,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey[600],
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -179,7 +182,9 @@ class EmptyStateWidget extends StatelessWidget {
             const SizedBox(height: 24),
             Text(
               title,
-              style: AppTheme.headingMedium.copyWith(
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
                 color: Colors.grey[600],
               ),
               textAlign: TextAlign.center,
@@ -188,7 +193,8 @@ class EmptyStateWidget extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                 message!,
-                style: AppTheme.bodyMedium.copyWith(
+                style: TextStyle(
+                  fontSize: 14,
                   color: Colors.grey[500],
                 ),
                 textAlign: TextAlign.center,

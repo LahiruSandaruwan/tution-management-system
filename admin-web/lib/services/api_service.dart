@@ -235,6 +235,13 @@ class ApiService {
     await _dio.post('/teachers/$id/toggle-status');
   }
 
+  // ====================== SUBJECT ENDPOINTS ======================
+
+  Future<List<dynamic>> getSubjects() async {
+    final response = await _dio.get('/subjects');
+    return response.data['data'];
+  }
+
   // ====================== CLASS ENDPOINTS ======================
 
   Future<List<dynamic>> getClasses() async {

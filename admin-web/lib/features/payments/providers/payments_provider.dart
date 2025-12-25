@@ -106,11 +106,19 @@ class PaymentsNotifier extends StateNotifier<PaymentsState> {
   }
 
   Future<void> loadAll() async {
-    await Future.wait([
-      loadPayments(),
-      loadStatistics(),
-      loadDefaulters(),
-    ]);
+    state = state.copyWith(isLoading: true, clearError: true);
+    try {
+      await Future.wait([
+        loadPayments(),
+        loadStatistics(),
+        loadDefaulters(),
+      ]);
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        error: e.toString(),
+      );
+    }
   }
 
   Future<void> refresh() async {

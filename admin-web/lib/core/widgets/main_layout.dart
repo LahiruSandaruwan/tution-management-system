@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../features/auth/providers/auth_provider.dart';
-import '../theme/app_theme.dart';
 import '../providers/theme_provider.dart';
 
 class MainLayout extends ConsumerWidget {
@@ -24,7 +23,7 @@ class MainLayout extends ConsumerWidget {
           // Sidebar
           Container(
             width: 250,
-            color: AppTheme.primaryColor,
+            color: Colors.blue,
             child: Column(
               children: [
                 // Logo/Header
@@ -38,9 +37,11 @@ class MainLayout extends ConsumerWidget {
                         size: 48,
                       ),
                       const SizedBox(height: 12),
-                      Text(
+                      const Text(
                         'Tuition Admin',
-                        style: AppTheme.titleLarge.copyWith(
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
                           color: Colors.white,
                         ),
                       ),
@@ -130,20 +131,22 @@ class MainLayout extends ConsumerWidget {
                           child: Text(
                             user?.name.substring(0, 1).toUpperCase() ?? 'A',
                             style: const TextStyle(
-                              color: AppTheme.primaryColor,
+                              color: Colors.blue,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                         ),
                         title: Text(
                           user?.name ?? 'Admin',
-                          style: AppTheme.bodyMedium.copyWith(
+                          style: const TextStyle(
+                            fontSize: 14,
                             color: Colors.white,
                           ),
                         ),
                         subtitle: Text(
                           user?.role ?? 'Administrator',
-                          style: AppTheme.bodySmall.copyWith(
+                          style: const TextStyle(
+                            fontSize: 12,
                             color: Colors.white70,
                           ),
                         ),
@@ -182,7 +185,8 @@ class MainLayout extends ConsumerWidget {
                                 const SizedBox(width: 8),
                                 Text(
                                   isDarkMode ? 'Dark Mode' : 'Light Mode',
-                                  style: AppTheme.bodySmall.copyWith(
+                                  style: const TextStyle(
+                                    fontSize: 12,
                                     color: Colors.white,
                                   ),
                                 ),
@@ -230,7 +234,7 @@ class MainLayout extends ConsumerWidget {
           // Main Content
           Expanded(
             child: Container(
-              color: AppTheme.backgroundColor,
+              color: Colors.grey[100],
               child: child,
             ),
           ),
@@ -270,7 +274,8 @@ class _NavItem extends StatelessWidget {
         ),
         title: Text(
           label,
-          style: AppTheme.bodyMedium.copyWith(
+          style: TextStyle(
+            fontSize: 14,
             color: Colors.white,
             fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
           ),

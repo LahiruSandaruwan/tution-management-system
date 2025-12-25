@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../core/theme/app_theme.dart';
 
 class GenerateMonthlyDialog extends StatefulWidget {
   final Function(String month, int year) onGenerate;
@@ -36,7 +35,7 @@ class _GenerateMonthlyDialogState extends State<GenerateMonthlyDialog> {
     return AlertDialog(
       title: Row(
         children: [
-          const Icon(Icons.calendar_month, color: AppTheme.primaryColor),
+          const Icon(Icons.calendar_month, color: Colors.blue),
           const SizedBox(width: 12),
           const Text('Generate Monthly Payments'),
         ],

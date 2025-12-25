@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../providers/api_provider.dart';
+import '../widgets/class_form_dialog.dart';
 
 class ClassesScreen extends ConsumerStatefulWidget {
   const ClassesScreen({super.key});
@@ -299,20 +300,26 @@ class _ClassesScreenState extends ConsumerState<ClassesScreen> {
     );
   }
 
-  void _showAddClassDialog() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Class creation dialog - Feature coming soon'),
-      ),
+  Future<void> _showAddClassDialog() async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => const ClassFormDialog(),
     );
+
+    if (result == true) {
+      _loadClasses();
+    }
   }
 
-  void _showEditClassDialog(dynamic classItem) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Class editing - Feature coming soon'),
-      ),
+  Future<void> _showEditClassDialog(dynamic classItem) async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => ClassFormDialog(classData: classItem),
     );
+
+    if (result == true) {
+      _loadClasses();
+    }
   }
 
   void _showDeleteConfirmation(dynamic classItem) {
