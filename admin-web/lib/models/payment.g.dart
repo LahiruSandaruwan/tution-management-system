@@ -10,7 +10,7 @@ Payment _$PaymentFromJson(Map<String, dynamic> json) => Payment(
       id: (json['id'] as num).toInt(),
       instituteId: (json['institute_id'] as num).toInt(),
       studentId: (json['student_id'] as num).toInt(),
-      amount: (json['amount'] as num).toDouble(),
+      amount: Payment._amountFromJson(json['amount']),
       paymentDate: json['payment_date'] == null
           ? null
           : DateTime.parse(json['payment_date'] as String),
@@ -46,9 +46,10 @@ Map<String, dynamic> _$PaymentToJson(Payment instance) => <String, dynamic>{
 
 PaymentStatistics _$PaymentStatisticsFromJson(Map<String, dynamic> json) =>
     PaymentStatistics(
-      totalCollected: (json['total_collected'] as num).toDouble(),
-      totalPending: (json['total_pending'] as num).toDouble(),
-      totalOverdue: (json['total_overdue'] as num).toDouble(),
+      totalCollected:
+          PaymentStatistics._amountFromJson(json['total_collected']),
+      totalPending: PaymentStatistics._amountFromJson(json['total_pending']),
+      totalOverdue: PaymentStatistics._amountFromJson(json['total_overdue']),
       paidCount: (json['paid_count'] as num).toInt(),
       pendingCount: (json['pending_count'] as num).toInt(),
       overdueCount: (json['overdue_count'] as num).toInt(),

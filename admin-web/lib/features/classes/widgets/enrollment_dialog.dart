@@ -52,8 +52,8 @@ class _EnrollmentDialogState extends ConsumerState<EnrollmentDialog> {
   List<Student> get filteredAvailable {
     if (_searchQuery.isEmpty) return _availableStudents;
     return _availableStudents.where((s) =>
-      s.user.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-      s.registrationNumber.toLowerCase().contains(_searchQuery.toLowerCase())
+      (s.user?.name ?? '').toLowerCase().contains(_searchQuery.toLowerCase()) ||
+      s.studentIdNumber.toLowerCase().contains(_searchQuery.toLowerCase())
     ).toList();
   }
 
@@ -148,10 +148,10 @@ class _EnrollmentDialogState extends ConsumerState<EnrollmentDialog> {
                           final student = students[index];
                           return ListTile(
                             leading: CircleAvatar(
-                              child: Text(student.user.name[0].toUpperCase()),
+                              child: Text((student.user?.name ?? 'U')[0].toUpperCase()),
                             ),
-                            title: Text(student.user.name),
-                            subtitle: Text(student.registrationNumber),
+                            title: Text(student.user?.name ?? 'Unknown'),
+                            subtitle: Text(student.studentIdNumber),
                             trailing: trailing(student),
                           );
                         },
@@ -176,7 +176,7 @@ class _EnrollmentDialogState extends ConsumerState<EnrollmentDialog> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${student.user.name} enrolled successfully')),
+          SnackBar(content: Text('${student.user?.name ?? "Student"} enrolled successfully')),
         );
       }
     } catch (e) {
@@ -202,7 +202,7 @@ class _EnrollmentDialogState extends ConsumerState<EnrollmentDialog> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${student.user.name} removed successfully')),
+          SnackBar(content: Text('${student.user?.name ?? "Student"} removed successfully')),
         );
       }
     } catch (e) {

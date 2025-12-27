@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../models/class_model.dart';
+import '../../../core/theme/app_theme.dart';
 import '../providers/classes_provider.dart';
 import '../widgets/class_form_dialog.dart';
 import '../widgets/enrollment_dialog.dart';
@@ -37,8 +38,26 @@ class _ClassesScreenState extends ConsumerState<ClassesScreen> {
           const SizedBox(width: 8),
           ElevatedButton.icon(
             onPressed: _showAddClassDialog,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.primaryColor,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(
+                horizontal: 24,
+                vertical: 12,
+              ),
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
             icon: const Icon(Icons.add),
-            label: const Text('Add Class'),
+            label: const Text(
+              'Add Class',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ),
           const SizedBox(width: 16),
         ],
@@ -99,8 +118,26 @@ class _ClassesScreenState extends ConsumerState<ClassesScreen> {
           const SizedBox(height: 24),
           ElevatedButton.icon(
             onPressed: () => ref.read(classesProvider.notifier).refresh(),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.primaryColor,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(
+                horizontal: 24,
+                vertical: 12,
+              ),
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
             icon: const Icon(Icons.refresh),
-            label: const Text('Retry'),
+            label: const Text(
+              'Retry',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ),
         ],
       ),
@@ -137,8 +174,26 @@ class _ClassesScreenState extends ConsumerState<ClassesScreen> {
           const SizedBox(height: 24),
           ElevatedButton.icon(
             onPressed: _showAddClassDialog,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.primaryColor,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(
+                horizontal: 24,
+                vertical: 12,
+              ),
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
             icon: const Icon(Icons.add),
-            label: const Text('Add Class'),
+            label: const Text(
+              'Add Class',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ),
         ],
       ),
@@ -149,7 +204,7 @@ class _ClassesScreenState extends ConsumerState<ClassesScreen> {
     final name = classModel.name;
     final subject = classModel.subject?.name ?? 'N/A';
     final grade = classModel.grade ?? 'N/A';
-    final teacherName = classModel.teacher?.user.name ?? 'No Teacher';
+    final teacherName = classModel.teacher?.user?.name ?? 'No Teacher';
     final studentsCount = classModel.studentsCount ?? 0;
     final maxStudents = classModel.maxStudents ?? 0;
     final day = classModel.day ?? 'N/A';
@@ -320,7 +375,7 @@ class _ClassesScreenState extends ConsumerState<ClassesScreen> {
               _buildDetailRow('Subject:', classModel.subject?.name ?? 'N/A'),
               _buildDetailRow('Grade:', classModel.grade ?? 'N/A'),
               _buildDetailRow(
-                  'Teacher:', classModel.teacher?.user.name ?? 'No Teacher'),
+                  'Teacher:', classModel.teacher?.user?.name ?? 'No Teacher'),
               _buildDetailRow(
                   'Students:',
                   '${classModel.studentsCount ?? 0}/${classModel.maxStudents ?? 0}'),
@@ -337,17 +392,51 @@ class _ClassesScreenState extends ConsumerState<ClassesScreen> {
           ),
         ),
         actions: [
-          TextButton(
+          OutlinedButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
+            style: OutlinedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 32,
+                vertical: 16,
+              ),
+              side: BorderSide(color: Colors.grey[400]!),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            child: const Text(
+              'Close',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
           ),
           ElevatedButton.icon(
             onPressed: () {
               Navigator.pop(context);
               _showEnrollmentDialog(classModel);
             },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.primaryColor,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(
+                horizontal: 32,
+                vertical: 16,
+              ),
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
             icon: const Icon(Icons.person_add),
-            label: const Text('Manage Students'),
+            label: const Text(
+              'Manage Students',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ),
         ],
       ),
@@ -411,9 +500,25 @@ class _ClassesScreenState extends ConsumerState<ClassesScreen> {
           'Are you sure you want to delete ${classModel.name}? This action cannot be undone.',
         ),
         actions: [
-          TextButton(
+          OutlinedButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            style: OutlinedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 32,
+                vertical: 16,
+              ),
+              side: BorderSide(color: Colors.grey[400]!),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -434,9 +539,24 @@ class _ClassesScreenState extends ConsumerState<ClassesScreen> {
               }
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
+              backgroundColor: AppTheme.errorColor,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(
+                horizontal: 32,
+                vertical: 16,
+              ),
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
             ),
-            child: const Text('Delete'),
+            child: const Text(
+              'Delete',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ),
         ],
       ),

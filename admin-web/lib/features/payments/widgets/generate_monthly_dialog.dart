@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../core/theme/app_theme.dart';
 
 class GenerateMonthlyDialog extends StatefulWidget {
   final Function(String month, int year) onGenerate;
@@ -35,7 +36,7 @@ class _GenerateMonthlyDialogState extends State<GenerateMonthlyDialog> {
     return AlertDialog(
       title: Row(
         children: [
-          const Icon(Icons.calendar_month, color: Colors.blue),
+          const Icon(Icons.calendar_month, color: AppTheme.primaryColor),
           const SizedBox(width: 12),
           const Text('Generate Monthly Payments'),
         ],
@@ -99,20 +100,57 @@ class _GenerateMonthlyDialogState extends State<GenerateMonthlyDialog> {
         ],
       ),
       actions: [
-        TextButton(
+        OutlinedButton(
           onPressed: _isSubmitting ? null : () => Navigator.pop(context),
-          child: const Text('Cancel'),
+          style: OutlinedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 32,
+              vertical: 16,
+            ),
+            side: BorderSide(color: Colors.grey[400]!),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+          child: const Text(
+            'Cancel',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
         ),
         ElevatedButton.icon(
           onPressed: _isSubmitting ? null : _handleGenerate,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppTheme.primaryColor,
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(
+              horizontal: 32,
+              vertical: 16,
+            ),
+            elevation: 2,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
           icon: _isSubmitting
               ? const SizedBox(
-                  width: 16,
-                  height: 16,
-                  child: CircularProgressIndicator(strokeWidth: 2),
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.white,
+                  ),
                 )
               : const Icon(Icons.generating_tokens),
-          label: const Text('Generate'),
+          label: const Text(
+            'Generate',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
         ),
       ],
     );

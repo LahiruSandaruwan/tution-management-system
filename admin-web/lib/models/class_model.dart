@@ -23,7 +23,7 @@ class ClassModel {
   final double? monthlyFee;
   @JsonKey(name: 'max_students')
   final int? maxStudents;
-  @JsonKey(name: 'is_active')
+  @JsonKey(name: 'is_active', defaultValue: true)
   final bool isActive;
   @JsonKey(name: 'created_at')
   final String? createdAt;

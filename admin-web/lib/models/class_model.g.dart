@@ -18,7 +18,7 @@ ClassModel _$ClassModelFromJson(Map<String, dynamic> json) => ClassModel(
       endTime: json['end_time'] as String?,
       monthlyFee: (json['monthly_fee'] as num?)?.toDouble(),
       maxStudents: (json['max_students'] as num?)?.toInt(),
-      isActive: json['is_active'] as bool,
+      isActive: json['is_active'] as bool? ?? true,
       createdAt: json['created_at'] as String?,
       updatedAt: json['updated_at'] as String?,
       teacher: json['teacher'] == null

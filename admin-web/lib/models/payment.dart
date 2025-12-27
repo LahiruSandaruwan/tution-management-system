@@ -10,6 +10,7 @@ class Payment {
   final int instituteId;
   @JsonKey(name: 'student_id')
   final int studentId;
+  @JsonKey(fromJson: _amountFromJson)
   final double amount;
   @JsonKey(name: 'payment_date')
   final DateTime? paymentDate;
@@ -24,6 +25,12 @@ class Payment {
   final String? paymentMethod;
   final String? notes;
   final Student? student;
+
+  static double _amountFromJson(dynamic value) {
+    if (value is num) return value.toDouble();
+    if (value is String) return double.tryParse(value) ?? 0.0;
+    return 0.0;
+  }
 
   Payment({
     required this.id,
@@ -52,11 +59,11 @@ class Payment {
 
 @JsonSerializable()
 class PaymentStatistics {
-  @JsonKey(name: 'total_collected')
+  @JsonKey(name: 'total_collected', fromJson: _amountFromJson)
   final double totalCollected;
-  @JsonKey(name: 'total_pending')
+  @JsonKey(name: 'total_pending', fromJson: _amountFromJson)
   final double totalPending;
-  @JsonKey(name: 'total_overdue')
+  @JsonKey(name: 'total_overdue', fromJson: _amountFromJson)
   final double totalOverdue;
   @JsonKey(name: 'paid_count')
   final int paidCount;
@@ -64,6 +71,12 @@ class PaymentStatistics {
   final int pendingCount;
   @JsonKey(name: 'overdue_count')
   final int overdueCount;
+
+  static double _amountFromJson(dynamic value) {
+    if (value is num) return value.toDouble();
+    if (value is String) return double.tryParse(value) ?? 0.0;
+    return 0.0;
+  }
 
   PaymentStatistics({
     required this.totalCollected,

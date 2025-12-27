@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../models/class_model.dart';
 import '../../../models/teacher.dart';
+import '../../../core/theme/app_theme.dart';
 import '../providers/classes_provider.dart';
 import '../../../providers/api_provider.dart';
 
@@ -79,11 +80,13 @@ class _ClassFormDialogState extends ConsumerState<ClassFormDialog> {
 
       // Load subjects and teachers
       final subjects = await apiService.getSubjects();
-      final teachers = await apiService.getTeachers();
+      final teachersResponse = await apiService.getTeachers();
 
       setState(() {
         _subjects = subjects;
-        _teachers = teachers;
+        _teachers = (teachersResponse as List)
+            .map((json) => Teacher.fromJson(json))
+            .toList();
       });
 
       // Populate form if editing
@@ -338,7 +341,7 @@ class _ClassFormDialogState extends ConsumerState<ClassFormDialog> {
                                     items: _teachers.map((teacher) {
                                       return DropdownMenuItem<int>(
                                         value: teacher.id,
-                                        child: Text(teacher.user.name),
+                                        child: Text(teacher.user?.name ?? 'Unknown'),
                                       );
                                     }).toList(),
                                     onChanged: (value) {
@@ -485,19 +488,41 @@ class _ClassFormDialogState extends ConsumerState<ClassFormDialog> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      TextButton(
+                      OutlinedButton(
                         onPressed: _isLoading
                             ? null
                             : () => Navigator.of(context).pop(),
-                        child: const Text('Cancel'),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 32,
+                            vertical: 16,
+                          ),
+                          side: BorderSide(color: Colors.grey[400]!),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: const Text(
+                          'Cancel',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
                       ),
                       const SizedBox(width: 16),
                       ElevatedButton(
                         onPressed: _isLoading ? null : _submitForm,
                         style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.primaryColor,
+                          foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(
                             horizontal: 32,
                             vertical: 16,
+                          ),
+                          elevation: 2,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
                           ),
                         ),
                         child: _isLoading
@@ -506,9 +531,16 @@ class _ClassFormDialogState extends ConsumerState<ClassFormDialog> {
                                 height: 20,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
+                                  color: Colors.white,
                                 ),
                               )
-                            : Text(isEditing ? 'Update' : 'Create'),
+                            : Text(
+                                isEditing ? 'Update' : 'Create',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
                       ),
                     ],
                   ),

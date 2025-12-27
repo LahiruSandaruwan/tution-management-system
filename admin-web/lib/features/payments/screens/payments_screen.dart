@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import '../../../core/theme/app_theme.dart';
 import '../providers/payments_provider.dart';
 import '../widgets/payment_stats_cards.dart';
 import '../widgets/payment_table.dart';
@@ -46,26 +47,71 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
           const SizedBox(width: 8),
           OutlinedButton.icon(
             onPressed: () => _showDefaultersDialog(),
-            icon: const FaIcon(FontAwesomeIcons.exclamationTriangle, size: 16),
-            label: Text(
-              'Defaulters (${paymentsState.defaulters.length})',
-            ),
             style: OutlinedButton.styleFrom(
               foregroundColor: Colors.red,
               side: const BorderSide(color: Colors.red),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 20,
+                vertical: 12,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            icon: const FaIcon(FontAwesomeIcons.exclamationTriangle, size: 16),
+            label: Text(
+              'Defaulters (${paymentsState.defaulters.length})',
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
           const SizedBox(width: 8),
           OutlinedButton.icon(
             onPressed: () => _showGenerateMonthlyDialog(),
+            style: OutlinedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 20,
+                vertical: 12,
+              ),
+              side: BorderSide(color: AppTheme.primaryColor),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
             icon: const Icon(Icons.calendar_month),
-            label: const Text('Generate Monthly'),
+            label: const Text(
+              'Generate Monthly',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
           ),
           const SizedBox(width: 8),
           ElevatedButton.icon(
             onPressed: () => _showRecordPaymentDialog(),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.primaryColor,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(
+                horizontal: 24,
+                vertical: 12,
+              ),
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
             icon: const Icon(Icons.add),
-            label: const Text('Record Payment'),
+            label: const Text(
+              'Record Payment',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ),
           const SizedBox(width: 16),
         ],
@@ -242,14 +288,48 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
               children: [
                 OutlinedButton.icon(
                   onPressed: () => _showGenerateMonthlyDialog(),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 12,
+                    ),
+                    side: BorderSide(color: AppTheme.primaryColor),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
                   icon: const Icon(Icons.calendar_month),
-                  label: const Text('Generate Monthly'),
+                  label: const Text(
+                    'Generate Monthly',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                 ),
                 const SizedBox(width: 16),
                 ElevatedButton.icon(
                   onPressed: () => _showRecordPaymentDialog(),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.primaryColor,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 12,
+                    ),
+                    elevation: 2,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
                   icon: const Icon(Icons.add),
-                  label: const Text('Record Payment'),
+                  label: const Text(
+                    'Record Payment',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ),
               ],
             ),
