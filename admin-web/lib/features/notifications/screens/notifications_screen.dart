@@ -116,8 +116,8 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
 
   Widget _buildNotificationCard(dynamic notification) {
     final title = notification['title'] ?? 'Untitled';
-    final message = notification['message'] ?? '';
-    final type = notification['type'] ?? 'info';
+    final message = notification['content'] ?? notification['message'] ?? '';
+    final type = notification['priority'] ?? notification['type'] ?? 'info';
     final createdAt = notification['created_at'];
 
     return Card(

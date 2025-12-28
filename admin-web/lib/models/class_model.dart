@@ -14,15 +14,25 @@ class ClassModel {
   @JsonKey(name: 'teacher_id')
   final int? teacherId;
   final String? grade;
+  @JsonKey(name: 'day_of_week')
   final String? day;
   @JsonKey(name: 'start_time')
   final String? startTime;
   @JsonKey(name: 'end_time')
   final String? endTime;
-  @JsonKey(name: 'monthly_fee')
+  @JsonKey(name: 'monthly_fee', fromJson: _monthlyFeeFromJson, toJson: _monthlyFeeToJson)
   final double? monthlyFee;
   @JsonKey(name: 'max_students')
   final int? maxStudents;
+
+  static double? _monthlyFeeFromJson(dynamic value) {
+    if (value == null) return null;
+    if (value is num) return value.toDouble();
+    if (value is String) return double.tryParse(value);
+    return null;
+  }
+
+  static dynamic _monthlyFeeToJson(double? value) => value;
   @JsonKey(name: 'is_active', defaultValue: true)
   final bool isActive;
   @JsonKey(name: 'created_at')

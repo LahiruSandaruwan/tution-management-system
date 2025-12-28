@@ -20,11 +20,31 @@ class ClassModel extends Model
         'section',
         'room_number',
         'capacity',
+        'day_of_week',
+        'start_time',
+        'end_time',
+        'monthly_fee',
+        'description',
+        'is_active',
     ];
 
     protected $casts = [
         'capacity' => 'integer',
+        'monthly_fee' => 'decimal:2',
+        'is_active' => 'boolean',
     ];
+
+    protected $appends = ['students_count', 'max_students'];
+
+    public function getStudentsCountAttribute()
+    {
+        return $this->students()->count();
+    }
+
+    public function getMaxStudentsAttribute()
+    {
+        return $this->capacity;
+    }
 
     public function institute(): BelongsTo
     {

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:dio/dio.dart';
 import '../../../models/class_model.dart';
 import '../../../models/student.dart';
+import '../../../providers/api_provider.dart';
 import '../providers/classes_provider.dart';
 import '../../students/providers/students_provider.dart';
 
@@ -23,20 +25,36 @@ class _EnrollmentDialogState extends ConsumerState<EnrollmentDialog> {
   @override
   void initState() {
     super.initState();
-    _loadStudents();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadStudents();
+    });
   }
 
   Future<void> _loadStudents() async {
     setState(() => _isLoading = true);
     try {
-      await ref.read(studentsProvider.notifier).loadStudents();
+      final apiService = ref.read(apiProvider);
+
+      // Load all students and enrolled students for this class in parallel
+      final results = await Future.wait([
+        ref.read(studentsProvider.notifier).loadStudents(),
+        apiService.getClassStudents(widget.classModel.id),
+      ]);
+
       final studentsState = ref.read(studentsProvider);
       final allStudents = studentsState.students;
-      final enrolledIds = widget.classModel.students?.map((s) => s.id).toSet() ?? {};
+      final enrolledStudents = results[1] as List<Student>;
+
+      // Get enrolled student IDs
+      final enrolledIds = enrolledStudents.map((s) => s.id).toSet();
+
+      // Separate enrolled and available students
+      final enrolled = allStudents.where((s) => enrolledIds.contains(s.id)).toList();
+      final available = allStudents.where((s) => !enrolledIds.contains(s.id)).toList();
 
       setState(() {
-        _enrolledStudents = allStudents.where((s) => enrolledIds.contains(s.id)).toList();
-        _availableStudents = allStudents.where((s) => !enrolledIds.contains(s.id)).toList();
+        _enrolledStudents = enrolled;
+        _availableStudents = available;
         _isLoading = false;
       });
     } catch (e) {
@@ -180,9 +198,34 @@ class _EnrollmentDialogState extends ConsumerState<EnrollmentDialog> {
         );
       }
     } catch (e) {
+      String errorMessage = 'Error enrolling student';
+
+      if (e is DioException) {
+        if (e.response?.data != null) {
+          try {
+            final responseData = e.response!.data;
+            if (responseData is Map && responseData['message'] != null) {
+              errorMessage = responseData['message'];
+            } else if (responseData is String) {
+              errorMessage = responseData;
+            }
+          } catch (_) {
+            errorMessage = 'Error enrolling student: ${e.message}';
+          }
+        } else {
+          errorMessage = 'Error enrolling student: ${e.message}';
+        }
+      } else {
+        errorMessage = 'Error enrolling student: $e';
+      }
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error enrolling student: $e')),
+          SnackBar(
+            content: Text(errorMessage),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 5),
+          ),
         );
       }
     }
@@ -206,9 +249,34 @@ class _EnrollmentDialogState extends ConsumerState<EnrollmentDialog> {
         );
       }
     } catch (e) {
+      String errorMessage = 'Error removing student';
+
+      if (e is DioException) {
+        if (e.response?.data != null) {
+          try {
+            final responseData = e.response!.data;
+            if (responseData is Map && responseData['message'] != null) {
+              errorMessage = responseData['message'];
+            } else if (responseData is String) {
+              errorMessage = responseData;
+            }
+          } catch (_) {
+            errorMessage = 'Error removing student: ${e.message}';
+          }
+        } else {
+          errorMessage = 'Error removing student: ${e.message}';
+        }
+      } else {
+        errorMessage = 'Error removing student: $e';
+      }
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error removing student: $e')),
+          SnackBar(
+            content: Text(errorMessage),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 5),
+          ),
         );
       }
     }

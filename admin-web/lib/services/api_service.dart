@@ -291,20 +291,28 @@ class ApiService {
     await _dio.delete('/classes/$classId/students/$studentId');
   }
 
-  // ====================== NOTIFICATION ENDPOINTS ======================
+  // ====================== NOTIFICATION/ANNOUNCEMENT ENDPOINTS ======================
 
   Future<List<dynamic>> getNotifications() async {
-    final response = await _dio.get('/notifications');
-    return response.data['data'];
+    final response = await _dio.get('/announcements');
+    final data = response.data['data'];
+    // Handle Laravel pagination - extract the 'data' array from paginated response
+    if (data is Map && data.containsKey('data')) {
+      return data['data'] as List<dynamic>;
+    }
+    if (data is List) {
+      return data;
+    }
+    return [];
   }
 
   Future<dynamic> createNotification(Map<String, dynamic> data) async {
-    final response = await _dio.post('/notifications', data: data);
+    final response = await _dio.post('/announcements', data: data);
     return response.data;
   }
 
   Future<void> deleteNotification(int id) async {
-    await _dio.delete('/notifications/$id');
+    await _dio.delete('/announcements/$id');
   }
 
   // ====================== REPORTS ENDPOINTS ======================

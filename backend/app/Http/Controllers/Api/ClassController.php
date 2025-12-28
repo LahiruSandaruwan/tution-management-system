@@ -15,7 +15,7 @@ class ClassController extends Controller
      */
     public function index(Request $request)
     {
-        $query = ClassModel::with(['teacher.user', 'subject'])
+        $query = ClassModel::with(['teacher.user', 'subject', 'students.user'])
             ->where('institute_id', $request->user()->institute_id);
 
         // Filter by subject
@@ -69,7 +69,7 @@ class ClassController extends Controller
             'start_time' => 'required|date_format:H:i',
             'end_time' => 'required|date_format:H:i|after:start_time',
             'monthly_fee' => 'required|numeric|min:0',
-            'max_students' => 'required|integer|min:1',
+            'capacity' => 'required|integer|min:1',
             'description' => 'nullable|string',
             'is_active' => 'boolean',
         ]);
@@ -92,7 +92,7 @@ class ClassController extends Controller
             'start_time' => $request->start_time,
             'end_time' => $request->end_time,
             'monthly_fee' => $request->monthly_fee,
-            'max_students' => $request->max_students,
+            'capacity' => $request->capacity,
             'description' => $request->description,
             'is_active' => $request->boolean('is_active', true),
         ]);
@@ -136,7 +136,7 @@ class ClassController extends Controller
             'start_time' => 'date_format:H:i',
             'end_time' => 'date_format:H:i|after:start_time',
             'monthly_fee' => 'numeric|min:0',
-            'max_students' => 'integer|min:1',
+            'capacity' => 'integer|min:1',
             'description' => 'nullable|string',
             'is_active' => 'boolean',
         ]);
@@ -158,7 +158,7 @@ class ClassController extends Controller
             'start_time',
             'end_time',
             'monthly_fee',
-            'max_students',
+            'capacity',
             'description',
             'is_active',
         ]));
@@ -229,7 +229,7 @@ class ClassController extends Controller
         }
 
         // Check if class is full
-        if ($class->students()->count() >= $class->max_students) {
+        if ($class->students()->count() >= $class->capacity) {
             return response()->json([
                 'success' => false,
                 'message' => 'Class is full',
@@ -270,6 +270,20 @@ class ClassController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Student unenrolled successfully',
+        ]);
+    }
+
+    /**
+     * Remove a student from a class (alias for unenrollStudent)
+     */
+    public function removeStudent(string $classId, string $studentId)
+    {
+        $class = ClassModel::findOrFail($classId);
+        $class->students()->detach($studentId);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Student removed successfully',
         ]);
     }
 }

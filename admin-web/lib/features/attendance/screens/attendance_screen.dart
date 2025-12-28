@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../providers/api_provider.dart';
 import '../../../models/student.dart';
+import '../../../models/class_model.dart';
 import 'package:intl/intl.dart';
 
 class AttendanceScreen extends ConsumerStatefulWidget {
@@ -14,8 +15,8 @@ class AttendanceScreen extends ConsumerStatefulWidget {
 
 class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
   DateTime _selectedDate = DateTime.now();
-  List<dynamic> _classes = [];
-  dynamic _selectedClass;
+  List<ClassModel> _classes = [];
+  ClassModel? _selectedClass;
   List<Student> _students = [];
   Map<int, String> _attendanceStatus = {}; // student_id -> status
   bool _isLoading = false;
@@ -191,7 +192,7 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
                 ),
                 const SizedBox(width: 16),
                 Expanded(
-                  child: DropdownButtonFormField<dynamic>(
+                  child: DropdownButtonFormField<ClassModel>(
                     value: _selectedClass,
                     decoration: const InputDecoration(
                       labelText: 'Class',
@@ -200,7 +201,7 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
                     items: _classes.map((cls) {
                       return DropdownMenuItem(
                         value: cls,
-                        child: Text(cls['name'] ?? 'Unknown Class'),
+                        child: Text(cls.name),
                       );
                     }).toList(),
                     onChanged: (value) {
