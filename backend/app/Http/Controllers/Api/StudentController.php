@@ -54,7 +54,7 @@ class StudentController extends Controller
                 });
             }
 
-            $students = $query->paginate($request->input('per_page', 15));
+            $students = $query->paginate(min($request->input('per_page', 15), 100));
 
             return response()->json([
                 'success' => true,
@@ -64,8 +64,7 @@ class StudentController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to fetch students',
-                'error' => $e->getMessage()
+                'message' => 'Failed to fetch students'
             ], 500);
         }
     }
@@ -78,7 +77,7 @@ class StudentController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8',
+            'password' => 'required|string|min:12',
             'phone' => 'required|string|max:20',
             'student_id_number' => 'required|string|unique:students,student_id_number',
             'grade' => 'required|string|max:50',
@@ -137,8 +136,7 @@ class StudentController extends Controller
             DB::rollBack();
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to create student',
-                'error' => $e->getMessage()
+                'message' => 'Failed to create student'
             ], 500);
         }
     }
@@ -146,9 +144,17 @@ class StudentController extends Controller
     /**
      * Display the specified student
      */
-    public function show(Student $student)
+    public function show(Request $request, Student $student)
     {
         try {
+            // Verify student belongs to the same institute
+            if ($student->institute_id !== $request->institute_id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized access'
+                ], 403);
+            }
+
             $student->load(['user', 'classes', 'rfidCard']);
 
             return response()->json([
@@ -159,8 +165,7 @@ class StudentController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to fetch student',
-                'error' => $e->getMessage()
+                'message' => 'Failed to fetch student'
             ], 500);
         }
     }
@@ -170,6 +175,14 @@ class StudentController extends Controller
      */
     public function update(Request $request, Student $student)
     {
+        // Verify student belongs to the same institute
+        if ($student->institute_id !== $request->institute_id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized access'
+            ], 403);
+        }
+
         $validator = Validator::make($request->all(), [
             'name' => 'sometimes|string|max:255',
             'email' => 'sometimes|string|email|max:255|unique:users,email,' . $student->user_id,
@@ -219,8 +232,7 @@ class StudentController extends Controller
             DB::rollBack();
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update student',
-                'error' => $e->getMessage()
+                'message' => 'Failed to update student'
             ], 500);
         }
     }
@@ -228,8 +240,16 @@ class StudentController extends Controller
     /**
      * Remove the specified student
      */
-    public function destroy(Student $student)
+    public function destroy(Request $request, Student $student)
     {
+        // Verify student belongs to the same institute
+        if ($student->institute_id !== $request->institute_id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized access'
+            ], 403);
+        }
+
         DB::beginTransaction();
         try {
             ActivityLog::logActivity('student_deleted', Student::class, $student->id);
@@ -247,8 +267,7 @@ class StudentController extends Controller
             DB::rollBack();
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to delete student',
-                'error' => $e->getMessage()
+                'message' => 'Failed to delete student'
             ], 500);
         }
     }
@@ -256,8 +275,16 @@ class StudentController extends Controller
     /**
      * Toggle student active status
      */
-    public function toggleStatus(Student $student)
+    public function toggleStatus(Request $request, Student $student)
     {
+        // Verify student belongs to the same institute
+        if ($student->institute_id !== $request->institute_id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized access'
+            ], 403);
+        }
+
         try {
             $student->update(['is_active' => !$student->is_active]);
 
@@ -276,8 +303,7 @@ class StudentController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update student status',
-                'error' => $e->getMessage()
+                'message' => 'Failed to update student status'
             ], 500);
         }
     }
@@ -287,6 +313,14 @@ class StudentController extends Controller
      */
     public function attendanceSummary(Request $request, Student $student)
     {
+        // Verify student belongs to the same institute
+        if ($student->institute_id !== $request->institute_id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized access'
+            ], 403);
+        }
+
         try {
             $month = $request->input('month');
             $year = $request->input('year');
@@ -305,8 +339,7 @@ class StudentController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to fetch attendance summary',
-                'error' => $e->getMessage()
+                'message' => 'Failed to fetch attendance summary'
             ], 500);
         }
     }
@@ -314,8 +347,16 @@ class StudentController extends Controller
     /**
      * Get student payment summary
      */
-    public function paymentSummary(Student $student)
+    public function paymentSummary(Request $request, Student $student)
     {
+        // Verify student belongs to the same institute
+        if ($student->institute_id !== $request->institute_id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized access'
+            ], 403);
+        }
+
         try {
             $summary = $this->paymentService->getStudentPaymentSummary($student->id);
 
@@ -327,8 +368,7 @@ class StudentController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to fetch payment summary',
-                'error' => $e->getMessage()
+                'message' => 'Failed to fetch payment summary'
             ], 500);
         }
     }

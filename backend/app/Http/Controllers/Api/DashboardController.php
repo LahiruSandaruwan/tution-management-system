@@ -57,16 +57,22 @@ class DashboardController extends Controller
                 Carbon::now()->year
             );
 
-            // Attendance statistics (today)
-            $todayAttendance = Attendance::where('institute_id', $instituteId)
+            // Attendance statistics (today) - Optimized to use single query
+            $attendanceStats = Attendance::where('institute_id', $instituteId)
                 ->whereDate('date', $today)
-                ->get();
+                ->selectRaw('
+                    COUNT(*) as total_marked,
+                    SUM(CASE WHEN status = "present" THEN 1 ELSE 0 END) as present,
+                    SUM(CASE WHEN status = "absent" THEN 1 ELSE 0 END) as absent,
+                    SUM(CASE WHEN status = "late" THEN 1 ELSE 0 END) as late
+                ')
+                ->first();
 
             $attendanceStats = [
-                'total_marked' => $todayAttendance->count(),
-                'present' => $todayAttendance->where('status', 'present')->count(),
-                'absent' => $todayAttendance->where('status', 'absent')->count(),
-                'late' => $todayAttendance->where('status', 'late')->count(),
+                'total_marked' => (int) $attendanceStats->total_marked,
+                'present' => (int) $attendanceStats->present,
+                'absent' => (int) $attendanceStats->absent,
+                'late' => (int) $attendanceStats->late,
             ];
 
             // Gate statistics (today)
@@ -101,8 +107,7 @@ class DashboardController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to fetch dashboard statistics',
-                'error' => $e->getMessage()
+                'message' => 'Failed to fetch dashboard statistics'
             ], 500);
         }
     }
@@ -113,7 +118,8 @@ class DashboardController extends Controller
     public function recentActivities(Request $request)
     {
         try {
-            $limit = $request->input('limit', 20);
+            // Limit validation: max 100 records
+            $limit = min($request->input('limit', 20), 100);
 
             $activities = ActivityLog::with('user')
                 ->whereHas('user', function ($query) use ($request) {
@@ -130,8 +136,7 @@ class DashboardController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to fetch recent activities',
-                'error' => $e->getMessage()
+                'message' => 'Failed to fetch recent activities'
             ], 500);
         }
     }

@@ -19,6 +19,7 @@ class Payment extends Model
         'payment_method',
         'receipt_number',
         'notes',
+        'received_by',
     ];
 
     protected $casts = [
@@ -36,6 +37,11 @@ class Payment extends Model
     public function student(): BelongsTo
     {
         return $this->belongsTo(Student::class);
+    }
+
+    public function receivedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'received_by');
     }
 
     public function scopePaid($query)

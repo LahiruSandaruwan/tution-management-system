@@ -1,0 +1,157 @@
+version: '3.8'
+
+services:
+  # Laravel Application
+  app:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: tuition_app
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - ./backend:/var/www
+      - ./backend/storage:/var/www/storage
+    environment:
+      - APP_ENV=${APP_ENV:-production}
+      - APP_DEBUG=${APP_DEBUG:-false}
+      - DB_HOST=db
+      - DB_DATABASE=${DB_DATABASE}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - REDIS_HOST=redis
+      - CACHE_DRIVER=redis
+      - SESSION_DRIVER=redis
+      - QUEUE_CONNECTION=redis
+    depends_on:
+      - db
+      - redis
+    networks:
+      - tuition_network
+
+  # Nginx Web Server
+  nginx:
+    image: nginx:alpine
+    container_name: tuition_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./backend:/var/www
+      - ./backend/storage:/var/www/storage:ro
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./docker/nginx/ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - app
+    networks:
+      - tuition_network
+
+  # MySQL Database
+  db:
+    image: mysql:8.0
+    container_name: tuition_db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./docker/mysql/my.cnf:/etc/mysql/conf.d/my.cnf:ro
+      - ./backups/database:/backups
+    networks:
+      - tuition_network
+    command: --default-authentication-plugin=mysql_native_password
+
+  # Redis Cache & Sessions
+  redis:
+    image: redis:7-alpine
+    container_name: tuition_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - tuition_network
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+
+  # Queue Worker
+  queue:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: tuition_queue
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - ./backend:/var/www
+    command: php artisan queue:work --sleep=3 --tries=3 --max-time=3600
+    environment:
+      - APP_ENV=${APP_ENV:-production}
+      - DB_HOST=db
+      - REDIS_HOST=redis
+    depends_on:
+      - db
+      - redis
+    networks:
+      - tuition_network
+
+  # Scheduler (Cron)
+  scheduler:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: tuition_scheduler
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - ./backend:/var/www
+    command: >
+      sh -c "while true; do
+        php artisan schedule:run --verbose --no-interaction &
+        sleep 60
+      done"
+    environment:
+      - APP_ENV=${APP_ENV:-production}
+      - DB_HOST=db
+      - REDIS_HOST=redis
+    depends_on:
+      - db
+      - redis
+    networks:
+      - tuition_network
+
+  # Backup Service
+  backup:
+    image: mysql:8.0
+    container_name: tuition_backup
+    restart: unless-stopped
+    volumes:
+      - ./backups:/backups
+      - ./scripts:/scripts:ro
+    environment:
+      - MYSQL_HOST=db
+      - MYSQL_DATABASE=${DB_DATABASE}
+      - MYSQL_USER=${DB_USERNAME}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+    depends_on:
+      - db
+    networks:
+      - tuition_network
+    entrypoint: /scripts/backup-entrypoint.sh
+
+networks:
+  tuition_network:
+    driver: bridge
+
+volumes:
+  db_data:
+    driver: local
+  redis_data:
+    driver: local

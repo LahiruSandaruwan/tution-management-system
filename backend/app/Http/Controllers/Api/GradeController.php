@@ -40,8 +40,7 @@ class GradeController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to add grade',
-                'error' => $e->getMessage()
+                'message' => 'Failed to add grade'
             ], 500);
         }
     }
@@ -51,6 +50,14 @@ class GradeController extends Controller
      */
     public function update(Request $request, Grade $grade)
     {
+        // Verify grade belongs to the same institute
+        if ($grade->institute_id !== $request->institute_id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized access'
+            ], 403);
+        }
+
         $validated = $request->validate([
             'marks_obtained' => 'sometimes|numeric|min:0',
             'total_marks' => 'sometimes|numeric|min:0',
@@ -76,8 +83,7 @@ class GradeController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update grade',
-                'error' => $e->getMessage()
+                'message' => 'Failed to update grade'
             ], 500);
         }
     }
@@ -85,8 +91,16 @@ class GradeController extends Controller
     /**
      * Delete a grade
      */
-    public function destroy(Grade $grade)
+    public function destroy(Request $request, Grade $grade)
     {
+        // Verify grade belongs to the same institute
+        if ($grade->institute_id !== $request->institute_id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized access'
+            ], 403);
+        }
+
         try {
             $grade->delete();
             return response()->json([
@@ -96,8 +110,7 @@ class GradeController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to delete grade',
-                'error' => $e->getMessage()
+                'message' => 'Failed to delete grade'
             ], 500);
         }
     }
@@ -105,8 +118,16 @@ class GradeController extends Controller
     /**
      * Get all grades for a specific student
      */
-    public function studentGrades(Student $student)
+    public function studentGrades(Request $request, Student $student)
     {
+        // Verify student belongs to the same institute
+        if ($student->institute_id !== $request->institute_id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized access'
+            ], 403);
+        }
+
         try {
             $grades = Grade::where('student_id', $student->id)
                 ->with(['class', 'subject', 'exam'])
@@ -159,8 +180,7 @@ class GradeController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to fetch student grades',
-                'error' => $e->getMessage()
+                'message' => 'Failed to fetch student grades'
             ], 500);
         }
     }
@@ -183,8 +203,7 @@ class GradeController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to fetch class exam grades',
-                'error' => $e->getMessage()
+                'message' => 'Failed to fetch class exam grades'
             ], 500);
         }
     }

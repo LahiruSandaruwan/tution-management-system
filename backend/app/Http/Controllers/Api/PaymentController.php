@@ -48,7 +48,7 @@ class PaymentController extends Controller
                 $query->where('student_id', $request->student_id);
             }
 
-            $payments = $query->latest('created_at')->paginate($request->input('per_page', 15));
+            $payments = $query->latest('created_at')->paginate(min($request->input('per_page', 15), 100));
 
             return response()->json([
                 'success' => true,
@@ -58,8 +58,7 @@ class PaymentController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to fetch payments',
-                'error' => $e->getMessage()
+                'message' => 'Failed to fetch payments'
             ], 500);
         }
     }
@@ -109,8 +108,7 @@ class PaymentController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to record payment',
-                'error' => $e->getMessage()
+                'message' => 'Failed to record payment'
             ], 500);
         }
     }
@@ -118,8 +116,16 @@ class PaymentController extends Controller
     /**
      * Display the specified payment
      */
-    public function show(Payment $payment)
+    public function show(Request $request, Payment $payment)
     {
+        // Verify payment belongs to the same institute
+        if ($payment->institute_id !== $request->institute_id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized access'
+            ], 403);
+        }
+
         try {
             $payment->load(['student.user', 'receivedBy']);
 
@@ -131,8 +137,7 @@ class PaymentController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to fetch payment',
-                'error' => $e->getMessage()
+                'message' => 'Failed to fetch payment'
             ], 500);
         }
     }
@@ -162,8 +167,7 @@ class PaymentController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to fetch student payments',
-                'error' => $e->getMessage()
+                'message' => 'Failed to fetch student payments'
             ], 500);
         }
     }
@@ -204,8 +208,7 @@ class PaymentController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to generate monthly payments',
-                'error' => $e->getMessage()
+                'message' => 'Failed to generate monthly payments'
             ], 500);
         }
     }
@@ -226,8 +229,7 @@ class PaymentController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to fetch defaulters',
-                'error' => $e->getMessage()
+                'message' => 'Failed to fetch defaulters'
             ], 500);
         }
     }
@@ -255,8 +257,7 @@ class PaymentController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to fetch payment statistics',
-                'error' => $e->getMessage()
+                'message' => 'Failed to fetch payment statistics'
             ], 500);
         }
     }

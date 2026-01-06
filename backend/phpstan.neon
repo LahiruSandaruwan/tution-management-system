@@ -1,0 +1,31 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+    paths:
+        - app
+
+    # Rule level (0-9, higher is stricter)
+    level: 6
+
+    ignoreErrors:
+        # Ignore mixed types from Laravel facades
+        - '#Call to an undefined method Illuminate\\Support\\Facades\\[a-zA-Z]+::[a-zA-Z]+\(\)#'
+
+        # Ignore model properties (handled by Laravel magic)
+        - '#Access to an undefined property App\\Models\\[a-zA-Z]+::\$[a-zA-Z_]+#'
+
+        # Ignore dynamic where clauses
+        - '#Call to an undefined method Illuminate\\Database\\Eloquent\\Builder::where[a-zA-Z]+\(\)#'
+
+    excludePaths:
+        - app/Console/Kernel.php
+        - app/Exceptions/Handler.php
+        - app/Providers/*
+
+    checkMissingIterableValueType: false
+    checkGenericClassInNonGenericObjectType: false
+
+    # Laravel specific settings
+    inferPrivatePropertyTypeFromConstructor: true
+    reportUnmatchedIgnoredErrors: false

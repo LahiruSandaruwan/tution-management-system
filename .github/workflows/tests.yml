@@ -1,0 +1,116 @@
+name: Run Tests
+
+on:
+  pull_request:
+    branches:
+      - main
+      - development
+  push:
+    branches:
+      - development
+
+jobs:
+  phpunit:
+    name: PHPUnit Tests
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root_password
+          MYSQL_DATABASE: testing
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: --health-cmd="redis-cli ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, pdo_mysql, redis, bcmath, gd
+          coverage: xdebug
+
+      - name: Copy .env
+        run: |
+          cd backend
+          cp .env.example .env
+          sed -i 's/DB_PASSWORD=/DB_PASSWORD=root_password/' .env
+          sed -i 's/DB_DATABASE=tuition_management/DB_DATABASE=testing/' .env
+
+      - name: Install Composer dependencies
+        run: cd backend && composer install --prefer-dist --no-progress --no-interaction
+
+      - name: Generate application key
+        run: cd backend && php artisan key:generate
+
+      - name: Run migrations
+        run: cd backend && php artisan migrate --force
+
+      - name: Run tests with coverage
+        run: cd backend && php artisan test --coverage
+
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./backend/coverage.xml
+          flags: unittests
+          name: codecov-umbrella
+
+  code-quality:
+    name: Code Quality Checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, pdo_mysql
+          tools: phpstan, php-cs-fixer
+
+      - name: Install Composer dependencies
+        run: cd backend && composer install --prefer-dist --no-progress --no-interaction
+
+      - name: Run PHP CS Fixer
+        run: cd backend && vendor/bin/php-cs-fixer fix --dry-run --diff
+
+      - name: Run PHPStan
+        run: cd backend && vendor/bin/phpstan analyse
+
+  security:
+    name: Security Audit
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+
+      - name: Install Composer dependencies
+        run: cd backend && composer install --prefer-dist --no-progress --no-interaction
+
+      - name: Run security audit
+        run: cd backend && composer audit
+
+      - name: Check for known vulnerabilities
+        uses: symfonycorp/security-checker-action@v5
+        with:
+          lock: backend/composer.lock

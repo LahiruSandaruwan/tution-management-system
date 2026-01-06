@@ -8,6 +8,7 @@ use App\Models\Student;
 use App\Models\Teacher;
 use App\Models\ActivityLog;
 use App\Mail\PasswordResetMail;
+use App\Services\AccountLockoutService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -20,6 +21,12 @@ use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
+    protected AccountLockoutService $lockoutService;
+
+    public function __construct(AccountLockoutService $lockoutService)
+    {
+        $this->lockoutService = $lockoutService;
+    }
     /**
      * Register a new user
      */
@@ -28,7 +35,7 @@ class AuthController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
+            'password' => 'required|string|min:12|confirmed',
             'phone' => 'required|string|max:20',
             'role' => 'required|in:admin,teacher,student',
             'institute_id' => 'required|exists:institutes,id',
@@ -133,14 +140,30 @@ class AuthController extends Controller
             ], 422);
         }
 
+        // Check if account is locked
+        if ($this->lockoutService->isLocked($request->email)) {
+            $remainingTime = $this->lockoutService->getRemainingLockoutTime($request->email);
+            return response()->json([
+                'success' => false,
+                'message' => "Account is temporarily locked due to multiple failed login attempts. Please try again in {$remainingTime} minutes.",
+                'locked_until' => $remainingTime
+            ], 403);
+        }
+
         $user = User::where('email', $request->email)->first();
 
         if (!$user || !Hash::check($request->password, $user->password)) {
+            // Record failed login attempt
+            $this->lockoutService->recordFailedAttempt($request->email, $request->ip());
+
             return response()->json([
                 'success' => false,
                 'message' => 'Invalid credentials'
             ], 401);
         }
+
+        // Record successful login attempt
+        $this->lockoutService->recordSuccessfulAttempt($request->email, $request->ip());
 
         // Check if user's institute is active
         if ($user->institute && !$user->institute->is_active) {
@@ -283,7 +306,7 @@ class AuthController extends Controller
         $validator = Validator::make($request->all(), [
             'email' => 'required|email|exists:users,email',
             'token' => 'required|string',
-            'password' => 'required|string|min:8|confirmed',
+            'password' => 'required|string|min:12|confirmed',
         ]);
 
         if ($validator->fails()) {
@@ -316,7 +339,7 @@ class AuthController extends Controller
             }
 
             // Check if token is expired (60 minutes)
-            if (now()->diffInMinutes($resetRecord->created_at) > 60) {
+            if (now()->diffInMinutes($resetRecord->created_at) > 15) {
                 DB::table('password_reset_tokens')->where('email', $request->email)->delete();
                 return response()->json([
                     'success' => false,
@@ -356,7 +379,7 @@ class AuthController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'current_password' => 'required|string',
-            'password' => 'required|string|min:8|confirmed',
+            'password' => 'required|string|min:12|confirmed',
         ]);
 
         if ($validator->fails()) {

@@ -35,7 +35,7 @@ class TeacherController extends Controller
                 });
             }
 
-            $teachers = $query->paginate($request->input('per_page', 15));
+            $teachers = $query->paginate(min($request->input('per_page', 15), 100));
 
             return response()->json([
                 'success' => true,
@@ -45,8 +45,7 @@ class TeacherController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to fetch teachers',
-                'error' => $e->getMessage()
+                'message' => 'Failed to fetch teachers'
             ], 500);
         }
     }
@@ -59,7 +58,7 @@ class TeacherController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8',
+            'password' => 'required|string|min:12',
             'phone' => 'required|string|max:20',
             'subject_specialization' => 'required|string|max:255',
             'qualification' => 'nullable|string',
@@ -114,8 +113,7 @@ class TeacherController extends Controller
             DB::rollBack();
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to create teacher',
-                'error' => $e->getMessage()
+                'message' => 'Failed to create teacher'
             ], 500);
         }
     }
@@ -123,8 +121,16 @@ class TeacherController extends Controller
     /**
      * Display the specified teacher
      */
-    public function show(Teacher $teacher)
+    public function show(Request $request, Teacher $teacher)
     {
+        // Verify teacher belongs to the same institute
+        if ($teacher->institute_id !== $request->institute_id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized access'
+            ], 403);
+        }
+
         try {
             $teacher->load(['user', 'classes', 'schedules']);
 
@@ -136,8 +142,7 @@ class TeacherController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to fetch teacher',
-                'error' => $e->getMessage()
+                'message' => 'Failed to fetch teacher'
             ], 500);
         }
     }
@@ -147,6 +152,14 @@ class TeacherController extends Controller
      */
     public function update(Request $request, Teacher $teacher)
     {
+        // Verify teacher belongs to the same institute
+        if ($teacher->institute_id !== $request->institute_id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized access'
+            ], 403);
+        }
+
         $validator = Validator::make($request->all(), [
             'name' => 'sometimes|string|max:255',
             'email' => 'sometimes|string|email|max:255|unique:users,email,' . $teacher->user_id,
@@ -194,8 +207,7 @@ class TeacherController extends Controller
             DB::rollBack();
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update teacher',
-                'error' => $e->getMessage()
+                'message' => 'Failed to update teacher'
             ], 500);
         }
     }
@@ -203,8 +215,16 @@ class TeacherController extends Controller
     /**
      * Remove the specified teacher
      */
-    public function destroy(Teacher $teacher)
+    public function destroy(Request $request, Teacher $teacher)
     {
+        // Verify teacher belongs to the same institute
+        if ($teacher->institute_id !== $request->institute_id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized access'
+            ], 403);
+        }
+
         DB::beginTransaction();
         try {
             ActivityLog::logActivity('teacher_deleted', Teacher::class, $teacher->id);
@@ -222,8 +242,7 @@ class TeacherController extends Controller
             DB::rollBack();
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to delete teacher',
-                'error' => $e->getMessage()
+                'message' => 'Failed to delete teacher'
             ], 500);
         }
     }
@@ -231,8 +250,16 @@ class TeacherController extends Controller
     /**
      * Toggle teacher active status
      */
-    public function toggleStatus(Teacher $teacher)
+    public function toggleStatus(Request $request, Teacher $teacher)
     {
+        // Verify teacher belongs to the same institute
+        if ($teacher->institute_id !== $request->institute_id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized access'
+            ], 403);
+        }
+
         try {
             $teacher->update(['is_active' => !$teacher->is_active]);
 
@@ -251,8 +278,7 @@ class TeacherController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update teacher status',
-                'error' => $e->getMessage()
+                'message' => 'Failed to update teacher status'
             ], 500);
         }
     }

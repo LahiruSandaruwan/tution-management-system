@@ -109,10 +109,18 @@ class ClassController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Request $request, string $id)
     {
         $class = ClassModel::with(['teacher.user', 'subject', 'students.user'])
             ->findOrFail($id);
+
+        // Verify class belongs to the same institute
+        if ($class->institute_id !== $request->user()->institute_id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized access',
+            ], 403);
+        }
 
         return response()->json([
             'success' => true,
@@ -126,6 +134,14 @@ class ClassController extends Controller
     public function update(Request $request, string $id)
     {
         $class = ClassModel::findOrFail($id);
+
+        // Verify class belongs to the same institute
+        if ($class->institute_id !== $request->user()->institute_id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized access',
+            ], 403);
+        }
 
         $validator = Validator::make($request->all(), [
             'name' => 'string|max:255',
@@ -175,9 +191,18 @@ class ClassController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Request $request, string $id)
     {
         $class = ClassModel::findOrFail($id);
+
+        // Verify class belongs to the same institute
+        if ($class->institute_id !== $request->user()->institute_id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized access',
+            ], 403);
+        }
+
         $class->delete();
 
         return response()->json([
@@ -189,9 +214,17 @@ class ClassController extends Controller
     /**
      * Get students enrolled in a class
      */
-    public function students(string $id)
+    public function students(Request $request, string $id)
     {
         $class = ClassModel::with('students.user')->findOrFail($id);
+
+        // Verify class belongs to the same institute
+        if ($class->institute_id !== $request->user()->institute_id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized access',
+            ], 403);
+        }
 
         return response()->json([
             'success' => true,
@@ -206,6 +239,14 @@ class ClassController extends Controller
     {
         $class = ClassModel::findOrFail($id);
 
+        // Verify class belongs to the same institute
+        if ($class->institute_id !== $request->user()->institute_id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized access',
+            ], 403);
+        }
+
         $validator = Validator::make($request->all(), [
             'student_id' => 'required|exists:students,id',
         ]);
@@ -219,6 +260,14 @@ class ClassController extends Controller
         }
 
         $student = Student::findOrFail($request->student_id);
+
+        // Verify student belongs to the same institute
+        if ($student->institute_id !== $request->user()->institute_id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized access',
+            ], 403);
+        }
 
         // Check if already enrolled
         if ($class->students()->where('student_id', $student->id)->exists()) {
@@ -253,6 +302,14 @@ class ClassController extends Controller
     {
         $class = ClassModel::findOrFail($id);
 
+        // Verify class belongs to the same institute
+        if ($class->institute_id !== $request->user()->institute_id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized access',
+            ], 403);
+        }
+
         $validator = Validator::make($request->all(), [
             'student_id' => 'required|exists:students,id',
         ]);
@@ -276,9 +333,18 @@ class ClassController extends Controller
     /**
      * Remove a student from a class (alias for unenrollStudent)
      */
-    public function removeStudent(string $classId, string $studentId)
+    public function removeStudent(Request $request, string $classId, string $studentId)
     {
         $class = ClassModel::findOrFail($classId);
+
+        // Verify class belongs to the same institute
+        if ($class->institute_id !== $request->user()->institute_id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized access',
+            ], 403);
+        }
+
         $class->students()->detach($studentId);
 
         return response()->json([

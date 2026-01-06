@@ -27,7 +27,7 @@ class AnnouncementController extends Controller
             // Sort by latest
             $query->latest('created_at');
 
-            $announcements = $query->paginate($request->input('per_page', 20));
+            $announcements = $query->paginate(min($request->input('per_page', 20), 100));
 
             return response()->json([
                 'success' => true,
