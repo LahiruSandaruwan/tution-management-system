@@ -3,6 +3,12 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+// Health check endpoints (no authentication required for monitoring)
+Route::get('/health', [App\Http\Controllers\Api\HealthController::class, 'index']);
+Route::get('/health/detailed', [App\Http\Controllers\Api\HealthController::class, 'detailed']);
+Route::get('/health/database', [App\Http\Controllers\Api\HealthController::class, 'database']);
+Route::get('/health/cache', [App\Http\Controllers\Api\HealthController::class, 'cache']);
+
 // Public routes with rate limiting
 Route::middleware('throttle:10,1')->group(function () {
     Route::post('/auth/register', [App\Http\Controllers\Api\AuthController::class, 'register']);
