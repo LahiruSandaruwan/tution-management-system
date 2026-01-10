@@ -104,13 +104,37 @@ jobs:
         with:
           php-version: '8.2'
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
       - name: Install Composer dependencies
         run: cd backend && composer install --prefer-dist --no-progress --no-interaction
 
-      - name: Run security audit
+      - name: Run Composer security audit
         run: cd backend && composer audit
 
       - name: Check for known vulnerabilities
         uses: symfonycorp/security-checker-action@v5
         with:
           lock: backend/composer.lock
+
+      - name: Install NPM dependencies (frontend)
+        run: |
+          if [ -f "frontend/package.json" ]; then
+            cd frontend && npm ci
+          fi
+
+      - name: Run NPM security audit (frontend)
+        run: |
+          if [ -f "frontend/package.json" ]; then
+            cd frontend && npm audit --audit-level=moderate
+          fi
+        continue-on-error: true
+
+      - name: Check for high/critical NPM vulnerabilities (frontend)
+        run: |
+          if [ -f "frontend/package.json" ]; then
+            cd frontend && npm audit --audit-level=high
+          fi

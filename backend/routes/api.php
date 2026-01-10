@@ -43,6 +43,10 @@ Route::middleware(['auth:sanctum', 'institute'])->group(function () {
     Route::post('/auth/update-profile', [App\Http\Controllers\Api\AuthController::class, 'updateProfile']);
     Route::delete('/auth/delete-profile-photo', [App\Http\Controllers\Api\AuthController::class, 'deleteProfilePhoto']);
 
+    // GDPR Data Export & Deletion routes (GDPR Article 15, 17, 20)
+    Route::get('/gdpr/export-data', [App\Http\Controllers\Api\DataExportController::class, 'exportUserData']);
+    Route::delete('/gdpr/delete-account', [App\Http\Controllers\Api\DataExportController::class, 'deleteUserData']);
+
     // Dashboard routes
     Route::get('/dashboard/stats', [App\Http\Controllers\Api\DashboardController::class, 'stats']);
     Route::get('/dashboard/recent-activities', [App\Http\Controllers\Api\DashboardController::class, 'recentActivities']);
