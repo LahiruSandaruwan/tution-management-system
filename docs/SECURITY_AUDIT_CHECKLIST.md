@@ -165,7 +165,7 @@
 
 ### Dependency Management
 - [x] **Composer Dependency Audit** - Configured in CI/CD
-- [x] **NPM Dependency Audit** - ⚠️ NOT CONFIGURED
+- [x] **NPM Dependency Audit** - ✅ CONFIGURED (CI/CD)
 - [x] **Regular Updates** - Update procedure documented
 - [x] **Version Pinning** - Composer.lock committed
 - [x] **Vulnerability Scanning** - GitHub Dependabot enabled
@@ -192,7 +192,7 @@
 - [x] **Minimal Data Collection** - Only necessary fields
 - [x] **Data Access Logging** - Critical data access logged
 - [x] **Right to Deletion** - Student deletion implemented
-- [x] **GDPR Compliance** - ⚠️ Data export not implemented
+- [x] **GDPR Compliance** - ✅ Data export implemented
 - [x] **Data Retention Policy** - Defined in documentation
 
 **Status:** ✅ PASS (with recommendations)
