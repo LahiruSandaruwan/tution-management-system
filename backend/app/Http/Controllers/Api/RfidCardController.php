@@ -3,12 +3,12 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\ActivityLog;
 use App\Models\RfidCard;
 use App\Models\Student;
-use App\Models\ActivityLog;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 class RfidCardController extends Controller
 {
@@ -46,14 +46,14 @@ class RfidCardController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' => $cards
+                'data' => $cards,
             ], 200);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to fetch RFID cards',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -74,11 +74,12 @@ class RfidCardController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Validation error',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
         DB::beginTransaction();
+
         try {
             // Verify student belongs to same institute if provided
             if ($request->student_id) {
@@ -89,7 +90,7 @@ class RfidCardController extends Controller
                 if (!$student) {
                     return response()->json([
                         'success' => false,
-                        'message' => 'Student not found in your institute'
+                        'message' => 'Student not found in your institute',
                     ], 404);
                 }
 
@@ -101,7 +102,7 @@ class RfidCardController extends Controller
                 if ($existingCard) {
                     return response()->json([
                         'success' => false,
-                        'message' => 'Student already has an active RFID card'
+                        'message' => 'Student already has an active RFID card',
                     ], 422);
                 }
             }
@@ -129,15 +130,16 @@ class RfidCardController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'RFID card created successfully',
-                'data' => $card->load(['student.user', 'institute'])
+                'data' => $card->load(['student.user', 'institute']),
             ], 201);
 
         } catch (\Exception $e) {
             DB::rollBack();
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to create RFID card',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -158,20 +160,20 @@ class RfidCardController extends Controller
             if (!$card) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'RFID card not found'
+                    'message' => 'RFID card not found',
                 ], 404);
             }
 
             return response()->json([
                 'success' => true,
-                'data' => $card
+                'data' => $card,
             ], 200);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to fetch RFID card',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -192,11 +194,12 @@ class RfidCardController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Validation error',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
         DB::beginTransaction();
+
         try {
             $card = RfidCard::where('id', $id)
                 ->where('institute_id', $request->institute_id)
@@ -205,7 +208,7 @@ class RfidCardController extends Controller
             if (!$card) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'RFID card not found'
+                    'message' => 'RFID card not found',
                 ], 404);
             }
 
@@ -218,7 +221,7 @@ class RfidCardController extends Controller
                 if (!$student) {
                     return response()->json([
                         'success' => false,
-                        'message' => 'Student not found in your institute'
+                        'message' => 'Student not found in your institute',
                     ], 404);
                 }
 
@@ -231,7 +234,7 @@ class RfidCardController extends Controller
                 if ($existingCard) {
                     return response()->json([
                         'success' => false,
-                        'message' => 'Student already has another active RFID card'
+                        'message' => 'Student already has another active RFID card',
                     ], 422);
                 }
             }
@@ -253,15 +256,16 @@ class RfidCardController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'RFID card updated successfully',
-                'data' => $card->load(['student.user', 'institute'])
+                'data' => $card->load(['student.user', 'institute']),
             ], 200);
 
         } catch (\Exception $e) {
             DB::rollBack();
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to update RFID card',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -272,6 +276,7 @@ class RfidCardController extends Controller
     public function destroy(Request $request, string $id)
     {
         DB::beginTransaction();
+
         try {
             $card = RfidCard::where('id', $id)
                 ->where('institute_id', $request->institute_id)
@@ -280,7 +285,7 @@ class RfidCardController extends Controller
             if (!$card) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'RFID card not found'
+                    'message' => 'RFID card not found',
                 ], 404);
             }
 
@@ -302,15 +307,16 @@ class RfidCardController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'RFID card deleted successfully'
+                'message' => 'RFID card deleted successfully',
             ], 200);
 
         } catch (\Exception $e) {
             DB::rollBack();
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to delete RFID card',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -328,11 +334,12 @@ class RfidCardController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Validation error',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
         DB::beginTransaction();
+
         try {
             $card = RfidCard::where('id', $id)
                 ->where('institute_id', $request->institute_id)
@@ -341,7 +348,7 @@ class RfidCardController extends Controller
             if (!$card) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'RFID card not found'
+                    'message' => 'RFID card not found',
                 ], 404);
             }
 
@@ -353,7 +360,7 @@ class RfidCardController extends Controller
             if (!$student) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Student not found in your institute'
+                    'message' => 'Student not found in your institute',
                 ], 404);
             }
 
@@ -366,7 +373,7 @@ class RfidCardController extends Controller
             if ($existingCard) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Student already has an active RFID card. Please deactivate or block the existing card first.'
+                    'message' => 'Student already has an active RFID card. Please deactivate or block the existing card first.',
                 ], 422);
             }
 
@@ -374,7 +381,7 @@ class RfidCardController extends Controller
             if ($card->student_id && $card->student_id != $request->student_id) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Card is already assigned to another student. Please unassign it first.'
+                    'message' => 'Card is already assigned to another student. Please unassign it first.',
                 ], 422);
             }
 
@@ -400,15 +407,16 @@ class RfidCardController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'RFID card assigned to student successfully',
-                'data' => $card->load(['student.user', 'institute'])
+                'data' => $card->load(['student.user', 'institute']),
             ], 200);
 
         } catch (\Exception $e) {
             DB::rollBack();
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to assign RFID card',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -426,11 +434,12 @@ class RfidCardController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Validation error',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
         DB::beginTransaction();
+
         try {
             $card = RfidCard::where('id', $id)
                 ->where('institute_id', $request->institute_id)
@@ -439,14 +448,14 @@ class RfidCardController extends Controller
             if (!$card) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'RFID card not found'
+                    'message' => 'RFID card not found',
                 ], 404);
             }
 
             if ($card->status === 'blocked') {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Card is already blocked'
+                    'message' => 'Card is already blocked',
                 ], 422);
             }
 
@@ -473,15 +482,16 @@ class RfidCardController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'RFID card blocked successfully',
-                'data' => $card->load(['student.user', 'institute'])
+                'data' => $card->load(['student.user', 'institute']),
             ], 200);
 
         } catch (\Exception $e) {
             DB::rollBack();
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to block RFID card',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -492,6 +502,7 @@ class RfidCardController extends Controller
     public function unblock(Request $request, string $id)
     {
         DB::beginTransaction();
+
         try {
             $card = RfidCard::where('id', $id)
                 ->where('institute_id', $request->institute_id)
@@ -500,14 +511,14 @@ class RfidCardController extends Controller
             if (!$card) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'RFID card not found'
+                    'message' => 'RFID card not found',
                 ], 404);
             }
 
             if ($card->status !== 'blocked') {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Card is not currently blocked'
+                    'message' => 'Card is not currently blocked',
                 ], 422);
             }
 
@@ -528,15 +539,16 @@ class RfidCardController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'RFID card unblocked successfully',
-                'data' => $card->load(['student.user', 'institute'])
+                'data' => $card->load(['student.user', 'institute']),
             ], 200);
 
         } catch (\Exception $e) {
             DB::rollBack();
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to unblock RFID card',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }

@@ -2,9 +2,9 @@
 
 namespace Tests\Feature\Api;
 
+use App\Models\Institute;
 use App\Models\Student;
 use App\Models\User;
-use App\Models\Institute;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
@@ -37,9 +37,9 @@ class StudentControllerTest extends TestCase
                 'success',
                 'data' => [
                     'data' => [
-                        '*' => ['id', 'user_id', 'student_id_number', 'grade', 'is_active']
-                    ]
-                ]
+                        '*' => ['id', 'user_id', 'student_id_number', 'grade', 'is_active'],
+                    ],
+                ],
             ]);
     }
 
@@ -64,17 +64,17 @@ class StudentControllerTest extends TestCase
         $response->assertCreated()
             ->assertJson([
                 'success' => true,
-                'message' => 'Student created successfully'
+                'message' => 'Student created successfully',
             ]);
 
         $this->assertDatabaseHas('students', [
             'student_id_number' => 'STU001',
-            'grade' => 'Grade 10'
+            'grade' => 'Grade 10',
         ]);
 
         $this->assertDatabaseHas('users', [
             'email' => 'john@example.com',
-            'role' => 'student'
+            'role' => 'student',
         ]);
     }
 
@@ -117,17 +117,17 @@ class StudentControllerTest extends TestCase
         $response->assertOk()
             ->assertJson([
                 'success' => true,
-                'message' => 'Student updated successfully'
+                'message' => 'Student updated successfully',
             ]);
 
         $this->assertDatabaseHas('students', [
             'id' => $student->id,
-            'grade' => 'Grade 11'
+            'grade' => 'Grade 11',
         ]);
 
         $this->assertDatabaseHas('users', [
             'id' => $student->user_id,
-            'name' => 'Updated Name'
+            'name' => 'Updated Name',
         ]);
     }
 
@@ -146,7 +146,7 @@ class StudentControllerTest extends TestCase
         $response->assertForbidden()
             ->assertJson([
                 'success' => false,
-                'message' => 'Unauthorized access'
+                'message' => 'Unauthorized access',
             ]);
     }
 
@@ -161,7 +161,7 @@ class StudentControllerTest extends TestCase
         $response->assertOk()
             ->assertJson([
                 'success' => true,
-                'message' => 'Student deleted successfully'
+                'message' => 'Student deleted successfully',
             ]);
 
         $this->assertDatabaseMissing('students', ['id' => $student->id]);
@@ -179,12 +179,12 @@ class StudentControllerTest extends TestCase
         $response->assertOk()
             ->assertJson([
                 'success' => true,
-                'message' => 'Student status updated successfully'
+                'message' => 'Student status updated successfully',
             ]);
 
         $this->assertDatabaseHas('students', [
             'id' => $student->id,
-            'is_active' => false
+            'is_active' => false,
         ]);
     }
 
@@ -193,8 +193,8 @@ class StudentControllerTest extends TestCase
         Student::factory()->withInstitute($this->institute)->create([
             'user_id' => User::factory()->student()->create([
                 'name' => 'Searchable Student',
-                'institute_id' => $this->institute->id
-            ])
+                'institute_id' => $this->institute->id,
+            ]),
         ]);
 
         Student::factory()->count(2)->withInstitute($this->institute)->create();

@@ -3,17 +3,16 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Student;
-use App\Models\Teacher;
+use App\Models\ActivityLog;
+use App\Models\Attendance;
 use App\Models\ClassModel;
 use App\Models\Payment;
-use App\Models\Attendance;
-use App\Models\GateLog;
-use App\Models\ActivityLog;
-use App\Services\RFIDService;
+use App\Models\Student;
+use App\Models\Teacher;
 use App\Services\PaymentService;
-use Illuminate\Http\Request;
+use App\Services\RFIDService;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
@@ -101,13 +100,13 @@ class DashboardController extends Controller
                     'attendance' => $attendanceStats,
                     'gate' => $gateStats,
                     'defaulters_count' => $defaultersCount,
-                ]
+                ],
             ], 200);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to fetch dashboard statistics'
+                'message' => 'Failed to fetch dashboard statistics',
             ], 500);
         }
     }
@@ -130,13 +129,13 @@ class DashboardController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' => $activities
+                'data' => $activities,
             ], 200);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to fetch recent activities'
+                'message' => 'Failed to fetch recent activities',
             ], 500);
         }
     }

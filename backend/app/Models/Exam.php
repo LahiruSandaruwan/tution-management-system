@@ -131,6 +131,7 @@ class Exam extends Model
         if ($this->total_marks > 0 && $this->pass_marks) {
             return ($this->pass_marks / $this->total_marks) * 100;
         }
+
         return 0;
     }
 
@@ -150,6 +151,7 @@ class Exam extends Model
         if (!$this->pass_marks) {
             return 0;
         }
+
         return $this->grades()->where('marks', '>=', $this->pass_marks)->count();
     }
 

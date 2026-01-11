@@ -3,14 +3,13 @@
 namespace App\Services;
 
 use App\Models\Attendance;
-use App\Models\ClassModel;
 use Carbon\Carbon;
 
 class AttendanceService
 {
     /**
      * Mark attendance for a student
-     * 
+     *
      * @param array $data
      * @return Attendance
      */
@@ -24,6 +23,7 @@ class AttendanceService
 
         if ($existing) {
             $existing->update($data);
+
             return $existing;
         }
 
@@ -32,7 +32,7 @@ class AttendanceService
 
     /**
      * Mark attendance for multiple students
-     * 
+     *
      * @param int $classId
      * @param array $studentAttendances
      * @param string $date
@@ -63,7 +63,7 @@ class AttendanceService
 
     /**
      * Get attendance report for a class
-     * 
+     *
      * @param int $classId
      * @param string $startDate
      * @param string $endDate
@@ -100,7 +100,7 @@ class AttendanceService
 
     /**
      * Get student attendance summary
-     * 
+     *
      * @param int $studentId
      * @param string|null $month
      * @param int|null $year
@@ -122,15 +122,15 @@ class AttendanceService
             'present' => $attendances->where('status', 'present')->count(),
             'absent' => $attendances->where('status', 'absent')->count(),
             'late' => $attendances->where('status', 'late')->count(),
-            'attendance_percentage' => $attendances->count() > 0 
-                ? round(($attendances->where('status', 'present')->count() / $attendances->count()) * 100, 2) 
+            'attendance_percentage' => $attendances->count() > 0
+                ? round(($attendances->where('status', 'present')->count() / $attendances->count()) * 100, 2)
                 : 0,
         ];
     }
 
     /**
      * Get today's attendance for a class
-     * 
+     *
      * @param int $classId
      * @return \Illuminate\Database\Eloquent\Collection
      */

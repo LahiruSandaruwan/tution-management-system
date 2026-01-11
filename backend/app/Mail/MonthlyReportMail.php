@@ -4,7 +4,6 @@ namespace App\Mail;
 
 use App\Models\Institute;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
@@ -12,7 +11,8 @@ use Illuminate\Queue\SerializesModels;
 
 class MonthlyReportMail extends Mailable
 {
-    use Queueable, SerializesModels;
+    use Queueable;
+    use SerializesModels;
 
     public $reportData;
     public $institute;

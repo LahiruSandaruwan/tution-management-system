@@ -3,9 +3,9 @@
 namespace Database\Factories;
 
 use App\Models\Attendance;
-use App\Models\Student;
 use App\Models\ClassModel;
 use App\Models\Institute;
+use App\Models\Student;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class AttendanceFactory extends Factory

@@ -3,15 +3,15 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\ActivityLog;
 use App\Models\Student;
 use App\Models\User;
-use App\Models\ActivityLog;
 use App\Services\AttendanceService;
 use App\Services\PaymentService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\DB;
 
 class StudentController extends Controller
 {
@@ -58,13 +58,13 @@ class StudentController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' => $students
+                'data' => $students,
             ], 200);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to fetch students'
+                'message' => 'Failed to fetch students',
             ], 500);
         }
     }
@@ -92,11 +92,12 @@ class StudentController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Validation error',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
         DB::beginTransaction();
+
         try {
             // Create user
             $user = User::create([
@@ -129,14 +130,15 @@ class StudentController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Student created successfully',
-                'data' => $student->load('user')
+                'data' => $student->load('user'),
             ], 201);
 
         } catch (\Exception $e) {
             DB::rollBack();
+
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to create student'
+                'message' => 'Failed to create student',
             ], 500);
         }
     }
@@ -151,7 +153,7 @@ class StudentController extends Controller
             if ($student->institute_id !== $request->institute_id) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Unauthorized access'
+                    'message' => 'Unauthorized access',
                 ], 403);
             }
 
@@ -159,13 +161,13 @@ class StudentController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' => $student
+                'data' => $student,
             ], 200);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to fetch student'
+                'message' => 'Failed to fetch student',
             ], 500);
         }
     }
@@ -179,7 +181,7 @@ class StudentController extends Controller
         if ($student->institute_id !== $request->institute_id) {
             return response()->json([
                 'success' => false,
-                'message' => 'Unauthorized access'
+                'message' => 'Unauthorized access',
             ], 403);
         }
 
@@ -199,11 +201,12 @@ class StudentController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Validation error',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
         DB::beginTransaction();
+
         try {
             // Update user info
             $student->user->update($request->only(['name', 'email', 'phone']));
@@ -215,7 +218,7 @@ class StudentController extends Controller
                 'address',
                 'parent_name',
                 'parent_phone',
-                'photo'
+                'photo',
             ]));
 
             DB::commit();
@@ -225,14 +228,15 @@ class StudentController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Student updated successfully',
-                'data' => $student->load('user')
+                'data' => $student->load('user'),
             ], 200);
 
         } catch (\Exception $e) {
             DB::rollBack();
+
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update student'
+                'message' => 'Failed to update student',
             ], 500);
         }
     }
@@ -246,11 +250,12 @@ class StudentController extends Controller
         if ($student->institute_id !== $request->institute_id) {
             return response()->json([
                 'success' => false,
-                'message' => 'Unauthorized access'
+                'message' => 'Unauthorized access',
             ], 403);
         }
 
         DB::beginTransaction();
+
         try {
             ActivityLog::logActivity('student_deleted', Student::class, $student->id);
 
@@ -260,14 +265,15 @@ class StudentController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Student deleted successfully'
+                'message' => 'Student deleted successfully',
             ], 200);
 
         } catch (\Exception $e) {
             DB::rollBack();
+
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to delete student'
+                'message' => 'Failed to delete student',
             ], 500);
         }
     }
@@ -281,7 +287,7 @@ class StudentController extends Controller
         if ($student->institute_id !== $request->institute_id) {
             return response()->json([
                 'success' => false,
-                'message' => 'Unauthorized access'
+                'message' => 'Unauthorized access',
             ], 403);
         }
 
@@ -297,13 +303,13 @@ class StudentController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Student status updated successfully',
-                'data' => $student
+                'data' => $student,
             ], 200);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update student status'
+                'message' => 'Failed to update student status',
             ], 500);
         }
     }
@@ -317,7 +323,7 @@ class StudentController extends Controller
         if ($student->institute_id !== $request->institute_id) {
             return response()->json([
                 'success' => false,
-                'message' => 'Unauthorized access'
+                'message' => 'Unauthorized access',
             ], 403);
         }
 
@@ -333,13 +339,13 @@ class StudentController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' => $summary
+                'data' => $summary,
             ], 200);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to fetch attendance summary'
+                'message' => 'Failed to fetch attendance summary',
             ], 500);
         }
     }
@@ -353,7 +359,7 @@ class StudentController extends Controller
         if ($student->institute_id !== $request->institute_id) {
             return response()->json([
                 'success' => false,
-                'message' => 'Unauthorized access'
+                'message' => 'Unauthorized access',
             ], 403);
         }
 
@@ -362,13 +368,13 @@ class StudentController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' => $summary
+                'data' => $summary,
             ], 200);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to fetch payment summary'
+                'message' => 'Failed to fetch payment summary',
             ], 500);
         }
     }

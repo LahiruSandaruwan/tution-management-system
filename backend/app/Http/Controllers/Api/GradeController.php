@@ -35,12 +35,12 @@ class GradeController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Grade added successfully',
-                'data' => $grade->load(['student.user', 'class', 'subject', 'exam'])
+                'data' => $grade->load(['student.user', 'class', 'subject', 'exam']),
             ], 201);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to add grade'
+                'message' => 'Failed to add grade',
             ], 500);
         }
     }
@@ -54,7 +54,7 @@ class GradeController extends Controller
         if ($grade->institute_id !== $request->institute_id) {
             return response()->json([
                 'success' => false,
-                'message' => 'Unauthorized access'
+                'message' => 'Unauthorized access',
             ], 403);
         }
 
@@ -78,12 +78,12 @@ class GradeController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Grade updated successfully',
-                'data' => $grade->load(['student.user', 'class', 'subject', 'exam'])
+                'data' => $grade->load(['student.user', 'class', 'subject', 'exam']),
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update grade'
+                'message' => 'Failed to update grade',
             ], 500);
         }
     }
@@ -97,20 +97,21 @@ class GradeController extends Controller
         if ($grade->institute_id !== $request->institute_id) {
             return response()->json([
                 'success' => false,
-                'message' => 'Unauthorized access'
+                'message' => 'Unauthorized access',
             ], 403);
         }
 
         try {
             $grade->delete();
+
             return response()->json([
                 'success' => true,
-                'message' => 'Grade deleted successfully'
+                'message' => 'Grade deleted successfully',
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to delete grade'
+                'message' => 'Failed to delete grade',
             ], 500);
         }
     }
@@ -124,7 +125,7 @@ class GradeController extends Controller
         if ($student->institute_id !== $request->institute_id) {
             return response()->json([
                 'success' => false,
-                'message' => 'Unauthorized access'
+                'message' => 'Unauthorized access',
             ], 403);
         }
 
@@ -143,11 +144,12 @@ class GradeController extends Controller
                     'subject_name' => $subject ? $subject->name : 'General',
                     'class_name' => $class ? $class->name : 'N/A',
                     'total_exams' => $subjectGrades->count(),
-                    'average' => round($subjectGrades->avg(fn($g) => ($g->marks_obtained / $g->total_marks) * 100), 2),
-                    'highest_marks' => round($subjectGrades->max(fn($g) => ($g->marks_obtained / $g->total_marks) * 100), 2),
-                    'lowest_marks' => round($subjectGrades->min(fn($g) => ($g->marks_obtained / $g->total_marks) * 100), 2),
+                    'average' => round($subjectGrades->avg(fn ($g) => ($g->marks_obtained / $g->total_marks) * 100), 2),
+                    'highest_marks' => round($subjectGrades->max(fn ($g) => ($g->marks_obtained / $g->total_marks) * 100), 2),
+                    'lowest_marks' => round($subjectGrades->min(fn ($g) => ($g->marks_obtained / $g->total_marks) * 100), 2),
                     'grades' => $subjectGrades->map(function ($grade) {
                         $percentage = ($grade->marks_obtained / $grade->total_marks) * 100;
+
                         return [
                             'id' => $grade->id,
                             'exam_name' => $grade->exam ? $grade->exam->name : 'Exam',
@@ -158,15 +160,15 @@ class GradeController extends Controller
                             'grade' => $grade->grade ?? $this->calculateGrade($percentage),
                             'remarks' => $grade->remarks,
                         ];
-                    })->values()
+                    })->values(),
                 ];
             })->values();
 
             // Overall statistics
             $overallStats = [
-                'overall_average' => round($grades->avg(fn($g) => ($g->marks_obtained / $g->total_marks) * 100), 2),
-                'highest' => round($grades->max(fn($g) => ($g->marks_obtained / $g->total_marks) * 100), 2),
-                'lowest' => round($grades->min(fn($g) => ($g->marks_obtained / $g->total_marks) * 100), 2),
+                'overall_average' => round($grades->avg(fn ($g) => ($g->marks_obtained / $g->total_marks) * 100), 2),
+                'highest' => round($grades->max(fn ($g) => ($g->marks_obtained / $g->total_marks) * 100), 2),
+                'lowest' => round($grades->min(fn ($g) => ($g->marks_obtained / $g->total_marks) * 100), 2),
                 'total_exams' => $grades->count(),
             ];
 
@@ -175,12 +177,12 @@ class GradeController extends Controller
                 'data' => [
                     'overall_stats' => $overallStats,
                     'subject_summaries' => $subjectSummaries,
-                ]
+                ],
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to fetch student grades'
+                'message' => 'Failed to fetch student grades',
             ], 500);
         }
     }
@@ -198,12 +200,12 @@ class GradeController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' => $grades
+                'data' => $grades,
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to fetch class exam grades'
+                'message' => 'Failed to fetch class exam grades',
             ], 500);
         }
     }
@@ -213,10 +215,19 @@ class GradeController extends Controller
      */
     private function calculateGrade($percentage)
     {
-        if ($percentage >= 75) return 'A';
-        if ($percentage >= 65) return 'B';
-        if ($percentage >= 55) return 'C';
-        if ($percentage >= 35) return 'S';
+        if ($percentage >= 75) {
+            return 'A';
+        }
+        if ($percentage >= 65) {
+            return 'B';
+        }
+        if ($percentage >= 55) {
+            return 'C';
+        }
+        if ($percentage >= 35) {
+            return 'S';
+        }
+
         return 'F';
     }
 }

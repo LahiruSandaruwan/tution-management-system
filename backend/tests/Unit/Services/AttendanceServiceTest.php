@@ -3,9 +3,9 @@
 namespace Tests\Unit\Services;
 
 use App\Models\Attendance;
-use App\Models\Student;
 use App\Models\ClassModel;
 use App\Models\Institute;
+use App\Models\Student;
 use App\Services\AttendanceService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -157,7 +157,7 @@ class AttendanceServiceTest extends TestCase
     {
         $students = Student::factory()->count(5)->withInstitute($this->institute)->create();
 
-        $attendanceData = $students->map(fn($student) => [
+        $attendanceData = $students->map(fn ($student) => [
             'student_id' => $student->id,
             'class_id' => $this->class->id,
             'institute_id' => $this->institute->id,

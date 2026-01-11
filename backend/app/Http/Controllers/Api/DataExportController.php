@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Models\User;
 use App\Models\Student;
 use App\Models\Teacher;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -138,7 +138,7 @@ class DataExportController extends Controller
                 'created_at' => $student->created_at->toIso8601String(),
                 'updated_at' => $student->updated_at->toIso8601String(),
             ],
-            'class_enrollments' => $student->enrollments->map(fn($enrollment) => [
+            'class_enrollments' => $student->enrollments->map(fn ($enrollment) => [
                 'class_id' => $enrollment->class_id,
                 'class_name' => $enrollment->class?->name,
                 'subject' => $enrollment->class?->subject?->name,
@@ -146,7 +146,7 @@ class DataExportController extends Controller
                 'enrolled_at' => $enrollment->enrolled_at?->toIso8601String(),
                 'status' => $enrollment->status,
             ])->toArray(),
-            'payments' => $student->payments->map(fn($payment) => [
+            'payments' => $student->payments->map(fn ($payment) => [
                 'id' => $payment->id,
                 'amount' => $payment->amount,
                 'payment_date' => $payment->payment_date,
@@ -157,14 +157,14 @@ class DataExportController extends Controller
                 'year' => $payment->year,
                 'created_at' => $payment->created_at->toIso8601String(),
             ])->toArray(),
-            'rfid_cards' => $student->rfidCards->map(fn($card) => [
+            'rfid_cards' => $student->rfidCards->map(fn ($card) => [
                 'id' => $card->id,
                 'rfid_number' => $card->rfid_number,
                 'is_active' => $card->is_active,
                 'issued_date' => $card->issued_date?->toIso8601String(),
                 'last_used' => $card->last_used?->toIso8601String(),
             ])->toArray(),
-            'gate_access_logs' => $student->gateLogs->map(fn($log) => [
+            'gate_access_logs' => $student->gateLogs->map(fn ($log) => [
                 'id' => $log->id,
                 'gate_type' => $log->gate_type,
                 'timestamp' => $log->timestamp?->toIso8601String(),
@@ -203,7 +203,7 @@ class DataExportController extends Controller
                 'created_at' => $teacher->created_at->toIso8601String(),
                 'updated_at' => $teacher->updated_at->toIso8601String(),
             ],
-            'classes' => $teacher->classes->map(fn($class) => [
+            'classes' => $teacher->classes->map(fn ($class) => [
                 'id' => $class->id,
                 'name' => $class->name,
                 'subject' => $class->subject?->name,
@@ -213,7 +213,7 @@ class DataExportController extends Controller
                 'is_active' => $class->is_active,
                 'created_at' => $class->created_at->toIso8601String(),
             ])->toArray(),
-            'schedules' => $teacher->schedules->map(fn($schedule) => [
+            'schedules' => $teacher->schedules->map(fn ($schedule) => [
                 'id' => $schedule->id,
                 'class_name' => $schedule->class?->name,
                 'day_of_week' => $schedule->day_of_week,
@@ -255,7 +255,7 @@ class DataExportController extends Controller
             ->orderBy('attempted_at', 'desc')
             ->limit(100)
             ->get()
-            ->map(fn($attempt) => [
+            ->map(fn ($attempt) => [
                 'email' => $attempt->email,
                 'ip_address' => $attempt->ip_address,
                 'successful' => (bool) $attempt->successful,
@@ -366,6 +366,7 @@ class DataExportController extends Controller
 
             } catch (\Exception $e) {
                 DB::rollBack();
+
                 throw $e;
             }
 

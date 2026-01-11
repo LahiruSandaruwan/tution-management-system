@@ -2,11 +2,11 @@
 
 namespace Tests\Feature\Workflows;
 
-use App\Models\Student;
 use App\Models\ClassModel;
-use App\Models\Payment;
-use App\Models\User;
 use App\Models\Institute;
+use App\Models\Payment;
+use App\Models\Student;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
@@ -50,7 +50,7 @@ class PaymentWorkflowTest extends TestCase
         $createResponse->assertCreated()
             ->assertJson([
                 'success' => true,
-                'message' => 'Payment created successfully'
+                'message' => 'Payment created successfully',
             ]);
 
         $paymentId = $createResponse->json('data.id');
@@ -59,7 +59,7 @@ class PaymentWorkflowTest extends TestCase
         $this->assertDatabaseHas('payments', [
             'id' => $paymentId,
             'status' => 'pending',
-            'paid_date' => null
+            'paid_date' => null,
         ]);
 
         // Step 2: Record payment
@@ -73,7 +73,7 @@ class PaymentWorkflowTest extends TestCase
         $recordResponse->assertOk()
             ->assertJson([
                 'success' => true,
-                'message' => 'Payment recorded successfully'
+                'message' => 'Payment recorded successfully',
             ]);
 
         // Verify payment is now paid
@@ -81,7 +81,7 @@ class PaymentWorkflowTest extends TestCase
             'id' => $paymentId,
             'status' => 'paid',
             'payment_method' => 'cash',
-            'received_by' => $this->admin->id
+            'received_by' => $this->admin->id,
         ]);
 
         $payment = Payment::find($paymentId);
@@ -96,8 +96,8 @@ class PaymentWorkflowTest extends TestCase
                 'data' => [
                     'id' => $paymentId,
                     'status' => 'paid',
-                    'amount' => '2000.00'
-                ]
+                    'amount' => '2000.00',
+                ],
             ]);
     }
 
@@ -106,13 +106,13 @@ class PaymentWorkflowTest extends TestCase
         Payment::factory()->count(3)->pending()->create([
             'institute_id' => $this->institute->id,
             'student_id' => $this->student->id,
-            'class_id' => $this->class->id
+            'class_id' => $this->class->id,
         ]);
 
         Payment::factory()->count(2)->paid()->create([
             'institute_id' => $this->institute->id,
             'student_id' => $this->student->id,
-            'class_id' => $this->class->id
+            'class_id' => $this->class->id,
         ]);
 
         Sanctum::actingAs($this->admin);
@@ -133,7 +133,7 @@ class PaymentWorkflowTest extends TestCase
         $overduePayment = Payment::factory()->overdue()->create([
             'institute_id' => $this->institute->id,
             'student_id' => $this->student->id,
-            'class_id' => $this->class->id
+            'class_id' => $this->class->id,
         ]);
 
         Sanctum::actingAs($this->admin);
@@ -160,7 +160,7 @@ class PaymentWorkflowTest extends TestCase
         $payment = Payment::factory()->paid()->create([
             'institute_id' => $this->institute->id,
             'student_id' => $this->student->id,
-            'class_id' => $this->class->id
+            'class_id' => $this->class->id,
         ]);
 
         Sanctum::actingAs($this->admin);
@@ -173,7 +173,7 @@ class PaymentWorkflowTest extends TestCase
         $response->assertStatus(400)
             ->assertJson([
                 'success' => false,
-                'message' => 'Payment already recorded'
+                'message' => 'Payment already recorded',
             ]);
     }
 
@@ -184,13 +184,13 @@ class PaymentWorkflowTest extends TestCase
         Payment::factory()->count(3)->create([
             'institute_id' => $this->institute->id,
             'student_id' => $this->student->id,
-            'class_id' => $this->class->id
+            'class_id' => $this->class->id,
         ]);
 
         Payment::factory()->count(2)->create([
             'institute_id' => $this->institute->id,
             'student_id' => $otherStudent->id,
-            'class_id' => $this->class->id
+            'class_id' => $this->class->id,
         ]);
 
         Sanctum::actingAs($this->admin);

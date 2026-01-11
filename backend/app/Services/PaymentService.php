@@ -2,9 +2,9 @@
 
 namespace App\Services;
 
+use App\Models\FeeStructure;
 use App\Models\Payment;
 use App\Models\Student;
-use App\Models\FeeStructure;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
 
@@ -12,7 +12,7 @@ class PaymentService
 {
     /**
      * Record a new payment
-     * 
+     *
      * @param array $data
      * @return Payment
      */
@@ -36,7 +36,7 @@ class PaymentService
 
     /**
      * Get defaulters (students with overdue payments)
-     * 
+     *
      * @param int $instituteId
      * @return \Illuminate\Database\Eloquent\Collection
      */
@@ -55,7 +55,7 @@ class PaymentService
 
     /**
      * Get payment summary for a student
-     * 
+     *
      * @param int $studentId
      * @return array
      */
@@ -74,7 +74,7 @@ class PaymentService
 
     /**
      * Generate monthly payments for all students
-     * 
+     *
      * @param int $instituteId
      * @param string $month
      * @param int $year
@@ -128,7 +128,7 @@ class PaymentService
 
     /**
      * Mark overdue payments
-     * 
+     *
      * @param int $instituteId
      * @return int
      */
@@ -142,7 +142,7 @@ class PaymentService
 
     /**
      * Generate receipt number
-     * 
+     *
      * @return string
      */
     private function generateReceiptNumber(): string
@@ -152,7 +152,7 @@ class PaymentService
 
     /**
      * Get payment statistics
-     * 
+     *
      * @param int $instituteId
      * @param string|null $month
      * @param int|null $year

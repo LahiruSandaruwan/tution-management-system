@@ -3,8 +3,8 @@
 namespace Database\Factories;
 
 use App\Models\ClassModel;
-use App\Models\Teacher;
 use App\Models\Institute;
+use App\Models\Teacher;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class ClassModelFactory extends Factory

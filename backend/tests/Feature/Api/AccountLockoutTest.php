@@ -2,8 +2,8 @@
 
 namespace Tests\Feature\Api;
 
-use App\Models\User;
 use App\Models\Institute;
+use App\Models\User;
 use App\Services\AccountLockoutService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -144,7 +144,9 @@ class AccountLockoutTest extends TestCase
         }
 
         // Verify attempts were recorded
-        $this->assertEquals(3, \DB::table('login_attempts')
+        $this->assertEquals(
+            3,
+            \DB::table('login_attempts')
             ->where('email', 'test@example.com')
             ->where('successful', false)
             ->count()

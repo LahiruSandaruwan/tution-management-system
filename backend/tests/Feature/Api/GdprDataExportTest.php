@@ -2,12 +2,12 @@
 
 namespace Tests\Feature\Api;
 
-use App\Models\User;
+use App\Models\Grade;
 use App\Models\Institute;
 use App\Models\Student;
-use App\Models\Teacher;
 use App\Models\Subject;
-use App\Models\Grade;
+use App\Models\Teacher;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;

@@ -2,9 +2,9 @@
 
 namespace Tests\Feature\Api;
 
+use App\Models\Institute;
 use App\Models\Teacher;
 use App\Models\User;
-use App\Models\Institute;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
@@ -37,9 +37,9 @@ class TeacherControllerTest extends TestCase
                 'success',
                 'data' => [
                     'data' => [
-                        '*' => ['id', 'user_id', 'subject_specialization', 'is_active']
-                    ]
-                ]
+                        '*' => ['id', 'user_id', 'subject_specialization', 'is_active'],
+                    ],
+                ],
             ]);
     }
 
@@ -62,17 +62,17 @@ class TeacherControllerTest extends TestCase
         $response->assertCreated()
             ->assertJson([
                 'success' => true,
-                'message' => 'Teacher created successfully'
+                'message' => 'Teacher created successfully',
             ]);
 
         $this->assertDatabaseHas('teachers', [
             'subject_specialization' => 'Mathematics',
-            'qualification' => 'B.Sc. in Mathematics'
+            'qualification' => 'B.Sc. in Mathematics',
         ]);
 
         $this->assertDatabaseHas('users', [
             'email' => 'teacher@example.com',
-            'role' => 'teacher'
+            'role' => 'teacher',
         ]);
     }
 
@@ -93,12 +93,12 @@ class TeacherControllerTest extends TestCase
         $response->assertOk()
             ->assertJson([
                 'success' => true,
-                'message' => 'Teacher updated successfully'
+                'message' => 'Teacher updated successfully',
             ]);
 
         $this->assertDatabaseHas('teachers', [
             'id' => $teacher->id,
-            'subject_specialization' => 'Science'
+            'subject_specialization' => 'Science',
         ]);
     }
 
@@ -117,7 +117,7 @@ class TeacherControllerTest extends TestCase
         $response->assertForbidden()
             ->assertJson([
                 'success' => false,
-                'message' => 'Unauthorized access'
+                'message' => 'Unauthorized access',
             ]);
     }
 
@@ -132,7 +132,7 @@ class TeacherControllerTest extends TestCase
         $response->assertOk()
             ->assertJson([
                 'success' => true,
-                'message' => 'Teacher deleted successfully'
+                'message' => 'Teacher deleted successfully',
             ]);
 
         $this->assertDatabaseMissing('teachers', ['id' => $teacher->id]);
@@ -150,12 +150,12 @@ class TeacherControllerTest extends TestCase
         $response->assertOk()
             ->assertJson([
                 'success' => true,
-                'message' => 'Teacher status updated successfully'
+                'message' => 'Teacher status updated successfully',
             ]);
 
         $this->assertDatabaseHas('teachers', [
             'id' => $teacher->id,
-            'is_active' => false
+            'is_active' => false,
         ]);
     }
 
@@ -180,8 +180,8 @@ class TeacherControllerTest extends TestCase
         Teacher::factory()->withInstitute($this->institute)->create([
             'user_id' => User::factory()->teacher()->create([
                 'name' => 'Searchable Teacher',
-                'institute_id' => $this->institute->id
-            ])
+                'institute_id' => $this->institute->id,
+            ]),
         ]);
 
         Teacher::factory()->count(2)->withInstitute($this->institute)->create();

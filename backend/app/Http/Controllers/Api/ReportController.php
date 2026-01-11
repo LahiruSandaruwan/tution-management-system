@@ -4,14 +4,14 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Attendance;
-use App\Models\Payment;
 use App\Models\GateLog;
 use App\Models\Grade;
 use App\Models\Institute;
+use App\Models\Payment;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use Carbon\Carbon;
-use Barryvdh\DomPDF\Facade\Pdf;
 
 class ReportController extends Controller
 {
@@ -31,7 +31,7 @@ class ReportController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Validation error',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -66,14 +66,14 @@ class ReportController extends Controller
                 'data' => [
                     'attendances' => $attendances,
                     'statistics' => $stats,
-                ]
+                ],
             ], 200);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to generate attendance report',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -95,7 +95,7 @@ class ReportController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Validation error',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -138,14 +138,14 @@ class ReportController extends Controller
                 'data' => [
                     'payments' => $payments,
                     'statistics' => $stats,
-                ]
+                ],
             ], 200);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to generate payment report',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -166,7 +166,7 @@ class ReportController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Validation error',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -177,7 +177,7 @@ class ReportController extends Controller
             if ($request->has('start_date') && $request->has('end_date')) {
                 $query->whereBetween('timestamp', [
                     Carbon::parse($request->start_date)->startOfDay(),
-                    Carbon::parse($request->end_date)->endOfDay()
+                    Carbon::parse($request->end_date)->endOfDay(),
                 ]);
             } else {
                 // Default to today
@@ -209,14 +209,14 @@ class ReportController extends Controller
                 'data' => [
                     'logs' => $logs,
                     'statistics' => $stats,
-                ]
+                ],
             ], 200);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to generate gate logs report',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -236,7 +236,7 @@ class ReportController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Validation error',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -273,14 +273,14 @@ class ReportController extends Controller
                 'data' => [
                     'grades' => $grades,
                     'statistics' => $stats,
-                ]
+                ],
             ], 200);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to generate academic report',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -301,7 +301,7 @@ class ReportController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Validation error',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -347,7 +347,7 @@ class ReportController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to generate PDF',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -369,7 +369,7 @@ class ReportController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Validation error',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -422,7 +422,7 @@ class ReportController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to generate PDF',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -441,7 +441,7 @@ class ReportController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Validation error',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -499,7 +499,7 @@ class ReportController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to generate PDF',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }

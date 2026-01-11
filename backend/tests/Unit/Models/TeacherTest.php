@@ -2,10 +2,10 @@
 
 namespace Tests\Unit\Models;
 
+use App\Models\ClassModel;
+use App\Models\Institute;
 use App\Models\Teacher;
 use App\Models\User;
-use App\Models\Institute;
-use App\Models\ClassModel;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -32,7 +32,7 @@ class TeacherTest extends TestCase
         $teacher = Teacher::factory()->create();
         $class = ClassModel::factory()->create([
             'institute_id' => $teacher->institute_id,
-            'teacher_id' => $teacher->id
+            'teacher_id' => $teacher->id,
         ]);
 
         $this->assertCount(1, $teacher->classes);

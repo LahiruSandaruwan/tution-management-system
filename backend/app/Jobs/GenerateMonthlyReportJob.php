@@ -2,18 +2,17 @@
 
 namespace App\Jobs;
 
-use App\Models\Institute;
-use App\Models\Attendance;
-use App\Models\Payment;
-use App\Models\Grade;
-use App\Models\User;
 use App\Mail\MonthlyReportMail;
+use App\Models\Attendance;
+use App\Models\Grade;
+use App\Models\Institute;
+use App\Models\Payment;
+use Carbon\Carbon;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class GenerateMonthlyReportJob implements ShouldQueue
 {
@@ -70,6 +69,7 @@ class GenerateMonthlyReportJob implements ShouldQueue
 
         if (!$institute) {
             Log::warning("Institute {$instituteId} not found");
+
             return;
         }
 
@@ -262,6 +262,7 @@ class GenerateMonthlyReportJob implements ShouldQueue
 
         if (!$owner || !$owner->email) {
             Log::warning("No owner or email found for institute {$institute->id}");
+
             return;
         }
 

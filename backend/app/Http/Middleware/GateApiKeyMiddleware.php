@@ -21,7 +21,7 @@ class GateApiKeyMiddleware
         if (!$apiKey) {
             return response()->json([
                 'success' => false,
-                'message' => 'API key is required in X-API-Key header.'
+                'message' => 'API key is required in X-API-Key header.',
             ], 401);
         }
 
@@ -37,7 +37,7 @@ class GateApiKeyMiddleware
         if (!$device) {
             return response()->json([
                 'success' => false,
-                'message' => 'Invalid or inactive API key.'
+                'message' => 'Invalid or inactive API key.',
             ], 401);
         }
 

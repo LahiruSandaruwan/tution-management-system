@@ -19,14 +19,14 @@ class RoleMiddleware
         if (!$request->user()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Unauthenticated.'
+                'message' => 'Unauthenticated.',
             ], 401);
         }
 
         if ($request->user()->role !== $role) {
             return response()->json([
                 'success' => false,
-                'message' => 'Unauthorized. You do not have permission to access this resource.'
+                'message' => 'Unauthorized. You do not have permission to access this resource.',
             ], 403);
         }
 

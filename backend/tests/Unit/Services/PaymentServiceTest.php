@@ -2,10 +2,10 @@
 
 namespace Tests\Unit\Services;
 
-use App\Models\Payment;
-use App\Models\Student;
 use App\Models\ClassModel;
 use App\Models\Institute;
+use App\Models\Payment;
+use App\Models\Student;
 use App\Services\PaymentService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;

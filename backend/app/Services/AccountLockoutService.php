@@ -2,25 +2,25 @@
 
 namespace App\Services;
 
-use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class AccountLockoutService
 {
     /**
      * Maximum failed login attempts before lockout
      */
-    const MAX_ATTEMPTS = 5;
+    public const MAX_ATTEMPTS = 5;
 
     /**
      * Lockout duration in minutes
      */
-    const LOCKOUT_DURATION = 15;
+    public const LOCKOUT_DURATION = 15;
 
     /**
      * Time window for counting failed attempts (minutes)
      */
-    const ATTEMPT_WINDOW = 15;
+    public const ATTEMPT_WINDOW = 15;
 
     /**
      * Check if an account is currently locked
@@ -43,6 +43,7 @@ class AccountLockoutService
         // Lockout expired, reset the record
         if ($lockout->locked_until && Carbon::parse($lockout->locked_until)->isPast()) {
             $this->resetLockout($email);
+
             return false;
         }
 

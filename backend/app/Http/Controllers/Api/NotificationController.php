@@ -43,14 +43,14 @@ class NotificationController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' => $notifications
+                'data' => $notifications,
             ], 200);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to fetch notifications',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -65,7 +65,7 @@ class NotificationController extends Controller
             if ($notification->user_id !== auth()->id()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Unauthorized access to notification'
+                    'message' => 'Unauthorized access to notification',
                 ], 403);
             }
 
@@ -73,14 +73,14 @@ class NotificationController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Notification marked as read'
+                'message' => 'Notification marked as read',
             ], 200);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to mark notification as read',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -95,14 +95,14 @@ class NotificationController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' => ['count' => $count]
+                'data' => ['count' => $count],
             ], 200);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to fetch unread count',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }

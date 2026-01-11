@@ -2,13 +2,13 @@
 
 namespace Tests\Feature\Api;
 
+use App\Models\Attendance;
+use App\Models\ClassModel;
+use App\Models\Institute;
+use App\Models\Payment;
 use App\Models\Student;
 use App\Models\Teacher;
-use App\Models\ClassModel;
-use App\Models\Payment;
-use App\Models\Attendance;
 use App\Models\User;
-use App\Models\Institute;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
@@ -49,7 +49,7 @@ class DashboardControllerTest extends TestCase
                     'active_students',
                     'active_teachers',
                     'active_classes',
-                ]
+                ],
             ]);
 
         $data = $response->json('data');
@@ -173,8 +173,8 @@ class DashboardControllerTest extends TestCase
             ->assertJsonStructure([
                 'success',
                 'data' => [
-                    '*' => ['id', 'description', 'created_at']
-                ]
+                    '*' => ['id', 'description', 'created_at'],
+                ],
             ]);
     }
 

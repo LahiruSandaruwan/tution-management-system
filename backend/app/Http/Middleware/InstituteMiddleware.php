@@ -21,14 +21,14 @@ class InstituteMiddleware
         if (!$request->user()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Unauthenticated.'
+                'message' => 'Unauthenticated.',
             ], 401);
         }
 
         if (!$request->user()->institute_id) {
             return response()->json([
                 'success' => false,
-                'message' => 'User is not associated with any institute.'
+                'message' => 'User is not associated with any institute.',
             ], 403);
         }
 

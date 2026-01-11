@@ -3,10 +3,10 @@
 namespace Tests\Feature;
 
 use App\Models\Institute;
+use App\Models\Payment;
+use App\Models\RfidCard;
 use App\Models\Student;
 use App\Models\User;
-use App\Models\RfidCard;
-use App\Models\Payment;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 

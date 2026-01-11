@@ -2,9 +2,9 @@
 
 namespace Database\Factories;
 
+use App\Models\Institute;
 use App\Models\Teacher;
 use App\Models\User;
-use App\Models\Institute;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class TeacherFactory extends Factory
@@ -23,14 +23,14 @@ class TeacherFactory extends Factory
                 'Sinhala',
                 'History',
                 'ICT',
-                'Commerce'
+                'Commerce',
             ]),
             'qualification' => fake()->randomElement([
                 'B.Sc. in Mathematics',
                 'B.A. in English',
                 'M.Sc. in Physics',
                 'B.Ed. in Science',
-                'Diploma in Teaching'
+                'Diploma in Teaching',
             ]),
             'date_of_birth' => fake()->dateTimeBetween('-50 years', '-25 years'),
             'address' => fake()->address(),

@@ -2,11 +2,11 @@
 
 namespace Tests\Feature\Workflows;
 
-use App\Models\Student;
 use App\Models\ClassModel;
-use App\Models\User;
 use App\Models\Institute;
 use App\Models\Payment;
+use App\Models\Student;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
@@ -43,13 +43,13 @@ class StudentEnrollmentWorkflowTest extends TestCase
         $enrollResponse->assertOk()
             ->assertJson([
                 'success' => true,
-                'message' => 'Student enrolled successfully'
+                'message' => 'Student enrolled successfully',
             ]);
 
         // Verify enrollment
         $this->assertDatabaseHas('class_student', [
             'class_id' => $this->class->id,
-            'student_id' => $this->student->id
+            'student_id' => $this->student->id,
         ]);
 
         // Step 2: Verify student appears in class students list
@@ -77,7 +77,7 @@ class StudentEnrollmentWorkflowTest extends TestCase
         $paymentResponse->assertCreated()
             ->assertJson([
                 'success' => true,
-                'message' => 'Payment created successfully'
+                'message' => 'Payment created successfully',
             ]);
 
         // Step 4: Verify payment in student's payment list
@@ -91,13 +91,13 @@ class StudentEnrollmentWorkflowTest extends TestCase
         $unenrollResponse->assertOk()
             ->assertJson([
                 'success' => true,
-                'message' => 'Student unenrolled successfully'
+                'message' => 'Student unenrolled successfully',
             ]);
 
         // Verify unenrollment
         $this->assertDatabaseMissing('class_student', [
             'class_id' => $this->class->id,
-            'student_id' => $this->student->id
+            'student_id' => $this->student->id,
         ]);
     }
 
@@ -116,7 +116,7 @@ class StudentEnrollmentWorkflowTest extends TestCase
         $response->assertForbidden()
             ->assertJson([
                 'success' => false,
-                'message' => 'Unauthorized access'
+                'message' => 'Unauthorized access',
             ]);
     }
 
@@ -156,12 +156,12 @@ class StudentEnrollmentWorkflowTest extends TestCase
         // Verify enrollments
         $this->assertDatabaseHas('class_student', [
             'class_id' => $this->class->id,
-            'student_id' => $this->student->id
+            'student_id' => $this->student->id,
         ]);
 
         $this->assertDatabaseHas('class_student', [
             'class_id' => $class2->id,
-            'student_id' => $this->student->id
+            'student_id' => $this->student->id,
         ]);
 
         // Verify student shows in both class lists

@@ -62,6 +62,7 @@ class Grade extends Model
         if ($this->max_marks == 0) {
             return 0;
         }
+
         return ($this->marks / $this->max_marks) * 100;
     }
 }

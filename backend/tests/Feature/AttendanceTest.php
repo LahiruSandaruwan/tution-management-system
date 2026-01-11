@@ -2,13 +2,13 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
+use App\Models\Attendance;
+use App\Models\ClassModel;
 use App\Models\Institute;
 use App\Models\Student;
-use App\Models\Teacher;
-use App\Models\ClassModel;
 use App\Models\Subject;
-use App\Models\Attendance;
+use App\Models\Teacher;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 

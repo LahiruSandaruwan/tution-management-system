@@ -9,7 +9,7 @@ class NotificationService
 {
     /**
      * Create a notification for a user
-     * 
+     *
      * @param int $userId
      * @param string $type
      * @param string $title
@@ -30,7 +30,7 @@ class NotificationService
 
     /**
      * Send notification to multiple users
-     * 
+     *
      * @param array $userIds
      * @param string $type
      * @param string $title
@@ -52,7 +52,7 @@ class NotificationService
 
     /**
      * Send payment reminder
-     * 
+     *
      * @param int $studentId
      * @param float $amount
      * @param string $month
@@ -81,7 +81,7 @@ class NotificationService
 
     /**
      * Send announcement notification
-     * 
+     *
      * @param int $instituteId
      * @param string $targetAudience
      * @param string $title
@@ -117,7 +117,7 @@ class NotificationService
 
     /**
      * Mark notification as read
-     * 
+     *
      * @param int $notificationId
      * @return bool
      */
@@ -130,12 +130,13 @@ class NotificationService
         }
 
         $notification->markAsRead();
+
         return true;
     }
 
     /**
      * Get unread count for user
-     * 
+     *
      * @param int $userId
      * @return int
      */

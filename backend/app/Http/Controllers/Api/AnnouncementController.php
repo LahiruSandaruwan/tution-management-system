@@ -7,8 +7,8 @@ use App\Models\Announcement;
 use App\Models\Notification;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 class AnnouncementController extends Controller
 {
@@ -34,13 +34,13 @@ class AnnouncementController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' => $announcements
+                'data' => $announcements,
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to fetch announcements',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -60,7 +60,7 @@ class AnnouncementController extends Controller
                 return response()->json([
                     'success' => false,
                     'message' => 'Validation failed',
-                    'errors' => $validator->errors()
+                    'errors' => $validator->errors(),
                 ], 422);
             }
 
@@ -92,13 +92,13 @@ class AnnouncementController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Announcement created successfully',
-                'data' => $announcement
+                'data' => $announcement,
             ], 201);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to create announcement',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -111,13 +111,13 @@ class AnnouncementController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' => $announcement
+                'data' => $announcement,
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Announcement not found',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 404);
         }
     }
@@ -140,7 +140,7 @@ class AnnouncementController extends Controller
                 return response()->json([
                     'success' => false,
                     'message' => 'Validation failed',
-                    'errors' => $validator->errors()
+                    'errors' => $validator->errors(),
                 ], 422);
             }
 
@@ -175,13 +175,13 @@ class AnnouncementController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Announcement updated successfully',
-                'data' => $announcement
+                'data' => $announcement,
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to update announcement',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -196,13 +196,13 @@ class AnnouncementController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Announcement deleted successfully'
+                'message' => 'Announcement deleted successfully',
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to delete announcement',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -214,6 +214,7 @@ class AnnouncementController extends Controller
     public function send(Request $request, string $id)
     {
         DB::beginTransaction();
+
         try {
             // Get announcement
             $announcement = Announcement::where('institute_id', auth()->user()->institute_id)
@@ -229,6 +230,7 @@ class AnnouncementController extends Controller
                     $targetUsers = User::where('institute_id', auth()->user()->institute_id)
                         ->where('is_active', true)
                         ->get();
+
                     break;
 
                 case 'students':
@@ -237,6 +239,7 @@ class AnnouncementController extends Controller
                         ->where('role', 'student')
                         ->where('is_active', true)
                         ->get();
+
                     break;
 
                 case 'teachers':
@@ -245,6 +248,7 @@ class AnnouncementController extends Controller
                         ->where('role', 'teacher')
                         ->where('is_active', true)
                         ->get();
+
                     break;
 
                 case 'class':
@@ -254,12 +258,13 @@ class AnnouncementController extends Controller
                             return $student->user;
                         })->filter();
                     }
+
                     break;
 
                 default:
                     return response()->json([
                         'success' => false,
-                        'message' => 'Invalid target audience'
+                        'message' => 'Invalid target audience',
                     ], 422);
             }
 
@@ -292,15 +297,16 @@ class AnnouncementController extends Controller
                     'announcement' => $announcement,
                     'notifications_created' => $notificationsCreated,
                     'target_audience' => $announcement->target_audience,
-                ]
+                ],
             ], 200);
 
         } catch (\Exception $e) {
             DB::rollBack();
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to send announcement',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }

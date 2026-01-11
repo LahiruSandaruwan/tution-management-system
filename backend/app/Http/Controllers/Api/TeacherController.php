@@ -3,13 +3,13 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\ActivityLog;
 use App\Models\Teacher;
 use App\Models\User;
-use App\Models\ActivityLog;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\DB;
 
 class TeacherController extends Controller
 {
@@ -39,13 +39,13 @@ class TeacherController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' => $teachers
+                'data' => $teachers,
             ], 200);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to fetch teachers'
+                'message' => 'Failed to fetch teachers',
             ], 500);
         }
     }
@@ -71,11 +71,12 @@ class TeacherController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Validation error',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
         DB::beginTransaction();
+
         try {
             // Create user
             $user = User::create([
@@ -106,14 +107,15 @@ class TeacherController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Teacher created successfully',
-                'data' => $teacher->load('user')
+                'data' => $teacher->load('user'),
             ], 201);
 
         } catch (\Exception $e) {
             DB::rollBack();
+
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to create teacher'
+                'message' => 'Failed to create teacher',
             ], 500);
         }
     }
@@ -127,7 +129,7 @@ class TeacherController extends Controller
         if ($teacher->institute_id !== $request->institute_id) {
             return response()->json([
                 'success' => false,
-                'message' => 'Unauthorized access'
+                'message' => 'Unauthorized access',
             ], 403);
         }
 
@@ -136,13 +138,13 @@ class TeacherController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' => $teacher
+                'data' => $teacher,
             ], 200);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to fetch teacher'
+                'message' => 'Failed to fetch teacher',
             ], 500);
         }
     }
@@ -156,7 +158,7 @@ class TeacherController extends Controller
         if ($teacher->institute_id !== $request->institute_id) {
             return response()->json([
                 'success' => false,
-                'message' => 'Unauthorized access'
+                'message' => 'Unauthorized access',
             ], 403);
         }
 
@@ -175,11 +177,12 @@ class TeacherController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Validation error',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
         DB::beginTransaction();
+
         try {
             // Update user info
             $teacher->user->update($request->only(['name', 'email', 'phone']));
@@ -190,7 +193,7 @@ class TeacherController extends Controller
                 'qualification',
                 'date_of_birth',
                 'address',
-                'photo'
+                'photo',
             ]));
 
             DB::commit();
@@ -200,14 +203,15 @@ class TeacherController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Teacher updated successfully',
-                'data' => $teacher->load('user')
+                'data' => $teacher->load('user'),
             ], 200);
 
         } catch (\Exception $e) {
             DB::rollBack();
+
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update teacher'
+                'message' => 'Failed to update teacher',
             ], 500);
         }
     }
@@ -221,11 +225,12 @@ class TeacherController extends Controller
         if ($teacher->institute_id !== $request->institute_id) {
             return response()->json([
                 'success' => false,
-                'message' => 'Unauthorized access'
+                'message' => 'Unauthorized access',
             ], 403);
         }
 
         DB::beginTransaction();
+
         try {
             ActivityLog::logActivity('teacher_deleted', Teacher::class, $teacher->id);
 
@@ -235,14 +240,15 @@ class TeacherController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Teacher deleted successfully'
+                'message' => 'Teacher deleted successfully',
             ], 200);
 
         } catch (\Exception $e) {
             DB::rollBack();
+
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to delete teacher'
+                'message' => 'Failed to delete teacher',
             ], 500);
         }
     }
@@ -256,7 +262,7 @@ class TeacherController extends Controller
         if ($teacher->institute_id !== $request->institute_id) {
             return response()->json([
                 'success' => false,
-                'message' => 'Unauthorized access'
+                'message' => 'Unauthorized access',
             ], 403);
         }
 
@@ -272,13 +278,13 @@ class TeacherController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Teacher status updated successfully',
-                'data' => $teacher
+                'data' => $teacher,
             ], 200);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update teacher status'
+                'message' => 'Failed to update teacher status',
             ], 500);
         }
     }

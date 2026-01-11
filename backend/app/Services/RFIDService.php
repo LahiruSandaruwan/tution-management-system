@@ -2,17 +2,17 @@
 
 namespace App\Services;
 
-use App\Models\RfidCard;
-use App\Models\Student;
 use App\Models\GateLog;
 use App\Models\Payment;
+use App\Models\RfidCard;
+use App\Models\Student;
 use Carbon\Carbon;
 
 class RFIDService
 {
     /**
      * Verify RFID card access and return access decision
-     * 
+     *
      * @param string $cardUid
      * @param string $deviceId
      * @return array
@@ -56,7 +56,7 @@ class RFIDService
 
     /**
      * Log entry/exit action
-     * 
+     *
      * @param string $cardUid
      * @param string $action (entry|exit)
      * @param int $instituteId
@@ -85,7 +85,7 @@ class RFIDService
 
     /**
      * Check if student has overdue payments
-     * 
+     *
      * @param int $studentId
      * @return bool
      */
@@ -115,7 +115,7 @@ class RFIDService
 
     /**
      * Grant access and return success response
-     * 
+     *
      * @param RfidCard $rfidCard
      * @param Student $student
      * @return array
@@ -135,7 +135,7 @@ class RFIDService
 
     /**
      * Deny access and return denial response
-     * 
+     *
      * @param string $cardUid
      * @param int|null $studentId
      * @param string $reason
@@ -154,7 +154,7 @@ class RFIDService
 
     /**
      * Get live gate feed for admin dashboard
-     * 
+     *
      * @param int $instituteId
      * @param int $limit
      * @return \Illuminate\Database\Eloquent\Collection
@@ -170,7 +170,7 @@ class RFIDService
 
     /**
      * Get gate statistics for dashboard
-     * 
+     *
      * @param int $instituteId
      * @return array
      */
@@ -199,7 +199,7 @@ class RFIDService
 
     /**
      * Calculate how many students are currently inside
-     * 
+     *
      * @param int $instituteId
      * @return int
      */

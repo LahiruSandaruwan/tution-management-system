@@ -5,8 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\FcmToken;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 class FcmTokenController extends Controller
 {
@@ -25,11 +25,12 @@ class FcmTokenController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Validation error',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
         DB::beginTransaction();
+
         try {
             $user = $request->user();
 
@@ -51,7 +52,7 @@ class FcmTokenController extends Controller
                 return response()->json([
                     'success' => true,
                     'message' => 'FCM token updated successfully',
-                    'data' => $existingToken
+                    'data' => $existingToken,
                 ], 200);
             }
 
@@ -77,15 +78,16 @@ class FcmTokenController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'FCM token registered successfully',
-                'data' => $fcmToken
+                'data' => $fcmToken,
             ], 201);
 
         } catch (\Exception $e) {
             DB::rollBack();
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to register FCM token',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -102,14 +104,14 @@ class FcmTokenController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' => $tokens
+                'data' => $tokens,
             ], 200);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to fetch FCM tokens',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -127,7 +129,7 @@ class FcmTokenController extends Controller
             if (!$token) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'FCM token not found'
+                    'message' => 'FCM token not found',
                 ], 404);
             }
 
@@ -135,14 +137,14 @@ class FcmTokenController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'FCM token deleted successfully'
+                'message' => 'FCM token deleted successfully',
             ], 200);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to delete FCM token',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -160,7 +162,7 @@ class FcmTokenController extends Controller
             if (!$token) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'FCM token not found'
+                    'message' => 'FCM token not found',
                 ], 404);
             }
 
@@ -169,14 +171,14 @@ class FcmTokenController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'FCM token deactivated successfully',
-                'data' => $token
+                'data' => $token,
             ], 200);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to deactivate FCM token',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -191,14 +193,14 @@ class FcmTokenController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => "Deleted {$deletedCount} FCM token(s) successfully"
+                'message' => "Deleted {$deletedCount} FCM token(s) successfully",
             ], 200);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to delete FCM tokens',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }

@@ -23,7 +23,7 @@ class ValidatePaginationMiddleware
             if (!is_numeric($perPage) || $perPage < 1) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Invalid per_page parameter. Must be a positive integer.'
+                    'message' => 'Invalid per_page parameter. Must be a positive integer.',
                 ], 400);
             }
 
@@ -40,7 +40,7 @@ class ValidatePaginationMiddleware
             if (!is_numeric($limit) || $limit < 1) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Invalid limit parameter. Must be a positive integer.'
+                    'message' => 'Invalid limit parameter. Must be a positive integer.',
                 ], 400);
             }
 

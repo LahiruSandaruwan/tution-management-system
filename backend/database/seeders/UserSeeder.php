@@ -2,12 +2,12 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use App\Models\User;
+use App\Models\GateDevice;
+use App\Models\RfidCard;
 use App\Models\Student;
 use App\Models\Teacher;
-use App\Models\RfidCard;
-use App\Models\GateDevice;
+use App\Models\User;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
 class UserSeeder extends Seeder

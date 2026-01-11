@@ -27,13 +27,13 @@ class ScheduleController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' => $schedules
+                'data' => $schedules,
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to fetch schedules',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -58,13 +58,13 @@ class ScheduleController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Schedule created successfully',
-                'data' => $schedule->load('classModel')
+                'data' => $schedule->load('classModel'),
             ], 201);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to create schedule',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -77,13 +77,13 @@ class ScheduleController extends Controller
         try {
             return response()->json([
                 'success' => true,
-                'data' => $schedule->load('classModel')
+                'data' => $schedule->load('classModel'),
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to fetch schedule',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -107,13 +107,13 @@ class ScheduleController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Schedule updated successfully',
-                'data' => $schedule->load('classModel')
+                'data' => $schedule->load('classModel'),
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to update schedule',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -128,13 +128,13 @@ class ScheduleController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Schedule deleted successfully'
+                'message' => 'Schedule deleted successfully',
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to delete schedule',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -155,13 +155,13 @@ class ScheduleController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' => $schedules
+                'data' => $schedules,
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to fetch teacher schedule',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -183,13 +183,13 @@ class ScheduleController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' => $schedules
+                'data' => $schedules,
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to fetch student schedule',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }

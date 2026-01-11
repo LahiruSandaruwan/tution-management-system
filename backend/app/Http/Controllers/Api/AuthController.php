@@ -3,21 +3,20 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
+use App\Mail\PasswordResetMail;
+use App\Models\ActivityLog;
 use App\Models\Student;
 use App\Models\Teacher;
-use App\Models\ActivityLog;
-use App\Mail\PasswordResetMail;
+use App\Models\User;
 use App\Services\AccountLockoutService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
@@ -27,6 +26,7 @@ class AuthController extends Controller
     {
         $this->lockoutService = $lockoutService;
     }
+
     /**
      * Register a new user
      */
@@ -55,7 +55,7 @@ class AuthController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Validation error',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -110,14 +110,14 @@ class AuthController extends Controller
                 'data' => [
                     'user' => $user,
                     'token' => $token,
-                ]
+                ],
             ], 201);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Registration failed',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -136,17 +136,18 @@ class AuthController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Validation error',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
         // Check if account is locked
         if ($this->lockoutService->isLocked($request->email)) {
             $remainingTime = $this->lockoutService->getRemainingLockoutTime($request->email);
+
             return response()->json([
                 'success' => false,
                 'message' => "Account is temporarily locked due to multiple failed login attempts. Please try again in {$remainingTime} minutes.",
-                'locked_until' => $remainingTime
+                'locked_until' => $remainingTime,
             ], 403);
         }
 
@@ -158,7 +159,7 @@ class AuthController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Invalid credentials'
+                'message' => 'Invalid credentials',
             ], 401);
         }
 
@@ -169,7 +170,7 @@ class AuthController extends Controller
         if ($user->institute && !$user->institute->is_active) {
             return response()->json([
                 'success' => false,
-                'message' => 'Your institute account is inactive. Please contact support.'
+                'message' => 'Your institute account is inactive. Please contact support.',
             ], 403);
         }
 
@@ -177,14 +178,14 @@ class AuthController extends Controller
         if ($user->role === 'student' && $user->student && !$user->student->is_active) {
             return response()->json([
                 'success' => false,
-                'message' => 'Your student account is inactive. Please contact your institute.'
+                'message' => 'Your student account is inactive. Please contact your institute.',
             ], 403);
         }
 
         if ($user->role === 'teacher' && $user->teacher && !$user->teacher->is_active) {
             return response()->json([
                 'success' => false,
-                'message' => 'Your teacher account is inactive. Please contact your institute.'
+                'message' => 'Your teacher account is inactive. Please contact your institute.',
             ], 403);
         }
 
@@ -208,7 +209,7 @@ class AuthController extends Controller
             'data' => [
                 'user' => $user,
                 'token' => $token,
-            ]
+            ],
         ], 200);
     }
 
@@ -225,7 +226,7 @@ class AuthController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Logged out successfully'
+            'message' => 'Logged out successfully',
         ], 200);
     }
 
@@ -242,7 +243,7 @@ class AuthController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $user
+            'data' => $user,
         ], 200);
     }
 
@@ -259,7 +260,7 @@ class AuthController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Validation error',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -293,7 +294,7 @@ class AuthController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to send password reset link',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -313,7 +314,7 @@ class AuthController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Validation error',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -326,7 +327,7 @@ class AuthController extends Controller
             if (!$resetRecord) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Invalid or expired reset token'
+                    'message' => 'Invalid or expired reset token',
                 ], 400);
             }
 
@@ -334,16 +335,17 @@ class AuthController extends Controller
             if (!Hash::check($request->token, $resetRecord->token)) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Invalid reset token'
+                    'message' => 'Invalid reset token',
                 ], 400);
             }
 
             // Check if token is expired (60 minutes)
             if (now()->diffInMinutes($resetRecord->created_at) > 15) {
                 DB::table('password_reset_tokens')->where('email', $request->email)->delete();
+
                 return response()->json([
                     'success' => false,
-                    'message' => 'Reset token has expired'
+                    'message' => 'Reset token has expired',
                 ], 400);
             }
 
@@ -360,14 +362,14 @@ class AuthController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Password has been reset successfully'
+                'message' => 'Password has been reset successfully',
             ], 200);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to reset password',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -386,7 +388,7 @@ class AuthController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Validation error',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -397,7 +399,7 @@ class AuthController extends Controller
             if (!Hash::check($request->current_password, $user->password)) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Current password is incorrect'
+                    'message' => 'Current password is incorrect',
                 ], 400);
             }
 
@@ -413,14 +415,14 @@ class AuthController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Password changed successfully'
+                'message' => 'Password changed successfully',
             ], 200);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to change password',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -438,7 +440,7 @@ class AuthController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Validation error',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -467,15 +469,15 @@ class AuthController extends Controller
                 'message' => 'Profile photo uploaded successfully',
                 'data' => [
                     'profile_photo' => $path,
-                    'profile_photo_url' => Storage::disk('public')->url($path)
-                ]
+                    'profile_photo_url' => Storage::disk('public')->url($path),
+                ],
             ], 200);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to upload profile photo',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -495,7 +497,7 @@ class AuthController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Validation error',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -522,15 +524,15 @@ class AuthController extends Controller
                 'success' => true,
                 'message' => 'Profile updated successfully',
                 'data' => [
-                    'user' => $user
-                ]
+                    'user' => $user,
+                ],
             ], 200);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to update profile',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -546,7 +548,7 @@ class AuthController extends Controller
             if (!$user->profile_photo) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'No profile photo to delete'
+                    'message' => 'No profile photo to delete',
                 ], 400);
             }
 
@@ -564,14 +566,14 @@ class AuthController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Profile photo deleted successfully'
+                'message' => 'Profile photo deleted successfully',
             ], 200);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to delete profile photo',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
