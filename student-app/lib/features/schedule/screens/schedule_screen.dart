@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:table_calendar/table_calendar.dart';
 import '../../../core/theme/app_theme.dart';
 import '../providers/schedule_provider.dart';
 
@@ -44,9 +45,7 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.calendar_month),
-            onPressed: () {
-              // TODO: Show calendar view
-            },
+            onPressed: _showCalendarView,
             tooltip: 'Calendar View',
           ),
         ],
@@ -359,5 +358,79 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
         ),
       ),
     );
+  }
+
+  void _showCalendarView() {
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        child: Container(
+          width: double.maxFinite,
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Header
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Calendar View',
+                    style: AppTheme.headingMedium,
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+
+              // Calendar
+              TableCalendar(
+                firstDay: DateTime.utc(2020, 1, 1),
+                lastDay: DateTime.utc(2030, 12, 31),
+                focusedDay: DateTime.now(),
+                calendarFormat: CalendarFormat.month,
+                startingDayOfWeek: StartingDayOfWeek.monday,
+                selectedDayPredicate: (day) {
+                  // Highlight selected day
+                  return isSameDay(day, _getDateFromDayIndex(_selectedDayIndex));
+                },
+                onDaySelected: (selectedDay, focusedDay) {
+                  // Update selected day
+                  setState(() {
+                    _selectedDayIndex = selectedDay.weekday - 1;
+                  });
+                  Navigator.pop(context);
+                },
+                calendarStyle: CalendarStyle(
+                  selectedDecoration: BoxDecoration(
+                    color: AppTheme.primaryColor,
+                    shape: BoxShape.circle,
+                  ),
+                  todayDecoration: BoxDecoration(
+                    color: AppTheme.primaryColor.withOpacity(0.5),
+                    shape: BoxShape.circle,
+                  ),
+                  weekendTextStyle: TextStyle(color: Colors.red[400]),
+                ),
+                headerStyle: const HeaderStyle(
+                  formatButtonVisible: false,
+                  titleCentered: true,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  DateTime _getDateFromDayIndex(int dayIndex) {
+    final now = DateTime.now();
+    final currentWeekday = now.weekday - 1; // 0 = Monday
+    final difference = dayIndex - currentWeekday;
+    return now.add(Duration(days: difference));
   }
 }

@@ -5,6 +5,23 @@ admin-web/.flutter-plugins-dependencies
 admin-web/.packages
 admin-web/build/
 admin-web/pubspec.lock
+student-app/.dart_tool/
+student-app/.flutter-plugins
+student-app/.flutter-plugins-dependencies
+student-app/.packages
+student-app/build/
+student-app/pubspec.lock
+teacher-app/.dart_tool/
+teacher-app/.flutter-plugins
+teacher-app/.flutter-plugins-dependencies
+teacher-app/.packages
+teacher-app/build/
+teacher-app/pubspec.lock
+
+# Environment files
+student-app/.env
+teacher-app/.env
+admin-web/.env
 
 # IDE
 .idea/

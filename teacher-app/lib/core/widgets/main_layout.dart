@@ -3,7 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../theme/app_theme.dart';
 import '../../features/home/screens/home_screen.dart';
 import '../../features/classes/screens/classes_screen.dart';
-import '../../features/attendance/screens/mark_attendance_screen.dart';
+import '../../features/attendance/screens/attendance_home_screen.dart';
 import '../../features/profile/screens/profile_screen.dart';
 
 class MainLayout extends StatefulWidget {
@@ -19,7 +19,7 @@ class _MainLayoutState extends State<MainLayout> {
   final List<Widget> _screens = const [
     HomeScreen(),
     ClassesScreen(),
-    MarkAttendanceScreen(),
+    AttendanceHomeScreen(),
     ProfileScreen(),
   ];
 

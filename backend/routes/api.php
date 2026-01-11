@@ -43,6 +43,15 @@ Route::middleware(['auth:sanctum', 'institute'])->group(function () {
     Route::post('/auth/update-profile', [App\Http\Controllers\Api\AuthController::class, 'updateProfile']);
     Route::delete('/auth/delete-profile-photo', [App\Http\Controllers\Api\AuthController::class, 'deleteProfilePhoto']);
 
+    // FCM Token routes (Push Notifications)
+    Route::prefix('fcm-tokens')->group(function () {
+        Route::get('/', [App\Http\Controllers\Api\FcmTokenController::class, 'index']);
+        Route::post('/', [App\Http\Controllers\Api\FcmTokenController::class, 'store']);
+        Route::delete('/{id}', [App\Http\Controllers\Api\FcmTokenController::class, 'destroy']);
+        Route::post('/{id}/deactivate', [App\Http\Controllers\Api\FcmTokenController::class, 'deactivate']);
+        Route::delete('/all/delete', [App\Http\Controllers\Api\FcmTokenController::class, 'destroyAll']);
+    });
+
     // GDPR Data Export & Deletion routes (GDPR Article 15, 17, 20)
     Route::get('/gdpr/export-data', [App\Http\Controllers\Api\DataExportController::class, 'exportUserData']);
     Route::delete('/gdpr/delete-account', [App\Http\Controllers\Api\DataExportController::class, 'deleteUserData']);

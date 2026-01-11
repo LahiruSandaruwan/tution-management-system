@@ -4,8 +4,11 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Announcement;
+use App\Models\Notification;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 
 class AnnouncementController extends Controller
 {
@@ -199,6 +202,104 @@ class AnnouncementController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to delete announcement',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Send announcement to target audience
+     * Creates notifications for all users matching the target audience
+     */
+    public function send(Request $request, string $id)
+    {
+        DB::beginTransaction();
+        try {
+            // Get announcement
+            $announcement = Announcement::where('institute_id', auth()->user()->institute_id)
+                ->with('classModel.students.user')
+                ->findOrFail($id);
+
+            // Determine target users based on target_audience
+            $targetUsers = collect();
+
+            switch ($announcement->target_audience) {
+                case 'all':
+                    // All users in the institute
+                    $targetUsers = User::where('institute_id', auth()->user()->institute_id)
+                        ->where('is_active', true)
+                        ->get();
+                    break;
+
+                case 'students':
+                    // All students in the institute
+                    $targetUsers = User::where('institute_id', auth()->user()->institute_id)
+                        ->where('role', 'student')
+                        ->where('is_active', true)
+                        ->get();
+                    break;
+
+                case 'teachers':
+                    // All teachers in the institute
+                    $targetUsers = User::where('institute_id', auth()->user()->institute_id)
+                        ->where('role', 'teacher')
+                        ->where('is_active', true)
+                        ->get();
+                    break;
+
+                case 'class':
+                    // Students in specific class
+                    if ($announcement->class_id && $announcement->classModel) {
+                        $targetUsers = $announcement->classModel->students->map(function ($student) {
+                            return $student->user;
+                        })->filter();
+                    }
+                    break;
+
+                default:
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Invalid target audience'
+                    ], 422);
+            }
+
+            // Create notifications for all target users
+            $notificationsCreated = 0;
+            foreach ($targetUsers as $user) {
+                Notification::create([
+                    'user_id' => $user->id,
+                    'type' => 'announcement',
+                    'title' => $announcement->title,
+                    'message' => $announcement->content,
+                    'data' => [
+                        'announcement_id' => $announcement->id,
+                        'priority' => $announcement->priority,
+                        'target_audience' => $announcement->target_audience,
+                    ],
+                ]);
+                $notificationsCreated++;
+            }
+
+            // Mark announcement as sent (optional: add 'sent_at' field to announcements table)
+            // $announcement->update(['sent_at' => now()]);
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => "Announcement sent successfully to {$notificationsCreated} user(s)",
+                'data' => [
+                    'announcement' => $announcement,
+                    'notifications_created' => $notificationsCreated,
+                    'target_audience' => $announcement->target_audience,
+                ]
+            ], 200);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to send announcement',
                 'error' => $e->getMessage()
             ], 500);
         }

@@ -11,6 +11,7 @@ class Grade extends Model
         'institute_id',
         'class_id',
         'student_id',
+        'exam_id',
         'exam_type',
         'subject_id',
         'marks',
@@ -44,6 +45,11 @@ class Grade extends Model
     public function subject(): BelongsTo
     {
         return $this->belongsTo(Subject::class);
+    }
+
+    public function exam(): BelongsTo
+    {
+        return $this->belongsTo(Exam::class);
     }
 
     public function scopeByExamType($query, string $examType)

@@ -61,15 +61,8 @@ final dashboardStatsProvider = FutureProvider<DashboardStats>((ref) async {
     final response = await apiService.getDashboardStats();
     return DashboardStats.fromJson(response['data'] ?? {});
   } catch (e) {
-    // Return default values on error
-    return DashboardStats(
-      totalClasses: 0,
-      attendancePercentage: 0.0,
-      paymentStatus: 'unknown',
-      pendingAmount: 0.0,
-      upcomingClasses: 0,
-      unreadNotifications: 0,
-    );
+    // Let Riverpod handle error state naturally - UI will show error
+    rethrow;
   }
 });
 
@@ -82,7 +75,8 @@ final recentActivitiesProvider = FutureProvider<List<RecentActivity>>((ref) asyn
     final List activities = response['data'] ?? [];
     return activities.map((json) => RecentActivity.fromJson(json)).toList();
   } catch (e) {
-    return [];
+    // Let Riverpod handle error state naturally - UI will show error
+    rethrow;
   }
 });
 

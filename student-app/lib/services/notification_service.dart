@@ -2,12 +2,18 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter/foundation.dart';
+import 'package:device_info_plus/device_info_plus.dart';
+import 'dart:io';
+import 'dart:convert';
+import 'api_service.dart';
+import '../core/utils/app_logger.dart';
+import '../core/services/notification_navigation_service.dart';
 
 // Top-level function for background messages
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
-  print('Handling background message: ${message.messageId}');
+  AppLogger.d('Handling background message: ${message.messageId}');
 }
 
 class NotificationService {
@@ -18,6 +24,9 @@ class NotificationService {
   final FirebaseMessaging _messaging = FirebaseMessaging.instance;
   final FlutterLocalNotificationsPlugin _localNotifications =
       FlutterLocalNotificationsPlugin();
+  final ApiService _apiService = ApiService();
+  final NotificationNavigationService _navigationService =
+      NotificationNavigationService();
 
   bool _initialized = false;
   String? _fcmToken;
@@ -43,12 +52,12 @@ class NotificationService {
       );
 
       if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-        print('User granted notification permission');
+        AppLogger.i('User granted notification permission');
       } else if (settings.authorizationStatus ==
           AuthorizationStatus.provisional) {
-        print('User granted provisional notification permission');
+        AppLogger.i('User granted provisional notification permission');
       } else {
-        print('User declined notification permission');
+        AppLogger.w('User declined notification permission');
       }
 
       // Initialize local notifications
@@ -56,13 +65,19 @@ class NotificationService {
 
       // Get FCM token
       _fcmToken = await _messaging.getToken();
-      print('FCM Token: $_fcmToken');
+      // Note: FCM tokens are sensitive and should not be logged in production
+      AppLogger.d('FCM Token obtained');
+
+      // Send initial token to server
+      if (_fcmToken != null) {
+        await sendTokenToServer(_fcmToken!);
+      }
 
       // Listen to token refresh
       _messaging.onTokenRefresh.listen((newToken) {
         _fcmToken = newToken;
-        print('FCM Token refreshed: $newToken');
-        // TODO: Send token to backend
+        AppLogger.i('FCM Token refreshed');
+        sendTokenToServer(newToken);
       });
 
       // Set up foreground message handler
@@ -84,7 +99,7 @@ class NotificationService {
 
       _initialized = true;
     } catch (e) {
-      print('Error initializing notifications: $e');
+      AppLogger.e('Error initializing notifications', e);
     }
   }
 
@@ -124,7 +139,7 @@ class NotificationService {
   }
 
   void _handleForegroundMessage(RemoteMessage message) {
-    print('Received foreground message: ${message.messageId}');
+    AppLogger.d('Received foreground message: ${message.messageId}');
 
     RemoteNotification? notification = message.notification;
     AndroidNotification? android = message.notification?.android;
@@ -134,21 +149,25 @@ class NotificationService {
       _showLocalNotification(
         title: notification.title ?? 'New Notification',
         body: notification.body ?? '',
-        payload: message.data.toString(),
+        payload: jsonEncode(message.data),
       );
     }
   }
 
   void _handleNotificationOpened(RemoteMessage message) {
-    print('Notification opened: ${message.messageId}');
-    // TODO: Navigate to appropriate screen based on notification data
+    AppLogger.d('Notification opened: ${message.messageId}');
     final data = message.data;
-    print('Notification data: $data');
+    AppLogger.d('Notification data: $data');
+
+    // Navigate based on notification type
+    _navigationService.navigateFromNotification(data);
   }
 
   void _onNotificationTapped(NotificationResponse response) {
-    print('Notification tapped: ${response.payload}');
-    // TODO: Handle notification tap
+    AppLogger.d('Notification tapped: ${response.payload}');
+
+    // Navigate based on payload
+    _navigationService.navigateFromPayload(response.payload);
   }
 
   Future<void> _showLocalNotification({
@@ -188,16 +207,49 @@ class NotificationService {
 
   Future<void> subscribeToTopic(String topic) async {
     await _messaging.subscribeToTopic(topic);
-    print('Subscribed to topic: $topic');
+    AppLogger.i('Subscribed to topic: $topic');
   }
 
   Future<void> unsubscribeFromTopic(String topic) async {
     await _messaging.unsubscribeFromTopic(topic);
-    print('Unsubscribed from topic: $topic');
+    AppLogger.i('Unsubscribed from topic: $topic');
   }
 
   Future<void> sendTokenToServer(String token) async {
-    // TODO: Implement API call to send FCM token to backend
-    print('Sending token to server: $token');
+    try {
+      AppLogger.d('Sending FCM token to server');
+
+      // Initialize API service
+      await _apiService.init();
+
+      // Get device information
+      final deviceInfo = DeviceInfoPlugin();
+      String? deviceType;
+      String? deviceId;
+
+      if (Platform.isAndroid) {
+        final androidInfo = await deviceInfo.androidInfo;
+        deviceType = 'android';
+        deviceId = androidInfo.id; // Android ID
+      } else if (Platform.isIOS) {
+        final iosInfo = await deviceInfo.iosInfo;
+        deviceType = 'ios';
+        deviceId = iosInfo.identifierForVendor; // iOS identifier
+      } else {
+        deviceType = 'unknown';
+      }
+
+      // Send to backend
+      await _apiService.registerFcmToken(
+        token: token,
+        deviceType: deviceType,
+        deviceId: deviceId,
+      );
+
+      AppLogger.i('FCM token successfully sent to server');
+    } catch (e) {
+      AppLogger.e('Error sending token to server', e);
+      // Don't throw - we don't want to block initialization if this fails
+    }
   }
 }

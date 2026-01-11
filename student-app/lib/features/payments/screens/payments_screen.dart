@@ -4,11 +4,18 @@ import 'package:intl/intl.dart';
 import '../../../core/theme/app_theme.dart';
 import '../providers/payment_provider.dart';
 
-class PaymentsScreen extends ConsumerWidget {
+class PaymentsScreen extends ConsumerStatefulWidget {
   const PaymentsScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<PaymentsScreen> createState() => _PaymentsScreenState();
+}
+
+class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
+  String _selectedYear = 'all';
+
+  @override
+  Widget build(BuildContext context) {
     final currencyFormatter = NumberFormat.currency(symbol: 'Rs. ', decimalDigits: 0);
     final summaryAsync = ref.watch(paymentSummaryProvider);
     final historyAsync = ref.watch(paymentHistoryProvider);
@@ -132,12 +139,46 @@ class PaymentsScreen extends ConsumerWidget {
                   'Payment History',
                   style: AppTheme.headingSmall,
                 ),
-                TextButton.icon(
-                  onPressed: () {
-                    // TODO: Filter by year
+                PopupMenuButton<String>(
+                  initialValue: _selectedYear,
+                  onSelected: (value) {
+                    setState(() {
+                      _selectedYear = value;
+                    });
                   },
-                  icon: const Icon(Icons.filter_list),
-                  label: Text(DateTime.now().year.toString()),
+                  itemBuilder: (context) => [
+                    const PopupMenuItem(
+                      value: 'all',
+                      child: Text('All Years'),
+                    ),
+                    PopupMenuItem(
+                      value: DateTime.now().year.toString(),
+                      child: Text(DateTime.now().year.toString()),
+                    ),
+                    PopupMenuItem(
+                      value: (DateTime.now().year - 1).toString(),
+                      child: Text((DateTime.now().year - 1).toString()),
+                    ),
+                    PopupMenuItem(
+                      value: (DateTime.now().year - 2).toString(),
+                      child: Text((DateTime.now().year - 2).toString()),
+                    ),
+                  ],
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.filter_list, size: 20),
+                      const SizedBox(width: 4),
+                      Text(
+                        _selectedYear == 'all' ? 'All Years' : _selectedYear,
+                        style: AppTheme.bodyMedium.copyWith(
+                          color: AppTheme.primaryColor,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      const Icon(Icons.arrow_drop_down, size: 20),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -146,7 +187,12 @@ class PaymentsScreen extends ConsumerWidget {
             // Payment List
             historyAsync.when(
               data: (payments) {
-                if (payments.isEmpty) {
+                // Filter payments by selected year
+                final filteredPayments = _selectedYear == 'all'
+                    ? payments
+                    : payments.where((p) => p.year == int.parse(_selectedYear)).toList();
+
+                if (filteredPayments.isEmpty) {
                   return Card(
                     child: Padding(
                       padding: const EdgeInsets.all(48),
@@ -174,7 +220,7 @@ class PaymentsScreen extends ConsumerWidget {
 
                 return Card(
                   child: Column(
-                    children: payments.asMap().entries.map((entry) {
+                    children: filteredPayments.asMap().entries.map((entry) {
                       final index = entry.key;
                       final payment = entry.value;
 

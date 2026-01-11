@@ -4,6 +4,7 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:web_socket_channel/status.dart' as status;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../core/constants/app_constants.dart';
+import '../core/utils/app_logger.dart';
 
 class WebSocketService {
   static final WebSocketService _instance = WebSocketService._internal();
@@ -24,7 +25,7 @@ class WebSocketService {
 
   Future<void> connect() async {
     if (_isConnected && _channel != null) {
-      print('WebSocket already connected');
+      AppLogger.d('WebSocket already connected');
       return;
     }
 
@@ -34,13 +35,13 @@ class WebSocketService {
       final token = prefs.getString(AppConstants.keyAuthToken);
 
       if (token == null) {
-        print('No auth token available for WebSocket connection');
+        AppLogger.w('No auth token available for WebSocket connection');
         return;
       }
 
       // Create WebSocket URL from API base URL
       final wsUrl = _getWebSocketUrl();
-      print('Connecting to WebSocket: $wsUrl');
+      AppLogger.i('Connecting to WebSocket');
 
       _messageController ??= StreamController<Map<String, dynamic>>.broadcast();
 
@@ -69,9 +70,9 @@ class WebSocketService {
       // Start ping timer to keep connection alive
       _startPingTimer();
 
-      print('WebSocket connected successfully');
+      AppLogger.i('WebSocket connected successfully');
     } catch (e) {
-      print('Error connecting to WebSocket: $e');
+      AppLogger.e('Error connecting to WebSocket', e);
       _isConnected = false;
       _scheduleReconnect();
     }
@@ -91,7 +92,7 @@ class WebSocketService {
   void _onMessage(dynamic message) {
     try {
       final data = jsonDecode(message as String) as Map<String, dynamic>;
-      print('WebSocket message received: ${data['type']}');
+      AppLogger.d('WebSocket message received: ${data['type']}');
 
       // Handle different message types
       switch (data['type']) {
@@ -132,18 +133,18 @@ class WebSocketService {
           _messageController?.add(data);
       }
     } catch (e) {
-      print('Error parsing WebSocket message: $e');
+      AppLogger.e('Error parsing WebSocket message', e);
     }
   }
 
   void _onError(error) {
-    print('WebSocket error: $error');
+    AppLogger.e('WebSocket error', error);
     _isConnected = false;
     _scheduleReconnect();
   }
 
   void _onDone() {
-    print('WebSocket connection closed');
+    AppLogger.i('WebSocket connection closed');
     _isConnected = false;
     _pingTimer?.cancel();
     if (_shouldReconnect) {
@@ -153,7 +154,7 @@ class WebSocketService {
 
   void _scheduleReconnect() {
     if (_reconnectAttempts >= _maxReconnectAttempts) {
-      print('Max reconnect attempts reached. Giving up.');
+      AppLogger.w('Max reconnect attempts reached. Giving up.');
       return;
     }
 
@@ -163,7 +164,7 @@ class WebSocketService {
     final delay = Duration(seconds: 1 << _reconnectAttempts);
     _reconnectAttempts++;
 
-    print('Scheduling reconnect attempt $_reconnectAttempts in ${delay.inSeconds}s');
+    AppLogger.i('Scheduling reconnect attempt $_reconnectAttempts in ${delay.inSeconds}s');
 
     _reconnectTimer = Timer(delay, () {
       connect();
@@ -184,7 +185,7 @@ class WebSocketService {
       try {
         _channel!.sink.add(jsonEncode(data));
       } catch (e) {
-        print('Error sending WebSocket message: $e');
+        AppLogger.e('Error sending WebSocket message', e);
       }
     }
   }
@@ -211,7 +212,7 @@ class WebSocketService {
     _pingTimer?.cancel();
     _channel?.sink.close(status.goingAway);
     _isConnected = false;
-    print('WebSocket disconnected');
+    AppLogger.i('WebSocket disconnected');
   }
 
   void dispose() {

@@ -9,13 +9,8 @@ final paymentSummaryProvider = FutureProvider<PaymentSummary>((ref) async {
   try {
     return await apiService.getPaymentSummary();
   } catch (e) {
-    return PaymentSummary(
-      totalPaid: 0.0,
-      totalPending: 0.0,
-      totalOverdue: 0.0,
-      overdueCount: 0,
-      lastPayment: null,
-    );
+    // Let Riverpod handle error state naturally - UI will show error
+    rethrow;
   }
 });
 
@@ -26,7 +21,8 @@ final paymentHistoryProvider = FutureProvider<List<Payment>>((ref) async {
   try {
     return await apiService.getMyPayments();
   } catch (e) {
-    return [];
+    // Let Riverpod handle error state naturally - UI will show error
+    rethrow;
   }
 });
 

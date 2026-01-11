@@ -88,6 +88,21 @@ class ApiService {
     return _authToken;
   }
 
+  // ====================== FCM TOKEN ENDPOINTS ======================
+
+  Future<Map<String, dynamic>> registerFcmToken({
+    required String token,
+    String? deviceType,
+    String? deviceId,
+  }) async {
+    final response = await _dio.post('/fcm-tokens', data: {
+      'token': token,
+      if (deviceType != null) 'device_type': deviceType,
+      if (deviceId != null) 'device_id': deviceId,
+    });
+    return response.data;
+  }
+
   // ====================== CLASS ENDPOINTS ======================
 
   Future<List<TeacherClass>> getMyClasses() async {
@@ -159,11 +174,11 @@ class ApiService {
     required List<Map<String, dynamic>> attendanceData,
   }) async {
     await _dio.post(
-      '/attendance/bulk',
+      '/attendance/mark-bulk',
       data: {
         'class_id': classId,
         'date': date,
-        'attendance': attendanceData,
+        'attendances': attendanceData,
       },
     );
   }

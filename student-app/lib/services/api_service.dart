@@ -142,6 +142,28 @@ class ApiService {
     }
   }
 
+  // ====================== FCM TOKEN ENDPOINTS ======================
+
+  Future<Map<String, dynamic>> registerFcmToken({
+    required String token,
+    String? deviceType,
+    String? deviceId,
+  }) async {
+    try {
+      final response = await _dio.post('/fcm-tokens', data: {
+        'token': token,
+        if (deviceType != null) 'device_type': deviceType,
+        if (deviceId != null) 'device_id': deviceId,
+      });
+      return response.data;
+    } catch (e) {
+      if (e is DioException && e.response != null) {
+        return e.response!.data;
+      }
+      rethrow;
+    }
+  }
+
   // ====================== DASHBOARD ENDPOINTS ======================
 
   Future<Map<String, dynamic>> getDashboardStats() async {

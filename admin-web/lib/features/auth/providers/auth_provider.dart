@@ -122,6 +122,61 @@ class AuthNotifier extends StateNotifier<AuthState> {
       // Handle error
     }
   }
+
+  Future<bool> updateProfile({
+    required String name,
+    String? phone,
+  }) async {
+    state = state.copyWith(isLoading: true, error: null);
+    try {
+      final updatedUser = await _apiService.updateProfile(
+        name: name,
+        phone: phone,
+      );
+
+      // Update state with new user data
+      state = state.copyWith(
+        user: updatedUser,
+        isLoading: false,
+      );
+
+      // Update stored user data
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(AppConstants.keyUser, json.encode(updatedUser.toJson()));
+
+      return true;
+    } catch (e) {
+      state = state.copyWith(
+        error: e.toString(),
+        isLoading: false,
+      );
+      return false;
+    }
+  }
+
+  Future<bool> changePassword({
+    required String currentPassword,
+    required String newPassword,
+    required String newPasswordConfirmation,
+  }) async {
+    state = state.copyWith(isLoading: true, error: null);
+    try {
+      await _apiService.changePassword(
+        currentPassword: currentPassword,
+        newPassword: newPassword,
+        newPasswordConfirmation: newPasswordConfirmation,
+      );
+
+      state = state.copyWith(isLoading: false);
+      return true;
+    } catch (e) {
+      state = state.copyWith(
+        error: e.toString(),
+        isLoading: false,
+      );
+      return false;
+    }
+  }
 }
 
 // Auth Provider

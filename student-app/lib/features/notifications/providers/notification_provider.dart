@@ -8,7 +8,8 @@ final notificationsProvider = FutureProvider<List<dynamic>>((ref) async {
     final data = await apiService.getNotifications();
     return data;
   } catch (e) {
-    return [];
+    // Let Riverpod handle error state naturally - UI will show error
+    rethrow;
   }
 });
 
@@ -18,7 +19,8 @@ final unreadCountProvider = FutureProvider<int>((ref) async {
   try {
     return await apiService.getUnreadCount();
   } catch (e) {
-    return 0;
+    // Let Riverpod handle error state naturally - UI will show error
+    rethrow;
   }
 });
 

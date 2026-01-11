@@ -94,6 +94,29 @@ class ApiService {
     return User.fromJson(response.data['data']);
   }
 
+  Future<User> updateProfile({
+    required String name,
+    String? phone,
+  }) async {
+    final response = await _dio.post('/auth/update-profile', data: {
+      'name': name,
+      if (phone != null && phone.isNotEmpty) 'phone': phone,
+    });
+    return User.fromJson(response.data['data']);
+  }
+
+  Future<void> changePassword({
+    required String currentPassword,
+    required String newPassword,
+    required String newPasswordConfirmation,
+  }) async {
+    await _dio.post('/auth/change-password', data: {
+      'current_password': currentPassword,
+      'new_password': newPassword,
+      'new_password_confirmation': newPasswordConfirmation,
+    });
+  }
+
   // ====================== DASHBOARD ENDPOINTS ======================
 
   Future<DashboardStats> getDashboardStats() async {
